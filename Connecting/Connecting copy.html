@@ -1,0 +1,2796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connecting</title>
+<style>
+@font-face{
+  font-family:"BtcOrdinal";
+  src:url("/content/7fa3e94d64f96f76817357e6630425a966852d1c93bf7463adb9f45da2790f49i0") format("truetype");
+  font-display: swap;
+}
+@font-face{
+  font-family:"BtcOrdinal_e4f5";
+  src:url("/content/e4f5281e46dfc811d01beecedae0b7c134664c323f3a9a1bff880d65a9321439i0") format("truetype");
+  font-display: swap;
+}
+@font-face{
+  font-family:"BtcOrdinal_316b";
+  src:url("/content/316be1487c184f17d23e1272009d86d98e500a84fce53f3570b1d89afc774cf3i0") format("truetype");
+  font-display: swap;
+}
+@font-face{
+  font-family:"BtcOrdinal_c6b0";
+  src:url("/content/c6b0eee61019fe341461304cbfb5e6a67d508a9fdc142e71b0c729bd967cacbci0") format("woff2");
+  font-display: swap;
+}
+@font-face{
+  font-family:"BtcOrdinal_7080";
+  src:url("/content/7080272f1e7d9b0a2958be7028a0de474841abf9b7aa6850399b66afb40f8827i0") format("woff2");
+  font-display: swap;
+}
+@font-face{
+  font-family:"BtcOrdinal_4c97";
+  src:url("/content/4c97967f86b38836a5bbbbce27a281135b2b659d2e709126945665fff22e48c0i0") format("woff");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face{
+  font-family:"BtcOrdinal_603c";
+  src:url("/content/603ccf6f231ef2fecce48777dde37284dbb8edf7b1862fda7c3300b9abe667aei0") format("opentype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+:root { --stage-w: min(100vw, 56.25vh);--orange:#F7931A; }
+  html, body { height: 100%; margin: 0; background: #0b0d10; color: #e6e6e6; font-family: "BtcOrdinal"; }
+  #wrap { position: fixed; inset: 0; display: grid; place-items: center; grid-template-rows: 1fr; }
+  #stage { position: relative; width: min(100vw, 56.25vh); aspect-ratio: 9/16; box-shadow: 0 0 0 1px #000 inset; }
+  canvas { width: 100%; height: 100%; display: block; touch-action: none; font-synthesis-weight: none; overscroll-behavior: contain; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  #hud { position: fixed; left: 0; right: 0; bottom: 0; font-size: 12px; letter-spacing: .35px; opacity: .85; padding: 8px 12px; display: flex; gap: 12px; align-items: center; justify-content: space-between; background: linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.35)); }
+  .hint { opacity: .75 }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; background: var(--orange); box-shadow: 0 0 10px #F7931A66; }
+  a { color: var(--orange); text-decoration: none; }
+#stage { position: relative; } 
+.ui-toggle{
+  position: absolute;
+  --sz: calc(var(--stage-w) * 0.050); 
+  --bar-w: calc(var(--sz) * 0.78);
+  --bar-h: calc(var(--sz) * 0.09);
+  --bar-gap: calc(var(--sz) * 0.04);
+
+  top:  calc(var(--stage-w) * 0.040);
+  right: calc(var(--stage-w) * 0.040);
+  width: var(--sz);
+  height: var(--sz);
+  z-index: 4;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: calc(var(--sz) * 0.22);
+}
+
+.ui-toggle span,
+.ui-toggle::before,
+.ui-toggle::after { pointer-events: none; }
+
+.ui-toggle span,
+.ui-toggle::before,
+.ui-toggle::after{
+  content: "";
+  display: block;
+  width: var(--bar-w);
+  height: var(--bar-h);
+  background: #fff;
+  opacity: .9;
+  border-radius: calc(var(--bar-h) * 0.9);
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+.ui-toggle::before { transform: translateY(calc(-1 * var(--bar-gap))); }
+.ui-toggle::after  { transform: translateY(var(--bar-gap)); }
+
+#ui {
+  position: absolute; inset: 0; pointer-events: none; z-index: 3;
+  color: #fff;
+  font-size: max(14px, calc(var(--stage-w) * 0.054));
+  line-height: 1.9;
+}
+
+.ui-row {
+  position: absolute; left: 6%; right: 6%;
+  display: flex; justify-content: center; align-items: center;
+  gap: 12px; flex-wrap: wrap;
+  text-align: center;
+}
+.ui-stack { flex-direction: column; gap: 10px; }
+
+.ui-title { font-weight: 700; letter-spacing: .02em; }
+
+.ui-wrap { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; }
+
+.ui-chip {
+  white-space: normal;
+  max-width: 100%;
+  text-align: center;
+  flex: 0 1 auto;
+}
+
+@media (min-width: 1024px) {
+  #uiTop { top: 4%; }
+  #uiBottom { bottom: 6%; }
+}
+#uiTop    { top: 4%;  }
+#uiBottom { bottom: 8%; }
+@media (max-width: 420px) {
+  .ui-row { left: 3%; right: 3%; gap: 8px; }
+  .ui-chip { padding: 4px 6px; }
+  #uiTop    { top: 2%;  }
+  #ui { font-size: max(12px, calc(var(--stage-w) * 0.054));line-height: 1.4; }
+}
+#stage:not(.ui-open) #ui { display: none; }
+
+.help-icon {
+  position: absolute;
+  bottom: calc(var(--stage-w) * 0.040);
+  left: calc(var(--stage-w) * 0.040);
+  width: calc(var(--stage-w) * 0.045);
+  height: calc(var(--stage-w) * 0.045);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  font-family: "BtcOrdinal", monospace;
+  font-size: calc(var(--stage-w) * 0.025);
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.help-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.help-info {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  background: rgba(0, 0, 0, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--btc-font, "BtcOrdinal"), monospace;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.help-info.show {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.help-content h3 {
+  margin: 0 0 0.75rem 0;
+  color: #F7931A;
+  font-size: 1rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.help-content h4 {
+  margin: 1rem 0 0.5rem 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.85rem;
+  border-left: 3px solid #F7931A;
+  padding-left: 0.5rem;
+}
+
+.help-content p {
+  margin: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.help-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.help-section {
+  flex: 1;
+}
+
+.help-section ul {
+  margin: 0.5rem 0;
+  padding-left: 1.2rem;
+}
+
+.help-section li {
+  margin: 0.3rem 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.help-section strong {
+  color: #F7931A;
+}
+
+.help-close-hint {
+  text-align: center;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+.font-controls {
+  position: absolute;
+  top: calc(var(--stage-w) * 0.040);
+  left: calc(var(--stage-w) * 0.040);
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+#stage:not(.ui-open) .font-controls {
+  display: none;
+}
+
+.font-btn {
+  width: calc(var(--stage-w) * 0.045);
+  height: calc(var(--stage-w) * 0.045);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: "BtcOrdinal", monospace;
+  font-size: calc(var(--stage-w) * 0.020);
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+
+.font-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 1);
+  transform: scale(1.05);
+}
+
+.font-btn.locked {
+  background: rgba(247, 147, 26, 0.3);
+  border-color: rgba(247, 147, 26, 0.6);
+  color: #F7931A;
+}
+
+.font-btn.locked:hover {
+  background: rgba(247, 147, 26, 0.4);
+  border-color: rgba(247, 147, 26, 0.8);
+}
+
+@media (max-width: 420px) {
+  .font-controls {
+    top: calc(var(--stage-w) * 0.025);
+    left: calc(var(--stage-w) * 0.025);
+    gap: 6px;
+  }
+  
+  .font-btn {
+    width: calc(var(--stage-w) * 0.055);
+    height: calc(var(--stage-w) * 0.055);
+    font-size: calc(var(--stage-w) * 0.022);
+  }
+  
+  .help-icon {
+    width: calc(var(--stage-w) * 0.055);
+    height: calc(var(--stage-w) * 0.055);
+    font-size: calc(var(--stage-w) * 0.030);
+  }
+  
+  .help-info {
+    width: calc(var(--stage-w) * 0.90);
+    font-size: calc(var(--stage-w) * 0.022);
+    padding: calc(var(--stage-w) * 0.030);
+  }
+}
+
+</style>
+
+</head>
+<body>
+<div id="wrap">
+  <div id="stage"><canvas id="c"></canvas>
+      <button class="ui-toggle" id="uiToggle" aria-label="Toggle UI"><span></span></button>
+
+      <div class="font-controls">
+        <button class="font-btn" id="fontCycle" aria-label="Cycle Font" title="Cycle Font">F</button>
+        <button class="font-btn" id="fontLock" aria-label="Lock Font" title="Lock/Unlock Font">🔓</button>
+        <button class="font-btn" id="activityOverride" aria-label="Activity Override" title="Activity Override: Auto">A</button>
+      </div>
+
+      <div class="help-icon" id="helpIcon" aria-label="Help">?</div>
+      <div class="help-info" id="helpInfo">
+        <div class="help-content">
+          <h3>Connecting</h3>
+          <p>"Connecting" is a living system, breathing to the pulse of the Bitcoin blockchain. Each particle an entity, each link a connection. The collective energy of the network is drawn together by the gravitational force of the symbol itself.</p> 
+           <p>It reflects individual motion converging into collective meaning</p>
+          
+          <div class="help-sections">
+            <div class="help-section">
+              <h4>Controls</h4>
+              <ul>
+                <li><strong>Interact:</strong> Mouse / touch to push particles</li>
+                <li><strong>Lens:</strong> Right-click / Pinch (mobile) + drag to zoom</li>
+                <li><strong>Zoom:</strong> Mouse wheel to adjust lens magnification / Enlarge or shrink the pinch (mobile)</li>
+                <li><strong>Hide UI:</strong> Press 'H' key / Triple Tap (mobile)</li>
+              </ul>
+            </div>
+
+          </div>
+          
+          <div class="help-section">
+            <h4>Interface Elements</h4>
+            <p><strong>Top Right Icon:</strong> Access blockchain data including transaction fees and block information. Also Font icons</p>
+            <p><strong>Font Icons:</strong> Cycle through different Bitcoin Ordinal fonts (F) and lock the current font (🔓) to prevent changes during block updates.</p>
+          </div>
+          
+          <div class="help-section">
+            <h4>Technical Infos</h4>
+            <p>This piece was specifically designed to be exposed, on a tablet or large screen, it is interactive and responsive to the blockchain activity</p> 
+            <p>The custom algorithm uses blockchain data to simulate the gravitational pull of the Bitcoin symbol, speed of the particles, number of links and background colors.</p>
+            <p>Activity is calculated using live fee rates, pending mempool transactions, and recent historical data to stay adaptive to fee and market shifts </p>
+            <p>The artwork is refreshed and reset with every new block mined</p>
+          </div>
+          
+          <div class="help-close-hint">
+            Click/Touch anywhere to close
+          </div>
+        </div>
+      </div>
+
+    <div id="ui" aria-live="polite">
+<div id="uiTop" class="ui-row ui-stack">
+  <div class="ui-title">Fees</div>
+  <div class="ui-wrap">
+    <div class="ui-chip" id="feeFast">fastest: — sat/vB</div>
+    <div class="ui-chip" id="feeHalf">~30m: — sat/vB</div>
+    <div class="ui-chip" id="feeHour">~60m: — sat/vB</div>
+  </div>
+</div>
+
+<div id="uiBottom" class="ui-row ui-stack">
+  <div class="ui-chip" id="blockNum">Block: —</div>
+  <div class="ui-chip" id="pending">Awaiting: — txs</div>
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>  
+const ORDINAL_FAMILIES = [
+  "BtcOrdinal_7080","BtcOrdinal_4c97", "BtcOrdinal_c6b0",  "BtcOrdinal_603c", "BtcOrdinal", "BtcOrdinal_e4f5", "BtcOrdinal_316b"
+];
+
+function pickRandom(list){ return list[(Math.random()*list.length)|0]; }
+
+async function chooseOrdinalFont(){
+  await Promise.allSettled(ORDINAL_FAMILIES.map(f =>
+    document.fonts.load(`700 200px "${f}"`, "B")
+  ));
+  await document.fonts.ready;
+
+  const available = ORDINAL_FAMILIES.filter(f =>
+    document.fonts.check(`700 48px "${f}"`, "B")
+  );
+
+  let choice = pickRandom(available.length ? available : ORDINAL_FAMILIES);
+
+  if (!document.fonts.check(`700 48px "${choice}"`, "B")) {
+    choice = "BtcOrdinal";
+  }
+
+  document.documentElement.style.setProperty("--app-font", `"${choice}"`);
+  document.documentElement.style.setProperty("--btc-font", `"${choice}"`);
+  if (document.body) document.body.style.fontFamily = `var(--app-font)`;
+  window.__BTC_FONT__ = choice;
+
+  console.log("[btc-font] available:", available, "chosen:", choice);
+  return choice;
+}
+
+let currentFontIndex = 0;
+let fontLocked = false;
+let availableFonts = [];
+
+let activityOverride = 0; 
+let manualActivityLevel = 0;
+
+const HISTORY_SIZE = 1440;
+const ACTIVITY_HISTORY = { fees: [], pending: [] };
+const ACTIVITY_STATES = [0, 0.25, 0.35, 0.5, 0.75, 1];
+let activityEMA = 0;
+
+
+
+function pushHistory(arr, v) {
+  arr.push(v);
+  if (arr.length > HISTORY_SIZE) arr.shift();
+}
+function percentile(arr, value) {
+  if (arr.length < 10) return 0;
+  let c = 0;
+  for (const v of arr) if (v <= value) c++;
+  return c / arr.length;
+}
+function percentileValue(arr, p) {
+  if (arr.length === 0) return 0;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const idx = Math.floor(p * (sorted.length - 1));
+  return sorted[idx];
+}
+
+function normalize(v, lo, hi) {
+  if (hi <= lo) return 0;
+  return Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
+}
+
+function snapActivity(v) {
+  let best = ACTIVITY_STATES[0], dmin = Infinity;
+  for (const s of ACTIVITY_STATES) {
+    const d = Math.abs(v - s);
+    if (d < dmin) { dmin = d; best = s; }
+  }
+  return best;
+}
+
+
+async function initializeFontCycling() {
+  await Promise.allSettled(ORDINAL_FAMILIES.map(f =>
+    document.fonts.load(`700 200px "${f}"`, "B")
+  ));
+  await document.fonts.ready;
+
+  availableFonts = ORDINAL_FAMILIES.filter(f =>
+    document.fonts.check(`700 48px "${f}"`, "B")
+  );
+  
+  if (availableFonts.length === 0) {
+    availableFonts = ORDINAL_FAMILIES;
+  }
+
+  const currentFont = window.__BTC_FONT__ || "BtcOrdinal";
+  currentFontIndex = availableFonts.indexOf(currentFont);
+  if (currentFontIndex === -1) currentFontIndex = 0;
+}
+
+function cycleFont() {
+  if (fontLocked) return;
+  
+  currentFontIndex = (currentFontIndex + 1) % availableFonts.length;
+  const newFont = availableFonts[currentFontIndex];
+  
+  document.documentElement.style.setProperty("--app-font", `"${newFont}"`);
+  document.documentElement.style.setProperty("--btc-font", `"${newFont}"`);
+  if (document.body) document.body.style.fontFamily = `var(--app-font)`;
+  window.__BTC_FONT__ = newFont;
+
+  if (window.regenerateBitcoinMask) {
+    window.regenerateBitcoinMask();
+  }
+  
+  console.log("[font-cycle] switched to:", newFont);
+}
+
+function toggleFontLock() {
+  fontLocked = !fontLocked;
+  const lockBtn = document.getElementById('fontLock');
+  
+  if (fontLocked) {
+    lockBtn.textContent = '🔒';
+    lockBtn.classList.add('locked');
+    lockBtn.title = 'Unlock Font';
+  } else {
+    lockBtn.textContent = '🔓';
+    lockBtn.classList.remove('locked');
+    lockBtn.title = 'Lock Font';
+  }
+  
+  console.log("[font-lock] font is now:", fontLocked ? 'locked' : 'unlocked');
+}
+
+function toggleActivityOverride() {
+  console.log("[activity-override] Function not yet initialized - startApp() must run first");
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const fontCycleBtn = document.getElementById('fontCycle');
+  const fontLockBtn = document.getElementById('fontLock');
+  const activityOverrideBtn = document.getElementById('activityOverride');
+  
+  if (fontCycleBtn) {
+    fontCycleBtn.addEventListener('click', cycleFont);
+  }
+  
+  if (fontLockBtn) {
+    fontLockBtn.addEventListener('click', toggleFontLock);
+  }
+  
+  if (activityOverrideBtn) {
+    activityOverrideBtn.addEventListener('click', () => {
+      if (window.toggleActivityOverride) {
+        window.toggleActivityOverride();
+      } else {
+        console.log("[activity-override] Function not yet available - startApp() must run first");
+      }
+    });
+  }
+});
+
+(async () => {
+  await chooseOrdinalFont();
+  await initializeFontCycling();
+  startApp();
+})();
+</script>
+<script>
+function startApp(){
+let tick=0, reseedCount=0;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const VIRT_W = 900, VIRT_H = 1600;
+const NODE_COUNT = 9000;
+const isAndroid = /Android/i.test(navigator.userAgent);
+
+window.PIXEL_BUDGET = isAndroid ? 2e6 : 6e6;
+const LINKS_PER_NODE = 0;
+  const LINK_ACTIVITY_THRESH = [0.00, 0.25, 0.35, 0.50, 0.75, 1.00];
+  const LINK_ACTIVITY_RATIOS = [0.00, 0.03, 0.05, 0.07, 0.05, 0.07];
+  const MAX_LINKS_PER_NODE = 2;   
+  let currentLinkRatioIdx = -1;
+const EDGE_BAND = 0.10;    
+const SEP_R_OUT = 16; 
+const INV_SEP_R_OUT = 1 / SEP_R_OUT;       
+const SEP_R_OUT2 = SEP_R_OUT*SEP_R_OUT;
+const SEP_STR_OUT = 0.24;   
+const TANGENTIAL_JITTER = 0.02; 
+const INTERACT_R   = 120;   
+const INTERACT_R2  = INTERACT_R*INTERACT_R;
+const INTERACT_PUSH  = 0.52;
+const INTERACT_REPEL = 150.85;   
+const INTERACT_DAMP  = 0.96;
+let eased; 
+  const LINK_BREAK_DIST  = 60;
+  const LINK_BREAK_DIST2 = LINK_BREAK_DIST * LINK_BREAK_DIST;
+  let expectedLinkCount = 0;
+
+  let linkCounts = null;
+  let linkTargets = null;
+let holeLabel = new Uint8Array(VIRT_W * VIRT_H);
+let holeInfo  = [];
+let HOLE_TOP_ID = 0, HOLE_BOTTOM_ID = 0;
+
+let holeById = [];
+let crowdBoost;
+const LINK_STYLES = [
+  'rgba(255,180,90,0.08)',
+  'rgba(255,180,90,0.16)',
+  'rgba(255,180,90,0.25)',
+];
+
+const UPDATE_STRIPES = 1;
+let _stripe = 0;
+
+const LINK_BINS = Array.from({length:8}, ()=>[]);   
+
+  let linkBreakCursor = 0;
+
+function holeIdAt(x,y){
+  const xi=x|0, yi=y|0;
+  if(xi<0||yi<0||xi>=VIRT_W||yi>=VIRT_H) return 0;
+  return holeLabel[yi*VIRT_W + xi] | 0;
+}
+
+let UI = {
+  root: null, toggleBtn: null,
+  feeFast: null, feeHalf: null, feeHour: null,
+  blockNum: null, pending: null,
+};
+let _latestFees = { fastestFee: null, halfHourFee: null, hourFee: null };
+let _latestPending = null;
+const GLYPH_OFFSET_X = VIRT_W * 0.025;
+
+const pointer = {
+  active: false, id: -1,
+  x: 0, y: 0, px: 0, py: 0,      
+  vx: 0, vy: 0                  
+};
+
+const lens = {
+  active: false,
+  x: VIRT_W * 0.5,
+  y: VIRT_H * 0.5,
+  r: Math.min(VIRT_W, VIRT_H) * 0.20,   
+  zoom: 1.8,                            
+  feather: 24,                         
+};
+
+const PINCHa = {
+  minZoom: 1.5,
+  maxZoom: 4.0,
+  gain: 1.0,        
+  smooth: 0.25     
+};
+
+const LENS_R_MIN = 60;
+const LENS_R_MAX = Math.min(VIRT_W, VIRT_H) * 0.45;
+
+const touches = new Map();
+const pinch = { active:false, startDist:0, baseZoom:0 };
+function centroid() {
+  let sx=0, sy=0; for (const t of touches.values()) { sx+=t.x; sy+=t.y; }
+  const n = touches.size || 1; return { x: sx/n, y: sy/n };
+}
+function distance() {
+  const it = touches.values(); const a = it.next().value, b = it.next().value;
+  if (!a || !b) return 0;
+  const dx = a.x - b.x, dy = a.y - b.y; return Math.hypot(dx, dy);
+}
+
+const RIPPLE_POOL_MAX = 24;   
+const RIPPLE_DUR = 520;   
+const RIPPLE_SPACING = 70;  
+const RIPPLE_R_MIN = 14;   
+const RIPPLE_R_MAX = 160;   
+const RIPPLE_LINE = 1.4;    
+const RIPPLE_COLOR = 'rgba(255,200,120,'; 
+const _ripples = []; 
+function spawnRipples(x, y) {
+  for (let i = 0; i < 3; i++) {
+    if (_ripples.length >= RIPPLE_POOL_MAX) _ripples.shift();
+    _ripples.push({ x, y, t0: performance.now(), delay: i * RIPPLE_SPACING });
+  }
+}
+function drawRipplesOverlay(ctxNow) {
+  if (_ripples.length === 0) return;
+  const now = performance.now();
+
+  ctxNow.save();
+  ctxNow.globalCompositeOperation = 'lighter'; 
+
+  for (let i = _ripples.length - 1; i >= 0; i--) {
+    const r = _ripples[i];
+    const t = now - (r.t0 + r.delay);
+    if (t < 0) continue; 
+    if (t > RIPPLE_DUR) { _ripples.splice(i, 1); continue; }
+
+    const u = t / RIPPLE_DUR;                    
+    const radius = RIPPLE_R_MIN + (RIPPLE_R_MAX - RIPPLE_R_MIN) * u*u; 
+    const alpha = (1 - u) * 0.55;              
+
+    ctxNow.lineWidth = RIPPLE_LINE;
+    ctxNow.strokeStyle = RIPPLE_COLOR + alpha + ')';
+    ctxNow.beginPath();
+    ctxNow.arc(r.x, r.y, radius, 0, Math.PI * 2);
+    ctxNow.stroke();
+  }
+  ctxNow.restore();
+}
+
+  const TAU = Math.PI * 2;
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  function mulberry32(seed) {
+    return function() {
+      let t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
+  function Noise2D(seed=1) {
+    const rng = mulberry32(seed);
+    const g = new Float32Array(256);
+    for (let i = 0; i < 256; i++) g[i] = rng()*1000;
+    const p = new Uint8Array(512);
+    for (let i = 0; i < 256; i++) p[i] = i;
+    for (let i = 0; i < 256; i++) { const j = (rng()*256)|0; [p[i], p[j]] = [p[j], p[i]]; }
+    for (let i = 0; i < 256; i++) p[256+i] = p[i];
+    const fade = t => t*t*t*(t*(t*6-15)+10);
+    const lerpN = (a,b,t)=>a+(b-a)*t;
+    const grad = (ix, iy) => g[p[ix + p[iy]]];
+    function value(x, y) {
+      const xi = Math.floor(x) & 255;
+      const yi = Math.floor(y) & 255;
+      const xf = x - Math.floor(x);
+      const yf = y - Math.floor(y);
+      const u = fade(xf), v = fade(yf);
+      const n00 = grad(xi, yi);
+      const n10 = grad(xi+1, yi);
+      const n01 = grad(xi, yi+1);
+      const n11 = grad(xi+1, yi+1);
+      const x1 = lerpN(n00, n10, u);
+      const x2 = lerpN(n01, n11, u);
+      return lerpN(x1, x2, v);
+    }
+    function curl(x, y, scale=1) {
+      const e = 1e-3;
+      const n1 = value((x+e)*scale, y*scale);
+      const n2 = value((x-e)*scale, y*scale);
+      const n3 = value(x*scale, (y+e)*scale);
+      const n4 = value(x*scale, (y-e)*scale);
+      const dx = (n1 - n2) / (2*e);
+      const dy = (n3 - n4) / (2*e);
+      return {x: -dy, y: dx};
+    }
+    function curlOut(x, y, scale = 1, out){
+      const e = 1e-3;
+      const n1 = value((x+e)*scale, y*scale);
+      const n2 = value((x-e)*scale, y*scale);
+      const n3 = value(x*scale, (y+e)*scale);
+      const n4 = value(x*scale, (y-e)*scale);
+      const dx = (n1 - n2) / (2*e);
+      const dy = (n3 - n4) / (2*e);
+      out.x = -dy; out.y = dx;  
+      return out;
+    }
+    return { value, curl, curlOut };
+
+  }
+
+class Grid {
+  constructor(w, h, cell) {
+    this.cell = cell;
+    this.cols = Math.ceil(w / cell);
+    this.rows = Math.ceil(h / cell);
+    this.LINK_BINS = new Array(this.cols * this.rows);
+    for (let i = 0; i < this.LINK_BINS.length; i++) this.LINK_BINS[i] = [];
+  }
+  clear() {
+    for (let i = 0; i < this.LINK_BINS.length; i++) this.LINK_BINS[i].length = 0;
+  }
+    key(x,y){
+      const cx = Math.floor(x / this.cell);
+      const cy = Math.floor(y / this.cell);
+      return (cy < 0 || cx < 0 || cx >= this.cols || cy >= this.rows) ? -1 : cy*this.cols + cx;
+    }
+    insert(p){ const k=this.key(p.x,p.y); if(k>=0) this.LINK_BINS[k].push(p); }
+    neighbors(x,y,r,out){
+      const rcell = Math.ceil(r/this.cell);
+      const cx = Math.floor(x/this.cell);
+      const cy = Math.floor(y/this.cell);
+      for(let j=-rcell; j<=rcell; j++){
+        for(let i=-rcell; i<=rcell; i++){
+          const k = (cy+j)*this.cols + (cx+i);
+          if(k>=0 && k<this.LINK_BINS.length){
+            const bin = this.LINK_BINS[k];
+            for(let t=0;t<bin.length;t++) out.push(bin[t]);
+          }
+        }
+      }
+      return out;
+    }
+  }
+
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: false });
+
+window.PIXEL_BUDGET = window.PIXEL_BUDGET || 6e6;
+let VIEW_SCALE = 1;
+
+let OFFSCREEN_BUDGET = Math.floor(window.PIXEL_BUDGET * 0.66);
+
+let DPR_SCENE = 1;
+let sceneLayer = null, sceneCtx = null;
+
+function allocSceneBuffers() {
+
+  const dprCap = Math.min((window.devicePixelRatio || 1), 2);
+
+  const dprByBudget = Math.sqrt(OFFSCREEN_BUDGET / (VIRT_W * VIRT_H));
+
+  const dprByView = Math.max(1, Math.min(VIEW_SCALE, dprCap));
+
+  DPR_SCENE = Math.max(1, Math.min(dprCap, dprByBudget, dprByView));
+if (isAndroid) {
+    DPR_SCENE = Math.min(DPR_SCENE, 1.2);
+}
+  const w = Math.floor(VIRT_W * DPR_SCENE) | 0;
+  const h = Math.floor(VIRT_H * DPR_SCENE) | 0;
+
+  sceneLayer = new OffscreenCanvas(w, h);
+  sceneCtx   = sceneLayer.getContext('2d', { alpha: false });
+
+  sceneCtx.setTransform(DPR_SCENE, 0, 0, DPR_SCENE, 0, 0);
+}
+
+function fitToDisplay() {
+  const r = canvas.getBoundingClientRect();
+  const wantW = r.width, wantH = r.height;
+  const dpr = window.devicePixelRatio || 1;
+
+  const ideal = Math.min((wantW * dpr) / VIRT_W, (wantH * dpr) / VIRT_H);
+  const maxByView = Math.max(1, Math.floor(ideal));
+
+  const maxByBudget = Math.max(
+    1,
+    Math.floor(Math.sqrt(PIXEL_BUDGET / (VIRT_W * VIRT_H)))
+  );
+
+  const scale = Math.min(maxByView, maxByBudget);
+
+  VIEW_SCALE = scale;
+
+  const w = VIRT_W * scale;
+  const h = VIRT_H * scale;
+
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+
+  allocSceneBuffers();
+}
+ 
+
+  const maskCanvas = document.createElement('canvas');
+  maskCanvas.width  = VIRT_W;
+maskCanvas.height = VIRT_H;
+  const maskCtx = maskCanvas.getContext('2d');
+  const haloMasked = document.createElement('canvas');
+let haloMaskedCtx = haloMasked.getContext('2d');
+const SEP_R = 12;  
+const INV_SEP_R = 1 / SEP_R;               
+const SEP_R2 = SEP_R*SEP_R;
+const SEP_STR = 0.11;             
+let sepGrid = new Grid(VIRT_W, VIRT_H, SEP_R);  
+const _tmpNbrs = [];              
+const _curlScratch = { x: 0, y: 0 };
+
+const HOLE_PUSH_MAX = 0.120;
+const INSIDE_DRIFT  = 0.006;
+
+const ORANGE_DARK = '#D26A00';  
+let activityLive = 0, activityEased = 0;
+
+const haloTex = document.createElement('canvas');  
+let haloTexCtx = haloTex.getContext('2d');
+let W=VIRT_W,H=VIRT_H, rng = mulberry32((Date.now()>>>0) ^ 0xB17C01);
+let noise, nodes = [], paletteMode=0, paused=false;
+
+let P_COUNT = 0;
+let px, py;       
+let vx, vy;       
+let pa, pa0;      
+let pw;          
+let pflicker;     
+let poutTicks;   
+function allocParticleBuffers(count) {
+  P_COUNT = count;
+  px        = new Float32Array(count);
+  py        = new Float32Array(count);
+  vx        = new Float32Array(count);
+  vy        = new Float32Array(count);
+  pa        = new Float32Array(count);
+  pa0       = new Float32Array(count);
+  pw        = new Float32Array(count);
+  pflicker  = new Float32Array(count);
+
+  poutTicks = new Uint8Array(count);
+}
+
+function syncNodesFromSoA() {
+  for (let i = 0; i < P_COUNT; i++) {
+    const n = nodes[i];
+    n.x        = px[i];
+    n.y        = py[i];
+    n.vx       = vx[i];
+    n.vy       = vy[i];
+    n.a        = pa[i];
+    n.a0       = pa0[i];
+    n.w        = pw[i];
+    n.flicker  = pflicker[i];
+    n.outTicks = poutTicks[i];
+  }
+}
+
+function syncSoAFromNodes() {
+  for (let i = 0; i < P_COUNT; i++) {
+    const n = nodes[i];
+    px[i]        = n.x;
+    py[i]        = n.y;
+    vx[i]        = n.vx;
+    vy[i]        = n.vy;
+    pa[i]        = n.a;
+    pa0[i]       = n.a0;
+    pw[i]        = n.w;
+    pflicker[i]  = n.flicker;
+    poutTicks[i] = n.outTicks | 0;
+  }
+}
+
+  const ORANGE = '#c9810c'; 
+  const ORANGE2 = '#f2882c';
+
+  const palettes = [
+    [ORANGE, ORANGE2], 
+  ];
+
+const hiddenTexts = [
+  { text: "Alone,", x: VIRT_W * 0.01, y: VIRT_H * 0.02 },
+  { text: "we", x: VIRT_W * 0.77, y: VIRT_H * 0.08 },
+  { text: "cannot", x: VIRT_W * 0.02, y: VIRT_H * 0.15 },
+  { text: "do", x: VIRT_W * 0.89, y: VIRT_H * 0.22 },
+  { text: "anything.", x: VIRT_W * 0.005, y: VIRT_H * 0.35 },
+  { text: "Together", x: VIRT_W * 0.45, y: VIRT_H * 0.48 },
+  { text: "can", x: VIRT_W * 0.01, y: VIRT_H * 0.82 },
+  { text: "everything", x: VIRT_W * 0.75, y: VIRT_H * 0.96 },
+  { text: "awcda. twcde", x: VIRT_W * 0.52, y: VIRT_H * 0.98 },
+];
+
+function drawHiddenText(ctx, activityLevel = 0, isLensView = false, lensZoom = 1) {
+  ctx.save();
+  
+  if (isLensView) {
+    const zoomFactor = Math.min(1, (lensZoom - 1) / 3); 
+    const minScale = 0.2; 
+    const maxScale = 1.0; 
+    const textScale = minScale + (maxScale - minScale) * zoomFactor;
+    
+    const baseFontSize = Math.max(6, VIRT_W * 0.02);
+    const fontSize = baseFontSize * textScale;
+    
+    ctx.font = `300 ${fontSize}px "${window.__BTC_FONT__ || 'BtcOrdinal'}", monospace`;
+    ctx.fillStyle = '#F7931A'; 
+    ctx.globalAlpha = 0.05; 
+  } else {
+
+    const fontSize = Math.max(6, VIRT_W * 0.02);
+    ctx.font = `300 ${fontSize}px "${window.__BTC_FONT__ || 'BtcOrdinal'}", monospace`;
+    ctx.fillStyle = '#0b0d10'; 
+    ctx.globalAlpha = 0.0; 
+  }
+  
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  
+  for (const textItem of hiddenTexts) {
+    ctx.fillText(textItem.text, textItem.x, textItem.y);
+  }
+  ctx.restore();
+}
+
+let _blockHeight = null;
+let _lastBlockHeight = null;
+
+const overlay = document.createElement('canvas');
+overlay.width = VIRT_W; overlay.height = VIRT_H;
+const octx = overlay.getContext('2d', {alpha:true});
+
+octx.globalAlpha = 0.06;
+octx.fillStyle = '#000';
+for (let y=2; y<VIRT_H; y+=3) octx.fillRect(0, y, VIRT_W, 1);
+
+octx.globalAlpha = 0.05;
+const gCount = 400;
+for (let i=0;i<gCount;i++){
+  const x = (rng()*VIRT_W)|0, y = (rng()*VIRT_H)|0;
+  octx.fillRect(x, y, 1, 1);
+}
+octx.globalAlpha = 1;
+function setupHUD(){
+  UI.root     = document.getElementById('ui');
+  UI.toggleBtn= document.getElementById('uiToggle');
+  UI.feeFast  = document.getElementById('feeFast');
+  UI.feeHalf  = document.getElementById('feeHalf');
+  UI.feeHour  = document.getElementById('feeHour');
+  UI.blockNum = document.getElementById('blockNum');
+  UI.pending  = document.getElementById('pending');
+
+  const stage = document.getElementById('stage');
+  UI.toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stage.classList.toggle('ui-open');
+  });
+
+  const helpIcon = document.getElementById('helpIcon');
+  const helpInfo = document.getElementById('helpInfo');
+  let helpVisible = false;
+
+  helpIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
+    helpVisible = !helpVisible;
+    if (helpVisible) {
+      helpInfo.classList.add('show');
+    } else {
+      helpInfo.classList.remove('show');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (helpVisible && !helpIcon.contains(e.target)) {
+      helpVisible = false;
+      helpInfo.classList.remove('show');
+    }
+  });
+
+  document.addEventListener('touchstart', (e) => {
+    if (helpVisible && !helpIcon.contains(e.target)) {
+      helpVisible = false;
+      helpInfo.classList.remove('show');
+    }
+  });
+
+  helpInfo.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && helpVisible) {
+      helpVisible = false;
+      helpInfo.classList.remove('show');
+    }
+  });
+
+  let uiVisible = true;
+  const allUIElements = document.querySelectorAll('#ui, .font-controls, .help-icon, #uiToggle');
+  
+  function toggleUI() {
+    uiVisible = !uiVisible;
+    allUIElements.forEach(element => {
+      if (uiVisible) {
+        element.style.display = '';
+        element.style.pointerEvents = '';
+      } else {
+        element.style.display = 'none';
+        element.style.pointerEvents = 'none';
+      }
+    });
+
+    if (!uiVisible && helpVisible) {
+      helpVisible = false;
+      helpInfo.classList.remove('show');
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'h') {
+      toggleUI();
+    }
+  });
+
+  let touchCount = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchCount = e.touches.length;
+    if (touchCount === 3) {
+      e.preventDefault();
+      toggleUI();
+    }
+  });
+
+  updateHUD();
+}
+
+function buildHaloTexture(){
+  haloTex.width = VIRT_W;
+  haloTex.height = VIRT_H;
+  const w = VIRT_W, h = VIRT_H;
+  const cx = w*0.5+ GLYPH_OFFSET_X, cy = h*0.5;
+  const r0 = Math.min(w,h) * 0.10; 
+  const r1 = Math.min(w,h) * 0.46; 
+
+  const g = haloTexCtx.createRadialGradient(cx, cy, r0, cx, cy, r1);
+
+g.addColorStop(0.00, 'rgba(225,120,0,0.98)');
+g.addColorStop(0.60, 'rgba(225,120,0,0.30)');
+g.addColorStop(1.00, 'rgba(225,120,0,0.00)');
+
+  haloTexCtx.clearRect(0,0,w,h);
+  haloTexCtx.fillStyle = g;
+  haloTexCtx.fillRect(0,0,w,h);
+  haloMasked.width = VIRT_W;
+haloMasked.height = VIRT_H;
+
+haloMaskedCtx.globalCompositeOperation = 'source-over';
+haloMaskedCtx.clearRect(0,0,VIRT_W,VIRT_H);
+haloMaskedCtx.drawImage(haloTex, 0, 0);
+
+haloMaskedCtx.globalCompositeOperation = 'destination-in';
+haloMaskedCtx.drawImage(maskCanvas, 0, 0);
+}
+const INSIDE_SPEED_MIN = 0.18; 
+const INSIDE_SPEED_MAX = 1.00; 
+const INSIDE_FLOW_MIN  = 0.35; 
+const INSIDE_FLOW_MAX  = 1.00; 
+const OUTSIDE_SPEED_MIN = 0.50; 
+const OUTSIDE_SPEED_MAX = 0.98; 
+const OUTSIDE_FLOW_MIN  = 0.70; 
+const OUTSIDE_FLOW_MAX  = 1.00;
+const DAMP_MIN = 0.42;     
+const DAMP_MAX = 0.9186;   
+let baseDampLive = DAMP_MAX;   
+let _dampSmooth = baseDampLive;
+let _lastOrdinalHeight = null;
+
+let _lastActivity = -1;
+let _lastOrdHeight = null;
+let _lastOrdBlocktime = null; // ms
+
+
+async function fetchOrdinalActivityFallback() {
+  try {
+    const ORD_BASE =
+      location.hostname === 'ordinals.com'
+        ? ''
+        : 'https://ordinals.com';
+
+    const [hRes, tRes] = await Promise.all([
+      fetch(`${ORD_BASE}/blockheight`, { cache: 'no-store' }),
+      fetch(`${ORD_BASE}/blocktime`,   { cache: 'no-store' }),
+    ]);
+
+    if (!hRes.ok || !tRes.ok) throw new Error('ordinals endpoints failed');
+
+    const height = Number((await hRes.text()).trim());
+    const blocktime = Number((await tRes.text()).trim()) * 1000;
+
+    const now = Date.now();
+    const dt = (now - blocktime) / 1000;
+
+    let activity;
+    if (_lastOrdHeight !== null && height !== _lastOrdHeight) {
+      activity = 1.00; // new block spike
+    } else if (dt < 120)  activity = 0.75;
+    else if (dt < 300)  activity = 0.50;
+    else if (dt < 480)  activity = 0.35;
+    else if (dt < 720)  activity = 0.25;
+    else                activity = 0.00;
+
+    _lastOrdHeight = height;
+    setActivityLevel(activity);
+
+    console.log('[ordinal-fallback]', {
+      height,
+      secondsSinceBlock: Math.round(dt),
+      activity
+    });
+
+  } catch (err) {
+    console.warn('[ordinal-fallback] failed:', err.message);
+  }
+}
+
+
+function updateHistoricalActivity(fastestFee, pendingTxs) {
+  pushHistory(ACTIVITY_HISTORY.fees, fastestFee);
+  pushHistory(ACTIVITY_HISTORY.pending, pendingTxs);
+
+  // warmup: don't bucket on tiny history
+  if (ACTIVITY_HISTORY.fees.length < 20) {
+    const idx = Math.min(5, Math.max(0, Math.floor(fastestFee)));
+    setActivityLevel(ACTIVITY_FROM_FEE[idx]);
+    return;
+  }
+
+  const ACTIVITY_PCTS = [0.05, 0.20, 0.35, 0.55, 0.75, 0.90];
+  const thresholds = ACTIVITY_PCTS.map(p => percentileValue(ACTIVITY_HISTORY.fees, p));
+
+  let level = ACTIVITY_STATES[0];
+  for (let i = 0; i < thresholds.length; i++) {
+    if (fastestFee >= thresholds[i]) level = ACTIVITY_STATES[i];
+  }
+
+  // smooth transitions, then snap to the 6 states
+  activityEMA = lerp(activityEMA, level, 0.15);
+  const snapped = snapActivity(activityEMA);
+  setActivityLevel(snapped);
+
+  console.log('[activity-bucketed]', { fastestFee, thresholds, level, activityEMA, snapped });
+}
+
+
+function setActivityLevel(activity01){
+
+  if (activityOverride > 0) {
+    const a = manualActivityLevel;
+    const eased = a;
+    const target = DAMP_MIN + (DAMP_MAX - DAMP_MIN) * eased;
+    _dampSmooth = lerp(_dampSmooth, target, 0.08);
+    baseDampLive = _dampSmooth;
+    activityLive = a;
+    activityEased = eased;
+    return; 
+  }
+
+  const a = clamp(activity01, 0, 1);
+  if (a === _lastActivity) return;
+  _lastActivity = a;
+
+  const eased = a;
+  const target = DAMP_MIN + (DAMP_MAX - DAMP_MIN) * eased;
+  _dampSmooth = lerp(_dampSmooth, target, 0.08);
+  baseDampLive = _dampSmooth;
+  activityLive = a;
+  activityEased = eased;
+
+  console.log('[damp] activity→damp',
+    { activity: a, eased, target, baseDampLive, DAMP_MIN, DAMP_MAX });
+
+  updateLinksForActivity(activityEased);
+}
+
+window.toggleActivityOverride = function() {
+  activityOverride = (activityOverride + 1) % 6; 
+  const overrideBtn = document.getElementById('activityOverride');
+  
+    if (activityOverride === 0) {
+      overrideBtn.textContent = 'A';
+      overrideBtn.title = 'Activity Override: Auto';
+      overrideBtn.classList.remove('locked');
+      console.log("[activity-override] Auto mode - fetching current chain data");
+      currentLinkRatioIdx = -1;   
+      activityEased = eased; 
+      setActivityLevel(activityEased)
+
+      fetchActivityOnce().catch(err => {
+        console.log("[activity-override] Failed to fetch activity on auto switch:", err.message);
+      });
+
+      startHudPolling(15000);
+    } else {
+    overrideBtn.textContent = activityOverride.toString();
+    overrideBtn.title = `Activity Override: Level ${activityOverride}`;
+    overrideBtn.classList.add('locked');
+
+    manualActivityLevel = LINK_ACTIVITY_THRESH[activityOverride];
+
+    eased = manualActivityLevel;
+    const target = DAMP_MIN + (DAMP_MAX - DAMP_MIN) * eased;
+    _dampSmooth = lerp(_dampSmooth, target, 0.08);
+    baseDampLive = _dampSmooth;
+    activityLive = manualActivityLevel;
+    activityEased = eased;
+    
+    console.log(`[activity-override] Manual level ${activityOverride} (${manualActivityLevel}) applied immediately`);
+
+    updateLinksForActivity(activityEased);
+  }
+};
+
+const linkLayer = new OffscreenCanvas(VIRT_W, VIRT_H);
+const linkCtx = linkLayer.getContext('2d', { alpha: true });
+const LINK_REBUILD_INTERVAL_MS = 1000;
+let lastLinkRebuildTime = 0;
+let pendingLinkRatio = null;
+let linkPath = null;
+let linkPathDirty = false;
+linkLayer.width = VIRT_W; linkLayer.height = VIRT_H;
+const nodesLayer = new OffscreenCanvas(VIRT_W, VIRT_H);
+const nodesCtx   = nodesLayer.getContext('2d', { alpha: true });
+nodesLayer.width  = VIRT_W;
+nodesLayer.height = VIRT_H;
+nodesCtx.imageSmoothingEnabled = false;
+
+let lastLinkTier = -1;
+let lastDrawLinksPerNode = -1;
+let lastLinkRadiusEff = -1;
+let lastLinkRedrawTick = -999;
+const LOW_END = (navigator.hardwareConcurrency||4) <= 4;
+const LINK_REFRESH_FRAMES = 4;
+
+const DOT_SPRITES = new Map(); 
+function makeDotSprite(r, color){
+  const s = document.createElement('canvas');
+  const d = Math.max(2, (r*2)|0) + 2;  
+  s.width = s.height = d;
+  const c = s.getContext('2d', {alpha:true});
+  c.fillStyle = color;
+  c.beginPath(); c.arc(d/2, d/2, r, 0, TAU); c.fill();
+  return s;
+}
+function getDotSprite(color, r){
+  const rb = Math.max(1, Math.round(r));     
+  const key = color + ':' + rb;
+  let spr = DOT_SPRITES.get(key);
+  if (!spr) { spr = makeDotSprite(rb, color); DOT_SPRITES.set(key, spr); }
+  return spr;
+}
+
+  function setSeed(s){ rng = mulberry32(s>>>0); noise = Noise2D(s>>>0); }
+
+  function resize(){
+ 
+    fitToDisplay();      
+  }
+
+(function buildMaskOnce(){
+  maskCtx.fillStyle = '#000';
+  maskCtx.fillRect(0, 0, VIRT_W, VIRT_H);
+
+  const s   = Math.min(VIRT_W, VIRT_H) * 0.9;
+  const pad = s * 0.06;
+  const fontSize = (s - pad*2) * 1.5;
+
+  maskCtx.fillStyle = '#fff';
+  maskCtx.textAlign = 'center';
+  maskCtx.textBaseline = 'alphabetic'; 
+  maskCtx.save();
+  maskCtx.translate(VIRT_W/2 + GLYPH_OFFSET_X, VIRT_H/2);
+
+  const family = window.__BTC_FONT__ || "BtcOrdinal";
+  maskCtx.font = `700 ${fontSize}px "${family}"`;
+const FORCE_B = new Set(["BtcOrdinal_4c97","BtcOrdinal_603c","BtcOrdinal_c6b0"]);
+
+const hasBtc = !FORCE_B.has(family) && document.fonts.check(`700 ${fontSize}px "${family}"`, "₿");
+
+const glyph = (FORCE_B.has(family) || !hasBtc) ? "B" : "₿";
+console.log("[btc-font] canvas font:", maskCtx.font);
+
+const m       = maskCtx.measureText(glyph);
+const actualW = m.width;
+const targetW = fontSize * 0.63;
+let   scaleX  = targetW / Math.max(1, actualW);
+scaleX = Math.max(0.85, Math.min(1.25, scaleX));
+const scaleY  = 1.06;
+
+maskCtx.scale(scaleX, scaleY);
+
+const asc  = m.actualBoundingBoxAscent;
+const desc = m.actualBoundingBoxDescent;
+const yCenter = (asc - desc) / 2;
+
+maskCtx.fillText(glyph, 0, yCenter);
+
+const tabThickness = fontSize * (family === "BtcOrdinal_316b" ? 0.065 : 0.075);
+const tabLength = fontSize * ({ BtcOrdinal_7080:0.28,BtcOrdinal_4c97:0.28, BtcOrdinal_603c:0.32,BtcOrdinal: 0.002,BtcOrdinal_c6b0: 0.002, BtcOrdinal_e4f5: 0.28, BtcOrdinal_316b: 0.28 }[(window.__BTC_FONT__ || 'BtcOrdinal')] ?? 0.28);
+
+const xRight   = -fontSize * 0.02;
+const yTop     = yCenter - asc  * 0.83;
+
+const SHIFT_TOP = new Set(["BtcOrdinal_4c97","BtcOrdinal_603c","BtcOrdinal_c6b0","BtcOrdinal_7080"]);
+const yTopMul = ({ BtcOrdinal_7080: 1, BtcOrdinal_316b: 0.97}[family]) ?? (SHIFT_TOP.has(family) ? 1.35 : 0.95);
+
+const yTopAdj = yTop * yTopMul;
+
+const yBottom  = yCenter + desc * 0.18 - asc * 0.066;
+
+maskCtx.fillRect(xRight - tabLength, yTopAdj - tabThickness/2, tabLength, tabThickness);
+maskCtx.fillRect(xRight - tabLength, yBottom - tabThickness/2, tabLength, tabThickness);
+
+if (!hasBtc) {
+  const vThickness = tabThickness * 0.9;
+const vLen = fontSize * 0.10;
+
+const xV1 = -targetW * 0.18; 
+const xV2 =  targetW * 0.05; 
+
+const SHIFT_RIGHT = new Set(["BtcOrdinal_4c97","BtcOrdinal_603c","BtcOrdinal_c6b0"]);
+const xShift = SHIFT_RIGHT.has(family) ? targetW * 0.015 : 0;
+maskCtx.fillRect((xV1 + xShift) - vThickness/2, yTopAdj - vLen, vThickness, vLen);
+maskCtx.fillRect((xV2 + xShift) - vThickness/2, yTopAdj - vLen, vThickness, vLen);
+
+  maskCtx.fillRect(xV1 - vThickness/2, yBottom, vThickness, vLen);
+  maskCtx.fillRect(xV2 - vThickness/2, yBottom, vThickness, vLen);
+}
+
+  maskCtx.restore();
+})();
+
+const maskImage = maskCtx.getImageData(0, 0, VIRT_W, VIRT_H);
+const maskData  = maskImage.data;
+
+let gradX = null, gradY = null;  
+
+function precomputeMaskGrad(){
+  gradX = new Float32Array(VIRT_W * VIRT_H);
+  gradY = new Float32Array(VIRT_W * VIRT_H);
+
+  const e = 1; 
+  for (let y = 0; y < VIRT_H; y++){
+    for (let x = 0; x < VIRT_W; x++){
+
+      const gx = (alphaInMask(x+e, y) - alphaInMask(x-e, y));
+      const gy = (alphaInMask(x, y+e) - alphaInMask(x, y-e));
+      const L = Math.hypot(gx, gy) || 1;
+      const i = y*VIRT_W + x;
+      gradX[i] = gx / L;
+      gradY[i] = gy / L;
+    }
+  }
+}
+
+buildHaloTexture();
+
+function maskGrad(x, y){
+  const xi = x|0, yi = y|0;
+  if (xi<0 || yi<0 || xi>=VIRT_W || yi>=VIRT_H) return { x:0, y:0, mag:0 };
+  const i = yi*VIRT_W + xi;
+  return { x: gradX[i], y: gradY[i], mag: 1 };
+}
+
+function alphaInMask(x, y) {
+  const xi = x|0, yi = y|0;
+  if (xi < 0 || yi < 0 || xi >= VIRT_W || yi >= VIRT_H) return 0;
+  const i = (yi * VIRT_W + xi) * 4;
+  return maskData[i] / 255;   
+}
+
+const holeMap = new Uint8Array(VIRT_W * VIRT_H);
+
+(function buildHoleMap(){
+
+  const exterior = new Uint8Array(VIRT_W * VIRT_H);
+  const qx = new Int32Array(VIRT_W * VIRT_H);
+  const qy = new Int32Array(VIRT_W * VIRT_H);
+  let qh = 0, qt = 0;
+
+  function push(x,y){
+    const i = y*VIRT_W + x;
+    if (exterior[i]) return;
+    exterior[i] = 1; qx[qt] = x; qy[qt] = y; qt++;
+  }
+
+  for (let x=0; x<VIRT_W; x++){
+    if (alphaInMask(x,0)   === 0) push(x,0);
+    if (alphaInMask(x,VIRT_H-1) === 0) push(x,VIRT_H-1);
+  }
+  for (let y=0; y<VIRT_H; y++){
+    if (alphaInMask(0,y)   === 0) push(0,y);
+    if (alphaInMask(VIRT_W-1,y) === 0) push(VIRT_W-1,y);
+  }
+
+  while (qh < qt){
+    const x = qx[qh], y = qy[qh]; qh++;
+    const nbs = [[1,0],[-1,0],[0,1],[0,-1]];
+    for (let k=0;k<4;k++){
+      const nx = x + nbs[k][0], ny = y + nbs[k][1];
+      if (nx<0||ny<0||nx>=VIRT_W||ny>=VIRT_H) continue;
+      const i = ny*VIRT_W + nx;
+      if (exterior[i]) continue;
+      if (alphaInMask(nx,ny) === 0) { exterior[i]=1; qx[qt]=nx; qy[qt]=ny; qt++; }
+    }
+  }
+
+  for (let y=0;y<VIRT_H;y++){
+    for (let x=0;x<VIRT_W;x++){
+      const i = y*VIRT_W + x;
+      holeMap[i] = (alphaInMask(x,y) === 0 && !exterior[i]) ? 1 : 0;
+    }
+  }
+})();
+(function labelHoles(){
+  holeLabel.fill(0);
+  holeInfo.length = 0;
+
+  const seen = new Uint8Array(VIRT_W*VIRT_H);
+  const qx = new Int32Array(VIRT_W*VIRT_H);
+  const qy = new Int32Array(VIRT_W*VIRT_H);
+  let qt=0, qh=0, nextId=1;
+
+  for (let y=0;y<VIRT_H;y++){
+    for (let x=0;x<VIRT_W;x++){
+      const i = y*VIRT_W + x;
+      if (!holeMap[i] || seen[i]) continue; 
+      let area=0, sx=0, sy=0;
+      qt=qh=0; qx[qt]=x; qy[qt]=y; qt++; seen[i]=1;
+
+      while(qh<qt){
+        const cx=qx[qh], cy=qy[qh]; qh++;
+        const ci = cy*VIRT_W + cx;
+        holeLabel[ci] = nextId;
+        area++; sx+=cx; sy+=cy;
+
+        if (cx>0) { const ni=ci-1; if (holeMap[ni] && !seen[ni]) { seen[ni]=1; qx[qt]=cx-1; qy[qt]=cy; qt++; } }
+        if (cx<VIRT_W-1) { const ni=ci+1; if (holeMap[ni] && !seen[ni]) { seen[ni]=1; qx[qt]=cx+1; qy[qt]=cy; qt++; } }
+        if (cy>0) { const ni=ci-VIRT_W; if (holeMap[ni] && !seen[ni]) { seen[ni]=1; qx[qt]=cx; qy[qt]=cy-1; qt++; } }
+        if (cy<VIRT_H-1) { const ni=ci+VIRT_W; if (holeMap[ni] && !seen[ni]) { seen[ni]=1; qx[qt]=cx; qy[qt]=cy+1; qt++; } }
+      }
+
+      holeInfo.push({ id: nextId, cx: sx/area, cy: sy/area, area });
+      nextId++;
+    }
+  }
+
+  if (holeInfo.length >= 2) {
+    holeInfo.sort((a,b)=>a.cy-b.cy); 
+    HOLE_TOP_ID    = holeInfo[0].id;
+    HOLE_BOTTOM_ID = holeInfo[1].id;
+  }
+
+  holeById = [];
+  for (const h of holeInfo) {
+    holeById[h.id] = h;
+  }
+})();
+
+precomputeMaskGrad();
+
+window.regenerateBitcoinMask = function() {
+
+  maskCtx.setTransform(1, 0, 0, 1, 0, 0);
+  
+  maskCtx.fillStyle = '#000';
+  maskCtx.fillRect(0, 0, VIRT_W, VIRT_H);
+
+  const s   = Math.min(VIRT_W, VIRT_H) * 0.9;
+  const pad = s * 0.06;
+  const fontSize = (s - pad*2) * 1.5;
+
+  maskCtx.fillStyle = '#fff';
+  maskCtx.textAlign = 'center';
+  maskCtx.textBaseline = 'alphabetic';
+  maskCtx.save();
+  maskCtx.translate(VIRT_W/2 + GLYPH_OFFSET_X, VIRT_H/2);
+
+  const family = window.__BTC_FONT__ || "BtcOrdinal";
+  maskCtx.font = `700 ${fontSize}px "${family}"`;
+  const FORCE_B = new Set(["BtcOrdinal_4c97","BtcOrdinal_603c","BtcOrdinal_c6b0"]);
+
+  const hasBtc = !FORCE_B.has(family) && document.fonts.check(`700 ${fontSize}px "${family}"`, "₿");
+  const glyph = (FORCE_B.has(family) || !hasBtc) ? "B" : "₿";
+
+  const m = maskCtx.measureText(glyph);
+  const actualW = m.width;
+  const targetW = fontSize * 0.63;
+  let scaleX = targetW / Math.max(1, actualW);
+  scaleX = Math.max(0.85, Math.min(1.25, scaleX));
+  const scaleY = 1.06;
+  
+  maskCtx.scale(scaleX, scaleY);
+  
+  const asc = m.actualBoundingBoxAscent;
+  const desc = m.actualBoundingBoxDescent;
+  const yCenter = (asc - desc) / 2;
+
+  maskCtx.fillText(glyph, 0, yCenter);
+
+  const tabThickness = fontSize * (family === "BtcOrdinal_316b" ? 0.065 : 0.075);
+  const tabLength = fontSize * ({ BtcOrdinal_7080:0.28,BtcOrdinal_4c97:0.28, BtcOrdinal_603c:0.32,BtcOrdinal: 0.002,BtcOrdinal_c6b0: 0.002, BtcOrdinal_e4f5: 0.28, BtcOrdinal_316b: 0.28 }[(window.__BTC_FONT__ || 'BtcOrdinal')] ?? 0.28);
+
+  const xRight   = -fontSize * 0.02;
+  const yTop     = yCenter - asc  * 0.83;
+
+  const SHIFT_TOP = new Set(["BtcOrdinal_4c97","BtcOrdinal_603c","BtcOrdinal_c6b0","BtcOrdinal_7080"]);
+  const yTopMul = ({ BtcOrdinal_7080: 1, BtcOrdinal_316b: 0.97}[family]) ?? (SHIFT_TOP.has(family) ? 1.35 : 0.95);
+
+  const yTopAdj = yTop * yTopMul;
+
+  const yBottom  = yCenter + desc * 0.18 - asc * 0.066;
+
+  maskCtx.fillRect(xRight - tabLength, yTopAdj - tabThickness/2, tabLength, tabThickness);
+  maskCtx.fillRect(xRight - tabLength, yBottom - tabThickness/2, tabLength, tabThickness);
+
+  if (!hasBtc) {
+    const vThickness = tabThickness * 0.9;
+    const vLen = fontSize * 0.10;
+
+    const xV1 = -targetW * 0.18; 
+    const xV2 =  targetW * 0.05; 
+
+    const SHIFT_RIGHT = new Set(["BtcOrdinal_4c97","BtcOrdinal_603c","BtcOrdinal_c6b0"]);
+    const xShift = SHIFT_RIGHT.has(family) ? targetW * 0.015 : 0;
+    maskCtx.fillRect((xV1 + xShift) - vThickness/2, yTopAdj - vLen, vThickness, vLen);
+    maskCtx.fillRect((xV2 + xShift) - vThickness/2, yTopAdj - vLen, vThickness, vLen);
+
+    maskCtx.fillRect(xV1 - vThickness/2, yBottom, vThickness, vLen);
+    maskCtx.fillRect(xV2 - vThickness/2, yBottom, vThickness, vLen);
+  }
+  
+  maskCtx.restore();
+
+  const newMaskImage = maskCtx.getImageData(0, 0, VIRT_W, VIRT_H);
+  for (let i = 0; i < maskData.length; i++) {
+    maskData[i] = newMaskImage.data[i];
+  }
+
+  holeMap.fill(0);
+  const exterior = new Uint8Array(VIRT_W * VIRT_H);
+  const qx = new Int32Array(VIRT_W * VIRT_H);
+  const qy = new Int32Array(VIRT_W * VIRT_H);
+  
+  let head = 0, tail = 0;
+  const enqueue = (x, y) => { qx[tail] = x; qy[tail] = y; tail++; };
+
+  for (let x = 0; x < VIRT_W; x++) {
+    if (maskData[(0 * VIRT_W + x) * 4] === 0) enqueue(x, 0);
+    if (maskData[((VIRT_H-1) * VIRT_W + x) * 4] === 0) enqueue(x, VIRT_H-1);
+  }
+  for (let y = 0; y < VIRT_H; y++) {
+    if (maskData[(y * VIRT_W + 0) * 4] === 0) enqueue(0, y);
+    if (maskData[(y * VIRT_W + (VIRT_W-1)) * 4] === 0) enqueue(VIRT_W-1, y);
+  }
+  
+  while (head < tail) {
+    const x = qx[head], y = qy[head]; head++;
+    const i = y * VIRT_W + x;
+    if (exterior[i]) continue;
+    exterior[i] = 1;
+    
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx, ny = y + dy;
+      if (nx >= 0 && nx < VIRT_W && ny >= 0 && ny < VIRT_H) {
+        const ni = ny * VIRT_W + nx;
+        if (!exterior[ni] && maskData[ni * 4] === 0) {
+          enqueue(nx, ny);
+        }
+      }
+    }
+  }
+
+  for (let i = 0; i < VIRT_W * VIRT_H; i++) {
+    if (maskData[i * 4] === 0 && !exterior[i]) {
+      holeMap[i] = 1;
+    }
+  }
+
+  precomputeMaskGrad();
+  
+  console.log("[mask-regen] Bitcoin symbol mask regenerated with font:", family);
+};
+
+function isHole(x,y){
+  const xi = x|0, yi = y|0;
+  if (xi<0||yi<0||xi>=VIRT_W||yi>=VIRT_H) return false;
+  return holeMap[yi*VIRT_W + xi] === 1;
+}
+
+let seed = ((Date.now()>>>0) ^ 0xB17C01)>>>0;
+function reseed(newSeed){
+
+  const s = (newSeed != null) ? (newSeed>>>0) : (((Date.now()+(++reseedCount)*1337)>>>0) ^ 0xB17C01);
+  setSeed(s);
+  generateNodes();
+
+  updateLinksForActivity(activityEased);
+}
+
+function generateNodes() {
+  nodes = [];
+
+  allocParticleBuffers(NODE_COUNT);
+
+  const base = Math.sqrt(VIRT_W * VIRT_H) * 0.002;
+  const minIn  = base * 0.22;   
+  const minOut = base * 1.25; 
+
+  const TARGET_INSIDE_RATIO = 0.92;
+  let insideCount = 0, outsideCount = 0;
+  const MAX_OUTSIDE = Math.floor(NODE_COUNT * (1 - TARGET_INSIDE_RATIO));
+
+  const placer = new Grid(VIRT_W, VIRT_H, minIn);
+  let tries = 0, attempts = NODE_COUNT * 60;
+
+  while (nodes.length < NODE_COUNT && tries++ < attempts) {
+    const x = rng()*VIRT_W, y = rng()*VIRT_H;
+    const a = alphaInMask(x, y); 
+    const isInside = a > 0.05;
+
+    if (!isInside && outsideCount >= MAX_OUTSIDE) continue;
+
+    const acceptP = isInside ? 0.995 : 0.02;
+    if (rng() > acceptP) continue;
+
+    const req = lerp(minOut, minIn, a);
+    const neigh = placer.neighbors(x, y, req, []);
+    let ok = true;
+    for (let k=0; k<neigh.length; k++){
+      const dx = neigh[k].x - x, dy = neigh[k].y - y;
+      if (dx*dx + dy*dy < req*req) { ok=false; break; }
+    }
+    if (!ok) continue;
+
+    const i = nodes.length;
+    const n = {
+      x,
+      y,
+      a0: a,
+      a,
+      w: lerp(0.6, 1.6, rng()),
+      flicker: rng(),
+      vx: 0,
+      vy: 0,
+      outTicks: isInside ? 0 : 1,
+      i
+    };
+    nodes.push(n);
+    placer.insert(n);
+
+    px[i]        = n.x;
+    py[i]        = n.y;
+    vx[i]        = n.vx;
+    vy[i]        = n.vy;
+    pa[i]        = n.a;
+    pa0[i]       = n.a0;
+    pw[i]        = n.w;
+    pflicker[i]  = n.flicker;
+    poutTicks[i] = n.outTicks;
+
+    if (isInside) insideCount++; else outsideCount++;
+  }
+}
+
+function buildLinks(activityLevel = 0) {
+  const idx = new Map();
+  for (let i=0;i<nodes.length;i++) idx.set(nodes[i], i);
+
+  const linkR = 28;
+  const g = new Grid(VIRT_W, VIRT_H, linkR);
+  for (const n of nodes) g.insert(n);
+
+  links = new Array(nodes.length);
+
+  const baseLinksPerNode = Math.max(0, Math.round(LINKS_PER_NODE * (0.3 + 0.7 * activityLevel)));
+  
+  for (let i=0; i<nodes.length; i++) {
+    const a = nodes[i];
+    const neigh = g.neighbors(a.x, a.y, linkR, []);
+    neigh.sort((p,q) => (p.x-a.x)**2+(p.y-a.y)**2 - ((q.x-a.x)**2+(q.y-a.y)**2));
+    const picked = [];
+
+    const maxLinks = Math.min(neigh.length, baseLinksPerNode);
+    for (let k=0; k<neigh.length && picked.length<maxLinks; k++) {
+      const b = neigh[k];
+      if (b === a || b.a0 <= 0.05) continue;   
+      picked.push(idx.get(b));
+    }
+    links[i] = picked;
+  }
+}
+
+function addLinksGradually(count) {
+  const linkR = 42; 
+  const idx = new Map();
+  for (let i=0;i<nodes.length;i++) idx.set(nodes[i], i);
+  
+  const g = new Grid(VIRT_W, VIRT_H, linkR);
+  for (const n of nodes) g.insert(n);
+  
+  let added = 0;
+  for (let i=0; i<nodes.length && added<count; i++) {
+    const a = nodes[i];
+    if (a.a <= 0.05) continue; 
+    
+    if (!links[i]) links[i] = [];
+    if (links[i].length >= LINKS_PER_NODE * 2) continue; 
+    
+    const neigh = g.neighbors(a.x, a.y, linkR, []);
+    for (const b of neigh) {
+      if (b === a || b.a <= 0.05) continue;
+      const bIdx = idx.get(b);
+      if (links[i].includes(bIdx)) continue; 
+      
+      links[i].push(bIdx);
+      added++;
+      if (added >= count) break;
+    }
+  }
+}
+
+function removeLinksGradually(count) {
+  let removed = 0;
+  for (let i=0; i<links.length && removed<count; i++) {
+    if (!links[i] || links[i].length === 0) continue;
+
+    const randomIdx = Math.floor(Math.random() * links[i].length);
+    links[i].splice(randomIdx, 1);
+    removed++;
+  }
+}
+
+  function updateLinksForActivity(activity) {
+    let newIdx = -1;
+    for (let i = 0; i < LINK_ACTIVITY_THRESH.length; i++) {
+      if (activity >= LINK_ACTIVITY_THRESH[i]) {
+        newIdx = i;
+      }
+    }
+    if (newIdx !== currentLinkRatioIdx) {
+      currentLinkRatioIdx = newIdx;
+      const ratio = (newIdx >= 0) ? LINK_ACTIVITY_RATIOS[newIdx] : 0;
+
+      pendingLinkRatio = ratio;
+
+      if (ratio <= 0) {
+        rebuildLinks(ratio);
+
+        linkPath = null;
+        linkPathDirty = false;
+        pendingLinkRatio = null;
+        lastLinkRebuildTime = performance.now();
+      }
+    }
+  }
+
+  function rebuildLinks(ratio) {
+    const N = nodes.length;
+
+    if (!linkCounts || linkCounts.length !== N) {
+      linkCounts = new Uint8Array(N);
+      linkTargets = new Uint16Array(N * MAX_LINKS_PER_NODE);
+    } else {
+      linkCounts.fill(0);
+    }
+
+    if (!ratio || ratio <= 0) {
+      expectedLinkCount = 0;
+      return;
+    }
+
+    const linkNodeCount = Math.floor(N * ratio);
+
+    let neighboursPerNode = 1;
+    if (ratio >= 0.65) neighboursPerNode = 2;
+
+    const linkR = 28;
+    const g = new Grid(VIRT_W, VIRT_H, linkR);
+    for (const n of nodes) g.insert(n);
+
+    const candidates = [];
+    for (let i = 0; i < N; i++) {
+      if (nodes[i].a > 0.05) candidates.push(i);
+    }
+
+    candidates.sort((ia, ib) => pa[ib] - pa[ia]);
+
+    for (let c = 0; c < linkNodeCount && c < candidates.length; c++) {
+      const i = candidates[c];
+
+      if (linkCounts[i] >= neighboursPerNode) continue;
+      const a = nodes[i];
+
+      const neigh = g.neighbors(a.x, a.y, linkR, []);
+
+      neigh.sort((p, q) => {
+        const dx1 = p.x - a.x, dy1 = p.y - a.y;
+        const dx2 = q.x - a.x, dy2 = q.y - a.y;
+        return (dx1 * dx1 + dy1 * dy1) - (dx2 * dx2 + dy2 * dy2);
+      });
+      for (let k = 0; k < neigh.length && linkCounts[i] < neighboursPerNode; k++) {
+        const b = neigh[k];
+        if (b === a || b.a <= 0.05) continue;
+        const j = b.i;
+        if (j === undefined) continue;
+
+        let duplicate = false;
+        for (let t = 0; t < linkCounts[i]; t++) {
+          if (linkTargets[i * MAX_LINKS_PER_NODE + t] === j) {
+            duplicate = true;
+            break;
+          }
+        }
+        if (duplicate) continue;
+
+        const idx = i * MAX_LINKS_PER_NODE + linkCounts[i];
+        linkTargets[idx] = j;
+        linkCounts[i]++;
+      }
+    }
+
+    expectedLinkCount = linkNodeCount * neighboursPerNode;
+  }
+
+  function fillMissingLinks(ratio) {
+    const N = nodes.length;
+    if (!ratio || ratio <= 0) return;
+
+    let neighboursPerNode = 1;
+    if (ratio >= 0.65) neighboursPerNode = 2;
+
+    let currentCount = 0;
+    for (let i = 0; i < N; i++) {
+      currentCount += linkCounts ? linkCounts[i] : 0;
+    }
+    const missing = expectedLinkCount - currentCount;
+    if (missing <= 0) return;
+
+    const batch = Math.max(1, Math.floor(missing * 0.1));
+
+    const linkR = 28;
+    const g = new Grid(VIRT_W, VIRT_H, linkR);
+    for (const n of nodes) g.insert(n);
+
+    const candidates = [];
+    for (let i = 0; i < N; i++) {
+      if (nodes[i].a > 0.05) candidates.push(i);
+    }
+
+    candidates.sort((ia, ib) => pa[ib] - pa[ia]);
+    let added = 0;
+
+    for (let ci = 0; ci < candidates.length && added < batch; ci++) {
+      const i = candidates[ci];
+
+      if (linkCounts[i] >= neighboursPerNode) continue;
+      const a = nodes[i];
+      const neigh = g.neighbors(a.x, a.y, linkR, []);
+
+      neigh.sort((p, q) => {
+        const dx1 = p.x - a.x, dy1 = p.y - a.y;
+        const dx2 = q.x - a.x, dy2 = q.y - a.y;
+        return (dx1 * dx1 + dy1 * dy1) - (dx2 * dx2 + dy2 * dy2);
+      });
+      for (let k = 0; k < neigh.length && added < batch && linkCounts[i] < neighboursPerNode; k++) {
+        const b = neigh[k];
+        if (b === a || b.a <= 0.05) continue;
+        const j = b.i;
+        if (j === undefined) continue;
+
+        let duplicate = false;
+        for (let t = 0; t < linkCounts[i]; t++) {
+          if (linkTargets[i * MAX_LINKS_PER_NODE + t] === j) {
+            duplicate = true;
+            break;
+          }
+        }
+        if (duplicate) continue;
+
+        const idx = i * MAX_LINKS_PER_NODE + linkCounts[i];
+        linkTargets[idx] = j;
+        linkCounts[i]++;
+        added++;
+      }
+    }
+
+  }
+
+  function maybeRebuildLinks(now) {
+    if (pendingLinkRatio != null && (now - lastLinkRebuildTime) >= LINK_REBUILD_INTERVAL_MS) {
+      rebuildLinks(pendingLinkRatio);
+      pendingLinkRatio = null;
+      lastLinkRebuildTime = now;
+      linkPathDirty = true;
+    }
+  }
+
+  function breakLongLinksBatch() {
+    const L = nodes.length;
+    const batchSize = Math.max(1, Math.floor(L / 3));
+    const startIdx = linkBreakCursor;
+    const endIdx   = Math.min(L, startIdx + batchSize);
+    let modified = false;
+    for (let i = startIdx; i < endIdx; i++) {
+      const count = linkCounts ? linkCounts[i] : 0;
+      if (!count) continue;
+      const x1 = px[i], y1 = py[i];
+      let newCount = 0;
+      for (let k = 0; k < count; k++) {
+        const j = linkTargets[i * MAX_LINKS_PER_NODE + k];
+        if (j < 0 || j >= L) continue;
+        const dx = px[j] - x1;
+        const dy = py[j] - y1;
+        const d2 = dx * dx + dy * dy;
+        if (d2 > LINK_BREAK_DIST2) {
+          continue;
+        }
+        linkTargets[i * MAX_LINKS_PER_NODE + newCount] = j;
+        newCount++;
+      }
+      if (newCount !== count) {
+        linkCounts[i] = newCount;
+        modified = true;
+      }
+    }
+    linkBreakCursor = (endIdx >= L) ? 0 : endIdx;
+    if (modified) linkPathDirty = true;
+  }
+
+  function buildLinkPath() {
+    const p = new Path2D();
+    const L = nodes.length;
+    for (let i = 0; i < L; i++) {
+      const count = linkCounts ? linkCounts[i] : 0;
+      if (!count) continue;
+      const x1 = px[i], y1 = py[i];
+      for (let k = 0; k < count; k++) {
+        const j = linkTargets[i * MAX_LINKS_PER_NODE + k];
+        if (j < 0 || j >= L) continue;
+        const x2 = px[j], y2 = py[j];
+
+        if ((x1 < 0 && x2 < 0) ||
+            (x1 > VIRT_W && x2 > VIRT_W) ||
+            (y1 < 0 && y2 < 0) ||
+            (y1 > VIRT_H && y2 > VIRT_H)) {
+          continue;
+        }
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const d2 = dx * dx + dy * dy;
+        if (d2 > LINK_BREAK_DIST2) continue;
+        p.moveTo(x1, y1);
+        p.lineTo(x2, y2);
+      }
+    }
+    return p;
+  }
+
+  function drawLinksLayer() {
+
+    linkCtx.setTransform(1, 0, 0, 1, 0, 0);
+    linkCtx.clearRect(0, 0, VIRT_W, VIRT_H);
+
+    maybeRebuildLinks(performance.now());
+
+    if (currentLinkRatioIdx < 0) return;
+    const ratio = LINK_ACTIVITY_RATIOS[currentLinkRatioIdx] || 0;
+    if (ratio <= 0) return;
+
+    linkCtx.lineWidth = 1.2;
+    linkCtx.lineCap = 'round';
+    const minAlpha  = 0.15;
+    const maxAlpha  = 0.55;
+    let normalisedAlpha = minAlpha + (ratio / 0.60) * (maxAlpha - minAlpha);
+    if (normalisedAlpha > maxAlpha) normalisedAlpha = maxAlpha;
+    linkCtx.strokeStyle = ORANGE;
+    linkCtx.globalAlpha = normalisedAlpha;
+
+    breakLongLinksBatch();
+
+    if (linkPathDirty) {
+      linkPath = buildLinkPath();
+      linkPathDirty = false;
+    }
+
+    if (linkPath) {
+      linkCtx.beginPath();
+      linkCtx.stroke(linkPath);
+    }
+
+    linkCtx.globalAlpha = 1;
+
+    let drawnCount = 0;
+    if (linkCounts) {
+      for (let idx = 0; idx < linkCounts.length; idx++) {
+        drawnCount += linkCounts[idx];
+      }
+    }
+    if (expectedLinkCount > 0 && drawnCount < expectedLinkCount) {
+      fillMissingLinks(ratio);
+      linkPathDirty = true;
+    }
+  }
+
+
+reseed();  
+
+const ACTIVITY_FROM_FEE = [0.00, 0.25, 0.35, 0.50, 0.75, 1.00];
+
+
+
+async function fetchActivityOnce(){
+
+  let feesSuccess = false;
+  let mempoolSuccess = false;
+  let fee ;
+  try {
+    const [feesRes, memRes] = await Promise.all([
+      fetch('https://mempool.space/api/v1/fees/recommended', { cache:'no-store' }),
+      fetch('https://mempool.space/api/mempool',             { cache:'no-store' }),
+    ]);
+
+
+    if (feesRes.ok) {
+      const j = await feesRes.json();
+      _latestFees.fastestFee  = j.fastestFee ?? null;
+      _latestFees.halfHourFee = j.halfHourFee ?? null;
+      _latestFees.hourFee     = j.hourFee ?? null;
+
+      fee = _latestFees.fastestFee ?? _latestFees.halfHourFee ?? _latestFees.hourFee ?? 0;
+
+      feesSuccess = true;
+    }
+
+    if (memRes.ok) {
+      const m = await memRes.json(); 
+      _latestPending = m?.count ?? null;
+      mempoolSuccess = true;
+    }
+  } catch (err) {
+    console.log('[mempool-fees] Primary fee/mempool fetch failed:', err.message);
+  }
+if (feesSuccess && mempoolSuccess) {
+  updateHistoricalActivity(fee, _latestPending ?? 0);
+}
+  let blockHeightSuccess = false;
+  try {
+    const heightRes = await fetch('/blockheight', { 
+      cache: 'no-store',
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (heightRes.ok) {
+      const heightText = await heightRes.text();
+      const t = parseInt(heightText, 10);
+      if (Number.isFinite(t)) {
+        if (_blockHeight != null && t !== _blockHeight) {
+          _lastBlockHeight = _blockHeight;
+          _blockHeight = t;
+          console.log(`[block-change] New block detected! Height: ${_lastBlockHeight} → ${_blockHeight}`);
+          reseed(_blockHeight);
+        } else {
+          _blockHeight = t;
+        }
+        blockHeightSuccess = true;
+      }
+    }
+  } catch (err) {
+    console.log('[ordinals-height] Primary block height fetch failed:', err.message);
+  }
+
+  if (!blockHeightSuccess) {
+    try {
+      const tipRes = await fetch('https://mempool.space/api/blocks/tip/height', { cache:'no-store' });
+      if (tipRes.ok) {
+        const t = Number.parseInt(await tipRes.text(), 10);
+        if (Number.isFinite(t)) {
+          if (_blockHeight != null && t !== _blockHeight) {
+            _lastBlockHeight = _blockHeight;
+            _blockHeight = t;
+            console.log(`[block-change] New block detected! Height: ${_lastBlockHeight} → ${_blockHeight}`);
+            reseed(_blockHeight);
+          } else {
+            _blockHeight = t;
+          }
+          blockHeightSuccess = true;
+          console.log('[mempool-backup] Using mempool block height');
+        }
+      }
+    } catch (err) {
+      console.log('[mempool-backup] Backup block height fetch failed:', err.message);
+    }
+  }
+if (!feesSuccess && !mempoolSuccess) {
+  console.log('[activity] FORCED ordinal fallback');
+  await fetchOrdinalActivityFallback()
+}
+  updateHUD();
+}
+
+function updateHUD(){
+  if (!UI.root) return;
+  const n = v => (v==null ? '—' : v);
+
+  UI.feeFast.textContent = `Fastest: ${n(_latestFees.fastestFee)} sat/vB`;
+  UI.feeHalf.textContent = `~30m: ${n(_latestFees.halfHourFee)} sat/vB`;
+  UI.feeHour.textContent = `~60m: ${n(_latestFees.hourFee)} sat/vB`;
+
+  UI.blockNum.textContent = `Block: ${n(_blockHeight)}`;
+  UI.pending.textContent  = `Awaiting: ${n(_latestPending)} txs`;
+}
+
+  function lerpColor(a, b, t){
+    const ca = hexToRgb(a), cb = hexToRgb(b);
+    const r = (ca.r + (cb.r - ca.r) * t)|0;
+    const g = (ca.g + (cb.g - ca.g) * t)|0;
+    const bl = (ca.b + (cb.b - ca.b) * t)|0;
+    return `rgb(${r},${g},${bl})`;
+  }
+  function hexToRgb(hex){
+    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return m ? { r: parseInt(m[1],16), g: parseInt(m[2],16), b: parseInt(m[3],16) } : {r:255,g:255,b:255};
+  }
+
+function toVirtXY(e) {
+  const r = canvas.getBoundingClientRect();
+  const sx = VIRT_W / r.width, sy = VIRT_H / r.height;
+  return { x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy };
+}
+window.addEventListener('resize', resize);
+canvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  return false;
+}, { capture: true });
+const pointerCache = { x: -1, y: -1, list: [], r: INTERACT_R };
+canvas.addEventListener('pointerdown', (e) => {
+  const p = toVirtXY(e);
+
+  if (e.pointerType === 'touch') {
+    touches.set(e.pointerId, p);
+
+    if (touches.size === 1) {
+      canvas.setPointerCapture?.(e.pointerId);
+      pointer.active = true;
+      pointer.id = e.pointerId;
+      pointer.x = pointer.px = p.x;
+      pointer.y = pointer.py = p.y;
+      pointer.vx = pointer.vy = 0;
+
+      pinch.active = false;
+      lens.active = false;
+      spawnRipples(p.x, p.y);
+    } else if (touches.size === 2) {
+      pointer.active = false;
+      pointer.id = -1;
+      pointer.vx = 0;
+      pointer.vy = 0;
+
+      const c = centroid();
+      lens.active = true;
+      lens.x = c.x;
+      lens.y = c.y;
+
+      lens.zoom = PINCHa.minZoom;
+      lens.r = Math.max(LENS_R_MIN, Math.min(LENS_R_MAX, Math.min(VIRT_W, VIRT_H) * 0.20));
+
+      pinch.active    = true;
+      pinch.startDist = distance();  
+      pinch.baseZoom  = PINCHa.minZoom; 
+    }
+    e.preventDefault();
+    return;
+  }
+
+if (e.pointerType !== 'touch') canvas.setPointerCapture(e.pointerId);
+
+if (e.button === 2) {
+  lens.active = true;
+  lens.x = p.x;
+  lens.y = p.y;
+
+  return; 
+}
+
+pointer.active = true; 
+pointer.id = e.pointerId;
+pointer.x = pointer.px = p.x;
+pointer.y = pointer.py = p.y;
+pointer.vx = pointer.vy = 0;
+spawnRipples(p.x, p.y);
+ 
+}, { passive: false });
+
+canvas.addEventListener('pointermove', (e) => {
+  const p = toVirtXY(e);
+
+  if (e.pointerType === 'touch') {
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, p);
+
+    if (pinch.active && touches.size >= 2) {
+    const c = centroid();
+    lens.x = c.x; 
+    lens.y = c.y;
+
+    const d  = distance();
+    const d0 = pinch.startDist || 1;
+
+    if (d <= d0) {
+      lens.zoom = PINCHa.minZoom;
+    } else {
+
+      const scale  = d / d0; 
+      const target = clamp(pinch.baseZoom * Math.pow(scale, PINCHa.gain),
+                          PINCHa.minZoom, PINCHa.maxZoom);
+      lens.zoom = lerp(lens.zoom, target, PINCHa.smooth);
+    }
+    } else if (pointer.active && e.pointerId === pointer.id) {
+
+      pointer.vx = p.x - pointer.x;
+      pointer.vy = p.y - pointer.y;
+      pointer.px = pointer.x; pointer.py = pointer.y;
+      pointer.x = p.x; pointer.y = p.y;
+    }
+
+    e.preventDefault();
+    return;
+  }
+
+if (lens.active) { lens.x = p.x; lens.y = p.y; }
+
+if (!pointer.active && e.pointerType !== 'touch' && (e.buttons & 1)) {
+  pointer.active = true;
+  pointer.id = e.pointerId;
+  pointer.x = pointer.px = p.x;
+  pointer.y = pointer.py = p.y;
+  pointer.vx = pointer.vy = 0;
+  canvas.setPointerCapture?.(e.pointerId);
+}
+
+if (e.pointerType !== 'touch' && (e.buttons & 1) === 0) {
+  if (pointer.active && e.pointerId === pointer.id) {
+    pointer.active = false;
+    pointer.id = -1;
+    pointer.vx = pointer.vy = 0;
+  }
+  return; 
+}
+
+if (!pointer.active || e.pointerId !== pointer.id) return;
+
+const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+for (const ev of events) {
+  const q = toVirtXY(ev);
+  pointer.vx = q.x - pointer.x;
+  pointer.vy = q.y - pointer.y;
+  pointer.px = pointer.x; pointer.py = pointer.y;
+  pointer.x = q.x; pointer.y = q.y;
+}}, { passive: false });
+
+canvas.addEventListener('pointerup', (e) => {
+  if (e.pointerType === 'touch') {
+    if (pointer.active && e.pointerId === pointer.id) {
+      pointer.active = false; pointer.id = -1;
+      pointer.vx = pointer.vy = 0;
+    }
+    touches.delete(e.pointerId);
+    if (touches.size < 2) pinch.active = false;
+    if (touches.size === 0) lens.active = false;
+    return;
+  }
+
+  if (e.button === 2) { lens.active = false; return; }
+
+  if (e.pointerId === pointer.id) {
+    pointer.active = false; pointer.id = -1;
+    pointer.vx = pointer.vy = 0;
+  }
+});
+
+canvas.addEventListener('wheel', (e) => {
+  if (!lens.active) return;
+
+  const unit = (e.deltaMode === 1) ? 16 : (e.deltaMode === 2) ? 800 : 1;
+  const dy = e.deltaY * unit;
+
+  if (e.shiftKey) {
+
+    const dr = dy * 0.06;
+    const maxR = Math.min(VIRT_W, VIRT_H) * 0.45;
+    lens.r = Math.max(60, Math.min(maxR, lens.r + dr));
+  } else {
+
+    const zoomStep = Math.exp(-dy * 0.0015);
+    lens.zoom = Math.max(1.5, Math.min(4.0, lens.zoom * zoomStep));
+  }
+
+  e.preventDefault(); 
+}, { passive: false });
+
+
+
+function step(dt){
+
+  const frand = mulberry32((tick*1664525 ^ 1013904223)>>>0);
+
+  let topCount = 0;
+  let bottomCount = 0;
+  for (let i = 0; i < P_COUNT; i++) {
+    const aVal = pa[i];
+    if (aVal === 0) {
+      const hid = holeIdAt(px[i], py[i]);
+      if (hid === HOLE_TOP_ID) {
+        topCount++;
+      } else if (hid === HOLE_BOTTOM_ID) {
+        bottomCount++;
+      }
+    }
+  }
+  const targetEach = (topCount + bottomCount) * 0.5;
+  let imbalance = 0;
+  if (targetEach > 0) imbalance = (bottomCount - topCount) / (2 * targetEach);
+
+  const flowScale = 0.0009 * Math.max(W, H);
+  const speed = 0.11;
+  const CX = W * 0.45 + GLYPH_OFFSET_X;
+  const CY = H * 0.4;
+
+  for (let i = _stripe; i < P_COUNT; i += UPDATE_STRIPES) {
+
+    let x  = px[i];
+    let y  = py[i];
+    let vx_i = vx[i];
+    let vy_i = vy[i];
+    let a  = pa[i];
+
+    let dxp = 0, dyp = 0, d2p = 0;
+    let wInteract = 0;
+    if (pointer.active) {
+      dxp = x - pointer.x;
+      dyp = y - pointer.y;
+      d2p = dxp*dxp + dyp*dyp;
+      if (d2p < INTERACT_R2) {
+
+        wInteract = 1 - Math.sqrt(d2p) / INTERACT_R;
+      }
+    }
+
+    if (wInteract > 0) {
+      const rep = INTERACT_PUSH * wInteract;
+      vx_i += dxp * rep;
+      vy_i += dyp * rep;
+    }
+
+    const insideNow = a > 0.02;
+    const curlScale = insideNow
+      ? (INSIDE_FLOW_MIN  + (INSIDE_FLOW_MAX  - INSIDE_FLOW_MIN ) * activityEased)
+      : (OUTSIDE_FLOW_MIN + (OUTSIDE_FLOW_MAX - OUTSIDE_FLOW_MIN) * activityEased);
+    const curlCoef = (0.004 + 0.010 * a) * curlScale;
+
+    noise.curlOut(
+      x / flowScale + tick * 0.0007,
+      y / flowScale - tick * 0.0005,
+      1.2,
+      _curlScratch
+    );
+    vx_i += _curlScratch.x * curlCoef;
+    vy_i += _curlScratch.y * curlCoef;
+
+    const edgeBias = (a > 0.02) ? (0.5 - Math.abs(0.5 - a)) : -0.05;
+    vx_i += (frand() - 0.5) * 0.015 + edgeBias * (frand() - 0.5) * 0.03;
+    vy_i += (frand() - 0.5) * 0.015 + edgeBias * (frand() - 0.5) * 0.03;
+
+    const xi = x | 0;
+    const yi = y | 0;
+    let gx = 0, gy = 0;
+    if (xi >= 0 && yi >= 0 && xi < VIRT_W && yi < VIRT_H) {
+      const gi = yi * VIRT_W + xi;
+      gx = gradX[gi];
+      gy = gradY[gi];
+    }
+    const kOut = 0.400;
+    const pull = (a > 0.02) ? 0 : kOut;
+    const pullScale = 1 - 0.85 * wInteract;
+    vx_i += gx * pull * pullScale;
+    vy_i += gy * pull * pullScale;
+
+    if (a <= 0.02) {
+      const grav = 0.08 + 0.14 * activityEased;
+      const gravScale = 1 - 0.75 * wInteract;
+      let totalGravX = 0, totalGravY = 0;
+      let foundDirections = 0;
+      const sampleRadius = 50;
+
+      const samples = 6;
+      for (let s = 0; s < samples; s++) {
+        const angle = (s / samples) * Math.PI * 2;
+        const sampleX = x + Math.cos(angle) * sampleRadius;
+        const sampleY = y + Math.sin(angle) * sampleRadius;
+        const sampleAlpha = alphaInMask(sampleX, sampleY);
+        if (sampleAlpha > 0.02) {
+          const dx = sampleX - x;
+          const dy = sampleY - y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const weight = sampleAlpha * 2;
+          totalGravX += (dx / dist) * weight;
+          totalGravY += (dy / dist) * weight;
+          foundDirections++;
+        }
+      }
+      if (foundDirections > 0) {
+        const totalGravMag = Math.hypot(totalGravX, totalGravY) || 1;
+        vx_i += (totalGravX / totalGravMag) * grav * gravScale;
+        vy_i += (totalGravY / totalGravMag) * grav * gravScale;
+      } else {
+        const dxC = CX - x;
+        const dyC = CY - y;
+        const invL = 1 / (Math.hypot(dxC, dyC) || 1);
+        vx_i += dxC * invL * grav * gravScale * 0.8;
+        vy_i += dyC * invL * grav * gravScale * 0.8;
+      }
+    }
+
+    if (false && a > 0.05) {
+      _tmpNbrs.length = 0;
+      sepGrid.neighbors(x, y, SEP_R, _tmpNbrs);
+      let fx = 0, fy = 0, count = 0;
+      for (let t = 0; t < _tmpNbrs.length && count < 8; t++) {
+        const m = _tmpNbrs[t];
+        const j = m.i;
+        if (j === i) continue;
+        const dx = x - px[j];
+        const dy = y - py[j];
+        const d2 = dx*dx + dy*dy;
+        if (d2 <= 0 || d2 > SEP_R2) continue;
+        const d = Math.sqrt(d2);
+        const inv = 1 / d;
+        const w = 1 - d * INV_SEP_R;
+        fx += dx * inv * w;
+        fy += dy * inv * w;
+        count++;
+      }
+      vx_i += fx * SEP_STR;
+      vy_i += fy * SEP_STR;
+    }
+
+    const isInHole = (a === 0 && isHole(x, y));
+
+    if (isInHole) {
+
+      const holeOutPush = 0.45;
+      vx_i += gx * holeOutPush;
+      vy_i += gy * holeOutPush;
+      const hid = holeIdAt(x, y);
+      if (hid > 0) {
+        const holeData = holeById[hid];
+        if (holeData) {
+          const dx = x - holeData.cx;
+          const dy = y - holeData.cy;
+          const dist = Math.hypot(dx, dy) || 1;
+          const radialPush = 0.15;
+          vx_i += (dx / dist) * radialPush;
+          vy_i += (dy / dist) * radialPush;
+        }
+      }
+      let sign = 0;
+      if (hid === HOLE_BOTTOM_ID) sign = 1;
+      else if (hid === HOLE_TOP_ID) sign = -1;
+      const push = HOLE_PUSH_MAX * imbalance * sign * 20;
+      vx_i += gx * push;
+      vy_i += gy * push;
+    } else if (a > 0.02) {
+      vy_i += -Math.sign(imbalance) * INSIDE_DRIFT * (1 - 0.9 * wInteract);
+    }
+
+    const nearOuterEdge = (a === 0 && alphaInMask(x + gx*10, y + gy*10) > 0);
+    const nearInnerEdge = (a > 0 && a < EDGE_BAND);
+    if (nearInnerEdge || nearOuterEdge) {
+
+      let crowd = 0;
+
+      if (nearOuterEdge) {
+        vx_i += gx * 0.35;
+        vy_i += gy * 0.35;
+      }
+
+      const vn = vx_i * gx + vy_i * gy;
+      if (vn < 0) {
+        vx_i -= vn * 0.15 * gx;
+        vy_i -= vn * 0.15 * gy;
+      }
+
+      const tx = -gy, ty = gx;
+      vx_i += tx * TANGENTIAL_JITTER * (frand() - 0.5);
+      vy_i += ty * TANGENTIAL_JITTER * (frand() - 0.5);
+    }
+
+
+    const baseDamp = baseDampLive;
+    const gapD = 0.22 + (0.10 - 0.22) * activityEased;
+    let outsideDamp = Math.max(0.35, Math.min(0.92, baseDamp - gapD));
+    const holeDamp = lerp(Math.max(0.14, baseDamp - 0.15), baseDamp, activityEased);
+    let damp;
+    if (isInHole) {
+      damp = holeDamp;
+    } else if (a > 0.02) {
+      damp = baseDamp;
+    } else {
+      damp = outsideDamp;
+    }
+    vx_i *= damp;
+    vy_i *= damp;
+    let speedMul;
+    if (isInHole) {
+      speedMul = lerp(OUTSIDE_SPEED_MIN, INSIDE_SPEED_MAX, activityEased);
+    } else if (insideNow) {
+      speedMul = INSIDE_SPEED_MIN + (INSIDE_SPEED_MAX - INSIDE_SPEED_MIN) * activityEased;
+    } else {
+      speedMul = OUTSIDE_SPEED_MIN + (OUTSIDE_SPEED_MAX - OUTSIDE_SPEED_MIN) * activityEased;
+    }
+    x += vx_i * speed * speedMul;
+    y += vy_i * speed * speedMul;
+    if (x < 0) x += W; else if (x >= W) x -= W;
+    if (y < 0) y += H; else if (y >= H) y -= H;
+ 
+    a = alphaInMask(x, y);
+    pa[i] = a;
+    pflicker[i] += 0.005 + (frand() * 0.01);
+
+    px[i] = x;
+    py[i] = y;
+    vx[i] = vx_i;
+    vy[i] = vy_i;
+  }
+
+  _stripe = (_stripe + 1) % UPDATE_STRIPES;
+
+  syncNodesFromSoA();
+
+}
+
+
+
+  function drawNetwork(){
+
+  const c = sceneCtx;
+
+  c.setTransform(DPR_SCENE, 0, 0, DPR_SCENE, 0, 0);
+  c.globalCompositeOperation = 'source-over';
+
+  c.globalAlpha = 1;
+  c.fillStyle = '#0b0d10';
+  c.fillRect(0,0,VIRT_W,VIRT_H);
+
+  const pulse = 0.52 + 3.5 * activityEased;
+  const haloAlpha = 0.02 + 0.1 * activityEased;
+  c.save();
+  c.translate(W*0.5, H*0.5);
+  c.scale(pulse, pulse);
+  c.translate(-W*0.525, -H*0.515);
+  c.globalAlpha = haloAlpha;
+  c.drawImage(haloMasked, 0, 0);
+  c.restore();
+  c.globalAlpha = 1;
+
+  c.globalAlpha = 1;
+  c.globalCompositeOperation = 'source-over';
+
+  c.drawImage(overlay, 0, 0);
+
+  drawLinksLayer();
+  c.drawImage(linkLayer, 0, 0);
+
+  c.globalAlpha = 1;
+
+nodesCtx.setTransform(1,0,0,1,0,0);
+nodesCtx.globalCompositeOperation = 'source-over';
+nodesCtx.globalAlpha = 1;
+nodesCtx.clearRect(0, 0, VIRT_W, VIRT_H);
+
+const pal = palettes[paletteMode];
+const BANDS = 6;
+const bandColors = Array.from({length: BANDS}, (_, i) =>
+  lerpColor(pal[0], pal[1], i/(BANDS-1))
+);
+
+  for (let i = 0; i < P_COUNT; i++) {
+    const x = px[i];
+    const y = py[i];
+    if (x < 0 || x > VIRT_W || y < 0 || y > VIRT_H) continue;
+
+    const aVal = pa[i];
+    const inside = aVal > 0.02;
+    const band = inside
+      ? Math.min(BANDS - 1, (Math.pow(aVal, 0.8) * (BANDS - 1)) | 0)
+      : -1;
+
+    const cool2 = '#def4ff';
+    const outsidePulse = 0.35 + 0.25 * activityEased;
+    const outsideColor = lerpColor('#cee7f5', cool2, outsidePulse);
+    const base = band >= 0 ? bandColors[band] : '#cee7f5';
+    const flicker = pflicker[i];
+    const pulse = inside
+      ? (0.6 + 0.4 * (((flicker % 1) * 2 - 1) ** 2))
+      : 0.3;
+    nodesCtx.globalAlpha = inside ? (0.7 * pulse) : 0.65;
+
+    const spr = getDotSprite(base, pw[i] * 1.5);
+    const ox = spr.width >> 1;
+    const oy = spr.height >> 1;
+    nodesCtx.drawImage(spr, x - ox, y - oy);
+  }
+
+    c.drawImage(nodesLayer, 0, 0);
+
+    drawHiddenText(c, activityEased, false, 1);
+
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+
+    ctx.drawImage(
+      sceneLayer,
+      0, 0, VIRT_W * DPR_SCENE, VIRT_H * DPR_SCENE,
+      0, 0, VIRT_W, VIRT_H
+    );
+    drawRipplesOverlay(ctx);
+    if (!lens.active) return;
+
+    const r = lens.r, z = lens.zoom;
+    const srcW = (r * 2) / z;
+    const srcH = (r * 2) / z;
+    const sx = lens.x - srcW / 2;
+    const sy = lens.y - srcH / 2;
+    const dx = lens.x - r;
+    const dy = lens.y - r;
+    const dw = r * 2;
+    const dh = r * 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(lens.x, lens.y, r, 0, Math.PI * 2);
+    ctx.clip();
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    ctx.drawImage(
+      sceneLayer,
+      sx * DPR_SCENE, sy * DPR_SCENE, srcW * DPR_SCENE, srcH * DPR_SCENE,
+      dx, dy, dw, dh
+    );
+
+    ctx.drawImage(
+      linkLayer,
+      sx, sy, srcW, srcH,
+      dx, dy, dw, dh
+    );
+
+    drawHiddenText(ctx, activityEased, true, z);
+
+
+  const g = ctx.createRadialGradient(lens.x, lens.y, r - lens.feather, lens.x, lens.y, r);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(1, 'rgba(0,0,0,0.25)');
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = g;
+  ctx.fillRect(dx, dy, dw, dh);
+
+
+  ctx.globalCompositeOperation = 'overlay';
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.beginPath();
+  ctx.arc(lens.x, lens.y, r - 1, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+let _hudPollHandle = null;
+function startHudPolling(ms = 15000){
+  if (_hudPollHandle) clearInterval(_hudPollHandle);
+  _hudPollHandle = setInterval(fetchActivityOnce, ms);
+}
+
+
+let last = performance.now();
+
+  let simFrameToggle = false;
+
+function frame(now){
+  if (paused) { requestAnimationFrame(frame); return; }
+
+  const dt = Math.min(0.033, (now - last) / 1000); // clamp to ~33ms
+  last = now;
+  step(dt);      
+  tick++;        
+  drawNetwork();
+  requestAnimationFrame(frame);
+}
+
+fetchActivityOnce();
+startHudPolling(15000);
+
+  setSeed((Date.now()>>>0) ^ 0xB17C01);
+  resize();
+  setupHUD(); 
+  requestAnimationFrame(frame);
+
+};
+</script>
+</body>
+</html>
