@@ -38,8 +38,11 @@ function initParticles() {
     const container = document.getElementById('particles');
     if (!container) return;
     
-    // Reduced count for performance - CSS handles animation
-    const particleCount = 15;
+    // Check if mobile/touch device
+    const isTouchDevice = window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+    
+    // Reduced count for performance - even fewer on mobile
+    const particleCount = isTouchDevice ? 8 : 15;
     
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
@@ -933,6 +936,9 @@ function initCardAnimations() {
    ============================================ */
 
 function initFairyDust() {
+    // Check if mobile/touch device
+    const isTouchDevice = window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+    
     // Create canvas overlay
     const canvas = document.createElement('canvas');
     canvas.id = 'fairy-dust-canvas';
@@ -954,12 +960,19 @@ function initFairyDust() {
     
     // Store title rect for fixed positioning
     let targetRect = null;
+    // On mobile, store initial rect and don't update (keeps sparkles fixed)
+    let initialRect = null;
     
     class Sparkle {
         constructor(offsetX, offsetY) {
             // Store offset from title rect, not absolute position
             this.offsetX = offsetX + (Math.random() - 0.5) * 20;
             this.offsetY = offsetY + (Math.random() - 0.5) * 10;
+            // On mobile, capture the initial position at spawn time
+            if (isTouchDevice && initialRect) {
+                this.fixedX = initialRect.left + this.offsetX;
+                this.fixedY = initialRect.top + this.offsetY;
+            }
             this.size = Math.random() * 4 + 2;
             this.maxSize = this.size + Math.random() * 6;
             this.alpha = 0;
@@ -1004,6 +1017,13 @@ function initFairyDust() {
         
         // Get current screen position based on title rect
         getScreenPos() {
+            // On mobile, use fixed position captured at spawn time
+            if (isTouchDevice && this.fixedX !== undefined) {
+                return {
+                    x: this.fixedX,
+                    y: this.fixedY
+                };
+            }
             if (!targetRect) return { x: 0, y: 0 };
             return {
                 x: targetRect.left + this.offsetX,
@@ -1065,8 +1085,9 @@ function initFairyDust() {
         const dpr = window.devicePixelRatio || 1;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         
-        // Update targetRect each frame to follow scroll
-        if (targetElement) {
+        // Update targetRect each frame to follow scroll (desktop only)
+        // On mobile, sparkles use fixed positions so no need to update
+        if (targetElement && !isTouchDevice) {
             targetRect = targetElement.getBoundingClientRect();
         }
         
@@ -1095,17 +1116,22 @@ function initFairyDust() {
         // Store element reference and get initial rect
         targetElement = titleEl;
         targetRect = titleEl.getBoundingClientRect();
+        // On mobile, capture initial rect for fixed sparkle positions
+        initialRect = { ...targetRect, left: targetRect.left, top: targetRect.top, width: targetRect.width, height: targetRect.height };
         
         // Store dimensions at spawn time
         const width = targetRect.width;
         const height = targetRect.height;
-        const sparkleCount = Math.floor(width / 15) + 10;
+        // Reduce sparkle count on mobile for performance
+        const sparkleCount = isTouchDevice 
+            ? Math.floor(width / 25) + 5 
+            : Math.floor(width / 15) + 10;
         
         // Spawn sparkles using offsets from title rect (not absolute positions)
         for (let i = 0; i < sparkleCount; i++) {
             setTimeout(() => {
-                // Update targetRect for fresh position
-                if (targetElement) {
+                // Update targetRect for fresh position (desktop only)
+                if (targetElement && !isTouchDevice) {
                     targetRect = targetElement.getBoundingClientRect();
                 }
                 const offsetX = Math.random() * width;
@@ -1238,20 +1264,25 @@ if (treasureSection && doorLeft && doorRight) {
     const isMobile = window.innerWidth <= 768;
 
     const startPoint = isMobile ? windowHeight * 0.6 : windowHeight * 0.6;
-    const endPoint = isMobile ? windowHeight * 0.1 : -windowHeight * 0.5;
+    // Extend end point further past the section so doors stay open longer
+    const endPoint = isMobile ? -windowHeight * 0.3 : -windowHeight * 1.2;
 
     let progress = (startPoint - rect.top) / (startPoint - endPoint);
     progress = Math.max(0, Math.min(1, progress));
 
     let doorProgress;
 
+    // Easing function to slow down the animation (ease-out cubic)
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+    
     if (progress <= 0.4) {
-        // Reach 70% open by the time scroll reaches 40%
-        doorProgress = (progress / 0.4) * 0.55;
+        // Reach 55% open by the time scroll reaches 40%
+        const normalizedProgress = progress / 0.4;
+        doorProgress = easeOutCubic(normalizedProgress) * 0.45;
     } else {
-        // Then slowly go from 70% to 100% over the remaining scroll
+        // Then slowly go from 55% to 100% over the remaining 60% of scroll
         const slowProgress = (progress - 0.4) / 0.6;
-        doorProgress = 0.55 + slowProgress * 0.45
+        doorProgress = 0.55 + easeOutCubic(slowProgress) * 0.55;
     }
 
     lastDoorProgress = doorProgress;
@@ -1469,6 +1500,9 @@ function initMusicPlayer() {
     
     if (!musicItems.length || !videoPlayer || !nowPlaying) return;
     
+    // Check if mobile/touch device
+    const isTouchDevice = window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+    
     // Set initial volume to 30%
     videoPlayer.volume = 0.3;
     
@@ -1485,18 +1519,27 @@ function initMusicPlayer() {
         videoLoaded = true;
     }
     
-    // Load first track source on first play attempt
-    videoPlayer.addEventListener('play', () => {
-        if (!videoLoaded) {
-            const activeItem = document.querySelector('.music-item.active');
-            if (activeItem) {
-                loadVideoSource(activeItem.getAttribute('data-src'));
-            }
+    // On mobile, load first video source immediately so it shows
+    if (isTouchDevice) {
+        const activeItem = document.querySelector('.music-item.active');
+        if (activeItem) {
+            loadVideoSource(activeItem.getAttribute('data-src'));
         }
-    }, { once: true });
+    } else {
+        // On desktop, load first track source on first play attempt
+        videoPlayer.addEventListener('play', () => {
+            if (!videoLoaded) {
+                const activeItem = document.querySelector('.music-item.active');
+                if (activeItem) {
+                    loadVideoSource(activeItem.getAttribute('data-src'));
+                }
+            }
+        }, { once: true });
+    }
     
-    // Create transparent overlay that hides cursor but allows video interaction
-    if (videoWrapper) {
+    // Only create cursor overlay on non-touch devices (desktop)
+    // On mobile, skip overlay so native video controls work properly
+    if (videoWrapper && !isTouchDevice) {
         const cursorOverlay = document.createElement('div');
         cursorOverlay.className = 'video-cursor-overlay';
         cursorOverlay.style.cssText = `

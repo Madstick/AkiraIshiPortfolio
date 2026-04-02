@@ -2499,6 +2499,46 @@ video::-webkit-media-controls-toggle-closed-captions-button,
 }
 
 @media (max-width: 768px) {
+  /* Mobile performance optimizations */
+  /* Reduce/disable heavy animations on mobile */
+  .banner-wave {
+    animation: none;
+  }
+  
+  .torch-glow::after {
+    animation: none;
+    opacity: 0.5;
+  }
+  
+  .rune-circle::before {
+    animation: none;
+  }
+  
+  /* Reduce particle animation complexity */
+  .particle {
+    animation-duration: 20s;
+  }
+  
+  /* Simplify transitions on mobile */
+  .chronicle-card,
+  .side-project-card,
+  .gallery-thumb {
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  
+  /* Disable hover effects that cause repaints */
+  .chronicle-card::after {
+    display: none;
+  }
+  
+  /* Restore default cursor on mobile */
+  body,
+  a, button, input, textarea, select,
+  .chronicle-card, .side-project-card,
+  .gallery-thumb, .music-item, video {
+    cursor: auto !important;
+  }
+  
   /* Header fixes */
   .reliquary-header {
     padding: 0.75rem 0.5rem;
