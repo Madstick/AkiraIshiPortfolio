@@ -2543,9 +2543,78 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   transform: rotate(180deg);
 }
 
+/* Side projects expand button (mobile) */
+.side-projects-expand-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 2rem auto 0;
+  padding: 1rem 2.5rem;
+  background: transparent;
+  border: 2px solid var(--gold-dark);
+  color: var(--parchment);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: var(--transition-medium);
+}
+
+.side-projects-expand-btn:hover {
+  background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: var(--brown-dark);
+  border-color: var(--gold);
+  box-shadow: 0 0 30px rgba(201, 162, 39, 0.3);
+}
+
+/* Mobile hidden class for progressive reveal */
+.mobile-hidden {
+  display: none !important;
+}
+
+/* Mobile peek class - shows 1/3 of project with fade */
+.mobile-peek {
+  display: block !important;
+  max-height: 100px;
+  overflow: hidden;
+  opacity: 0.8;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+  margin-bottom: 0;
+}
+
+/* Mobile: Position expand buttons properly */
+@media (max-width: 768px) {
+  .chronicles-expand-btn {
+    position: relative;
+    z-index: 10;
+    margin-top: -20px;
+    background: transparent;
+    border: 2px solid var(--gold-dark);
+  }
+  
+  .side-projects-expand-btn {
+    display: flex;
+    position: relative;
+    z-index: 10;
+    margin-top: -20px;
+    background: transparent;
+    border: 2px solid var(--gold-dark);
+  }
+}
+
 @media (max-width: 768px) {
   .header-toggle {
     display: block;
+  }
+  
+  /* Hide particles on mobile */
+  .ambient-particles,
+  .particle {
+    display: none !important;
   }
   
   /* Mobile performance optimizations */

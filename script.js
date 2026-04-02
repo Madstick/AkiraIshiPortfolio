@@ -54,11 +54,14 @@ function initParticles() {
     const container = document.getElementById('particles');
     if (!container) return;
     
-    // Check if mobile/touch device
-    const isTouchDevice = window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+    // Skip particles entirely on mobile
+    if (window.innerWidth <= 768) {
+        container.style.display = 'none';
+        return;
+    }
     
-    // Reduced count for performance - even fewer on mobile
-    const particleCount = isTouchDevice ? 8 : 15;
+    // Desktop: create particles
+    const particleCount = 15;
     
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
@@ -146,6 +149,13 @@ let chroniclesExpanded = false;
 const FEATURED_COUNT = 3;
 const INITIAL_ROW_COUNT = 3; // Show 1 row of 3 initially in regular grid
 
+// Mobile progressive reveal settings
+const isMobileView = () => window.innerWidth <= 768;
+let mobileChroniclesShown = 3; // Start with 3 on mobile (featured only)
+const MOBILE_CHRONICLES_INCREMENT = 3;
+let mobileSideProjectsShown = 5; // Start with 5 on mobile
+const MOBILE_SIDE_PROJECTS_INCREMENT = 5;
+
 function initProjects() {
     const featuredGrid = document.getElementById('featured-grid');
     const grid = document.getElementById('projects-grid');
@@ -155,40 +165,62 @@ function initProjects() {
     
     renderChronicles();
     
-    // Expand button handler
+    // Expand button handler - progressive reveal on both mobile and desktop
     if (expandBtn) {
-        expandBtn.addEventListener('click', () => {
-            chroniclesExpanded = !chroniclesExpanded;
-            
-            const expandText = expandBtn.querySelector('.expand-text');
+        // Function to update peek preview
+        const updateChroniclesPeek = () => {
             const category = grid.dataset.filteredCategory || 'all';
+            const filteredProjects = category === 'all' 
+                ? projects 
+                : projects.filter(p => p.category === category);
             
-            if (chroniclesExpanded) {
-                // Append remaining cards
-                const filteredProjects = category === 'all' 
-                    ? projects 
-                    : projects.filter(p => p.category === category);
-                const regularProjects = filteredProjects.slice(FEATURED_COUNT);
-                const currentCount = grid.children.length;
-                const remainingProjects = regularProjects.slice(currentCount);
-                
-                remainingProjects.forEach((project, index) => {
-                    const card = createProjectCard(project, currentCount + index + FEATURED_COUNT, false);
-                    grid.appendChild(card);
-                });
-                
-                grid.classList.remove('collapsed');
-                grid.classList.add('expanded');
-                expandText.textContent = 'Show Less';
-                expandBtn.classList.add('expanded');
-            } else {
-                // Collapse - keep cards but hide with CSS
-                grid.classList.add('collapsed');
-                grid.classList.remove('expanded');
-                expandText.textContent = 'Reveal More Chronicles';
-                expandBtn.classList.remove('expanded');
-                // Scroll back to chronicles section
-                document.getElementById('chronicles').scrollIntoView({ behavior: 'smooth' });
+            // Remove existing peek
+            const existingPeek = grid.querySelector('.mobile-peek');
+            if (existingPeek) {
+                existingPeek.remove();
+            }
+            
+            // Add peek for next project if there are more
+            if (mobileChroniclesShown < filteredProjects.length) {
+                const peekProject = filteredProjects[mobileChroniclesShown];
+                const peekCard = createProjectCard(peekProject, mobileChroniclesShown, false);
+                peekCard.classList.add('mobile-peek');
+                peekCard.classList.remove('reveal');
+                grid.appendChild(peekCard);
+            }
+        };
+        
+        // Initial peek on mobile
+        if (isMobileView()) {
+            updateChroniclesPeek();
+        }
+        
+        expandBtn.addEventListener('click', () => {
+            const category = grid.dataset.filteredCategory || 'all';
+            const filteredProjects = category === 'all' 
+                ? projects 
+                : projects.filter(p => p.category === category);
+            
+            // Remove peek card first
+            const existingPeek = grid.querySelector('.mobile-peek');
+            if (existingPeek) {
+                existingPeek.remove();
+            }
+            
+            const nextBatch = filteredProjects.slice(mobileChroniclesShown, mobileChroniclesShown + MOBILE_CHRONICLES_INCREMENT);
+            
+            nextBatch.forEach((project, index) => {
+                const card = createProjectCard(project, mobileChroniclesShown + index, false);
+                grid.appendChild(card);
+            });
+            
+            mobileChroniclesShown += nextBatch.length;
+            
+            // Hide button if all shown, otherwise update peek
+            if (mobileChroniclesShown >= filteredProjects.length) {
+                expandBtn.style.display = 'none';
+            } else if (isMobileView()) {
+                updateChroniclesPeek();
             }
         });
     }
@@ -226,11 +258,9 @@ function renderChronicles() {
     
     if (!featuredGrid || !grid) return;
     
-    // Get first 3 projects as featured (most recent)
+    // Render featured projects (first 3)
     const featuredProjects = projects.slice(0, FEATURED_COUNT);
-    const regularProjects = projects.slice(FEATURED_COUNT);
     
-    // Only re-render featured if empty (first load)
     if (featuredGrid.children.length === 0) {
         featuredProjects.forEach((project, index) => {
             const card = createProjectCard(project, index, true);
@@ -238,36 +268,28 @@ function renderChronicles() {
         });
     }
     
-    // In collapsed mode: render only first row (INITIAL_ROW_COUNT)
-    // In expanded mode: append remaining cards
-    if (chroniclesExpanded) {
-        // Append remaining cards if not already rendered
-        const currentCount = grid.children.length;
-        const remainingProjects = regularProjects.slice(currentCount);
-        
-        remainingProjects.forEach((project, index) => {
-            const card = createProjectCard(project, currentCount + index + FEATURED_COUNT, false);
-            grid.appendChild(card);
-        });
-        
-        grid.classList.remove('collapsed');
-        grid.classList.add('expanded');
-    } else {
-        // First load or collapse: render only visible cards
-        if (grid.children.length === 0) {
-            const visibleProjects = regularProjects.slice(0, INITIAL_ROW_COUNT);
-            visibleProjects.forEach((project, index) => {
-                const card = createProjectCard(project, index + FEATURED_COUNT, false);
-                grid.appendChild(card);
-            });
+    // Update button text and visibility
+    if (expandBtn) {
+        expandBtn.querySelector('.expand-text').textContent = 'See More Chronicles';
+        if (mobileChroniclesShown >= projects.length) {
+            expandBtn.style.display = 'none';
+        } else {
+            expandBtn.style.display = 'flex';
         }
-        grid.classList.add('collapsed');
-        grid.classList.remove('expanded');
     }
+}
+
+// Legacy function kept for compatibility - no longer used
+function renderChroniclesLegacy() {
+    const featuredGrid = document.getElementById('featured-grid');
+    const grid = document.getElementById('projects-grid');
+    const expandBtn = document.getElementById('chronicles-expand');
+    
+    if (!featuredGrid || !grid) return;
     
     // Hide expand button if no more projects to show
     if (expandBtn) {
-        if (regularProjects.length <= INITIAL_ROW_COUNT) {
+        if (projects.length <= FEATURED_COUNT) {
             expandBtn.style.display = 'none';
         } else {
             expandBtn.style.display = 'flex';
@@ -1481,6 +1503,71 @@ function initVaultPassword() {
 
 function initSideProjectExpand() {
     const cards = document.querySelectorAll('.side-project-card');
+    const featuredCards = document.querySelectorAll('.side-projects-featured .side-project-card');
+    const gridCards = document.querySelectorAll('.side-projects-grid .side-project-card');
+    const expandBtn = document.getElementById('side-projects-expand');
+    
+    // Mobile: hide cards beyond initial count and setup progressive reveal
+    if (isMobileView()) {
+        const allCards = [...featuredCards, ...gridCards];
+        
+        // Function to update peek preview
+        const updateSideProjectsPeek = () => {
+            // Remove existing peek
+            allCards.forEach(card => card.classList.remove('mobile-peek'));
+            
+            // Add peek for next hidden card if there are more
+            if (mobileSideProjectsShown < allCards.length) {
+                const peekCard = allCards[mobileSideProjectsShown];
+                peekCard.classList.remove('mobile-hidden');
+                peekCard.classList.add('mobile-peek');
+            }
+        };
+        
+        // Hide cards beyond initial count
+        allCards.forEach((card, index) => {
+            if (index >= mobileSideProjectsShown) {
+                card.classList.add('mobile-hidden');
+            }
+        });
+        
+        // Show initial peek
+        updateSideProjectsPeek();
+        
+        // Setup expand button
+        if (expandBtn) {
+            if (mobileSideProjectsShown >= allCards.length) {
+                expandBtn.style.display = 'none';
+            } else {
+                expandBtn.style.display = 'flex';
+            }
+            
+            expandBtn.addEventListener('click', () => {
+                // Remove peek class from current peek
+                allCards.forEach(card => card.classList.remove('mobile-peek'));
+                
+                const nextBatch = allCards.slice(mobileSideProjectsShown, mobileSideProjectsShown + MOBILE_SIDE_PROJECTS_INCREMENT);
+                
+                nextBatch.forEach(card => {
+                    card.classList.remove('mobile-hidden');
+                });
+                
+                mobileSideProjectsShown += nextBatch.length;
+                
+                // Hide button if all shown, otherwise update peek
+                if (mobileSideProjectsShown >= allCards.length) {
+                    expandBtn.style.display = 'none';
+                } else {
+                    updateSideProjectsPeek();
+                }
+            });
+        }
+    } else {
+        // Desktop: hide the mobile expand button
+        if (expandBtn) {
+            expandBtn.style.display = 'none';
+        }
+    }
     
     cards.forEach(card => {
         const header = card.querySelector('.side-project-header');
