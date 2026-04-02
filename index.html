@@ -2,286 +2,691 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Akiraishi - Under Construction</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-            background: #008080;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .window {
-            width: 100%;
-            max-width: 600px;
-            background: #c0c0c0;
-            border: 2px solid;
-            border-color: #ffffff #808080 #808080 #ffffff;
-            box-shadow: 2px 2px 0 0 #000;
-        }
-
-        .title-bar {
-            background: linear-gradient(90deg, #000080, #1084d0);
-            padding: 3px 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .title-bar-text {
-            color: #fff;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        .title-bar-controls {
-            display: flex;
-            gap: 2px;
-        }
-
-        .title-bar-controls button {
-            width: 16px;
-            height: 14px;
-            background: #c0c0c0;
-            border: 1px solid;
-            border-color: #ffffff #808080 #808080 #ffffff;
-            font-size: 9px;
-            line-height: 1;
-            cursor: default;
-        }
-
-        .window-body {
-            padding: 20px;
-        }
-
-        .construction-banner {
-            background: #ffff00;
-            border: 2px solid #000;
-            padding: 10px;
-            text-align: center;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .construction-banner span {
-            font-size: 24px;
-        }
-
-        .construction-banner p {
-            color: #000;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #c0c0c0;
-            border: 2px solid;
-            border-color: #808080 #ffffff #ffffff #808080;
-        }
-
-        .header h1 {
-            color: #000080;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            color: #000;
-            font-size: 11px;
-        }
-
-        .projects-label {
-            font-size: 12px;
-            font-weight: bold;
-            color: #000;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .projects {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .project-link {
-            display: block;
-            text-decoration: none;
-            background: #c0c0c0;
-            border: 2px solid;
-            border-color: #ffffff #808080 #808080 #ffffff;
-            transition: all 0.1s;
-        }
-
-        .project-link:hover {
-            border-color: #808080 #ffffff #ffffff #808080;
-        }
-
-        .project-link:active {
-            border-color: #808080 #ffffff #ffffff #808080;
-        }
-
-        .project-preview {
-            width: 100%;
-            max-height: 300px;
-            background: #000;
-            border-bottom: 1px solid #808080;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .project-preview img {
-            width: 100%;
-            height: auto;
-            max-height: 300px;
-            object-fit: contain;
-            display: block;
-        }
-
-        .project-preview-placeholder {
-            color: #008080;
-            font-size: 11px;
-            text-align: center;
-        }
-
-        .project-info {
-            padding: 8px 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .folder-icon {
-            font-size: 16px;
-        }
-
-        .project-name {
-            color: #000;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .project-external-link {
-            display: block;
-            text-align: center;
-            padding: 5px;
-            background: #c0c0c0;
-            border: 1px solid;
-            border-color: #ffffff #808080 #808080 #ffffff;
-            color: #000080;
-            font-size: 11px;
-            text-decoration: underline;
-        }
-
-        .project-external-link:hover {
-            color: #0000ff;
-        }
-
-        .status-bar {
-            background: #c0c0c0;
-            border-top: 1px solid #808080;
-            padding: 3px 5px;
-            font-size: 11px;
-            color: #000;
-        }
-
-        .status-bar-field {
-            border: 1px solid;
-            border-color: #808080 #ffffff #ffffff #808080;
-            padding: 2px 5px;
-        }
-
-        @media (max-width: 480px) {
-            .window {
-                max-width: 100%;
-            }
-            .header h1 {
-                font-size: 18px;
-            }
-                    }
-    </style>
+    <title>The Reliquary | Akira Ishi's Portfolio</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="The Reliquary - Portfolio of Akira Ishi, generative artist. Explore digital artworks inscribed on Bitcoin, Ethereum, and other blockchains.">
+    <meta name="keywords" content="Akira Ishi, generative art, NFT, Bitcoin Ordinals, Ethereum, digital art, blockchain art, Technosignatures, Four Seasons">
+    <meta name="author" content="Akira Ishi">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#1a0f05">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/desktop-icons/reliquary/internet_a.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="images/desktop-icons/reliquary/internet_a.ico">
+    <link rel="apple-touch-icon" href="images/desktop-icons/reliquary/internet_a.webp">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://akiraishi.com/">
+    <meta property="og:title" content="The Reliquary | Akira Ishi">
+    <meta property="og:description" content="Portfolio of Akira Ishi, generative artist. Explore digital artworks inscribed on Bitcoin, Ethereum, and other blockchains.">
+    <meta property="og:image" content="https://akiraishi.com/images/projects/4seasons_AkiraIshi75.gif">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="The Reliquary">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@leAkira_Ishi">
+    <meta name="twitter:creator" content="@leAkira_Ishi">
+    <meta name="twitter:title" content="The Reliquary | Akira Ishi">
+    <meta name="twitter:description" content="Portfolio of Akira Ishi, generative artist. Explore digital artworks inscribed on Bitcoin, Ethereum, and other blockchains.">
+    <meta name="twitter:image" content="https://akiraishi.com/images/projects/4seasons_AkiraIshi75.gif">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://akiraishi.com/">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700&family=MedievalSharp&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="window">
-        <div class="title-bar">
-            <span class="title-bar-text">Akiraishi - Portfolio</span>
-            <div class="title-bar-controls">
-                <button>_</button>
-                <button>□</button>
-                <button>×</button>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scroll-progress"></div>
+    
+    <!-- Ambient particles background -->
+    <div class="ambient-particles" id="particles"></div>
+    
+    <!-- Main container -->
+    <div class="reliquary-container">
+        
+        <!-- Header / Navigation -->
+        <header class="reliquary-header">
+            <div class="header-ornament left"></div>
+            <nav class="main-nav">
+                <a href="#sanctum" class="nav-link" data-section="sanctum">
+                    <img src="images/desktop-icons/reliquary/desktop_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span>Sanctum</span>
+                </a>
+                <a href="#treasure" class="nav-link" data-section="treasure">
+                    <img src="images/desktop-icons/reliquary/settings_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span>Vault</span>
+                </a>
+                <a href="#chronicles" class="nav-link" data-section="chronicles">
+                    <img src="images/desktop-icons/reliquary/folders_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span>Chronicles</span>
+                </a>
+                <a href="#side-projects" class="nav-link" data-section="side-projects">
+                    <img src="images/desktop-icons/reliquary/mediaplayer_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span>Quests</span>
+                </a>
+                <div class="logo-container">
+                    <div class="logo-frame banner-wave">
+                        <span class="logo-text shimmer-text">⚜ The Reliquary ⚜</span>
+                    </div>
+                </div>
+                <a href="#gallery" class="nav-link" data-section="gallery">
+                    <img src="images/desktop-icons/reliquary/images_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span>Gallery</span>
+                </a>
+                <a href="#about" class="nav-link" data-section="about">
+                    <img src="images/desktop-icons/reliquary/network_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span>Bio</span>
+                </a>
+                <a href="#contact" class="nav-link" data-section="contact">
+                    <img src="images/desktop-icons/reliquary/messages_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span>Contact</span>
+                </a>
+                <a href="#faq" class="nav-link" data-section="faq">
+                    <img src="images/desktop-icons/reliquary/notes_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span>FAQ</span>
+                </a>
+            </nav>
+            <div class="header-ornament right"></div>
+        </header>
+
+        <!-- Hero Section - Sanctum -->
+        <section id="sanctum" class="section hero-section">
+            <div class="hero-content">
+                <div class="hero-frame">
+                    <div class="corner-ornament top-left"></div>
+                    <div class="corner-ornament top-right"></div>
+                    <div class="corner-ornament bottom-left"></div>
+                    <div class="corner-ornament bottom-right"></div>
+                    
+                    <h1 class="hero-title">
+                        <span class="title-line shimmer-text">Akira Ishi</span>
+                        <span class="title-divider">⚜</span>
+                        <span class="title-subtitle">Digital Artisan & Blockchain Bard</span>
+                    </h1>
+                    
+                    <p class="hero-description">
+                        Welcome to The Reliquary, a sanctuary of digital artifacts inscribed upon the eternal ledger and other planes. 
+                        Here, art and technology converge in an alchemical union, creating timeless treasures for the ages.
+                    </p>
+                    
+                    <div class="hero-cta">
+                        <a href="#chronicles" class="cta-button primary">
+                            <span class="btn-ornament">❧</span>
+                            Explore the Chronicles
+                            <span class="btn-ornament">❧</span>
+                        </a>
+                        <a href="#contact" class="cta-button secondary">Seek Audience</a>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="window-body">
-            <div class="construction-banner">
-                <span>🚧</span>
-                <p>WEBSITE UNDER CONSTRUCTION</p>
-                <span>🚧</span>
+            
+            <button class="scroll-indicator" id="descend-btn">
+                <span class="scroll-text">Descend</span>
+                <div class="scroll-arrow"></div>
+            </button>
+        </section>
+
+        <!-- Treasure Section with Doors -->
+        <section id="treasure" class="section treasure-section">
+            <div class="treasure-doors">
+                <img src="images/desktop-icons/reliquary/door1.webp" alt="" class="door door-left" id="door-left" decoding="async" loading="lazy">
+                <img src="images/desktop-icons/reliquary/door2.webp" alt="" class="door door-right" id="door-right" decoding="async" loading="lazy">
+            </div>
+            <div class="treasure-content">
+                <div class="treasure-glow"></div>
+                <h2 class="treasure-title">⚜ Enter The Vault ⚜</h2>
+                <p class="treasure-text">Scroll to reveal the sacred treasures within</p>
+                <div class="vault-password">
+                    <div class="vault-input-row">
+                        <input type="password" id="vault-password-input" class="vault-input" placeholder="Enter the secret phrase...">
+                        <button id="vault-submit" class="vault-submit-btn">⚿</button>
+                    </div>
+                    <p id="vault-response" class="vault-response"></p>
+                </div>
+                <div class="provenance-tree" id="provenance-tree">
+                </div>
+            </div>
+        </section>
+
+        <!-- Chronicles Section - Projects -->
+        <section id="chronicles" class="section chronicles-section">
+            <div class="section-header">
+                <div class="header-line"></div>
+                <h2 class="section-title enchanted-underline">
+                    <span class="title-ornament">☙</span>
+                    The Chronicles
+                    <span class="title-ornament">❧</span>
+                </h2>
+                <p class="section-subtitle">Sacred works inscribed upon the blockchains</p>
+                <div class="header-line"></div>
+            </div>
+            
+            <div class="category-filters">
+                <button class="filter-btn active" data-filter="all">All Relics</button>
+                <button class="filter-btn" data-filter="bitcoin">Bitcoin Inscriptions</button>
+                <button class="filter-btn" data-filter="ethereum">Ethereum Artifacts</button>
+                <button class="filter-btn" data-filter="tezos">Other Chains Treasures</button>
+            </div>
+            
+            <!-- Featured Projects (Top 3) -->
+            <div class="chronicles-featured" id="featured-grid">
+                <!-- Featured projects will be dynamically inserted here -->
+            </div>
+            
+            <!-- Regular Projects Grid -->
+            <div class="chronicles-grid" id="projects-grid">
+                <!-- Projects will be dynamically inserted here -->
+            </div>
+            
+            <!-- Expand Button -->
+            <button class="chronicles-expand-btn" id="chronicles-expand">
+                <span class="btn-ornament">❧</span>
+                <span class="expand-text">Reveal More Chronicles</span>
+                <span class="btn-ornament">❧</span>
+            </button>
+        </section>
+
+        <!-- Side Projects Section -->
+        <section id="side-projects" class="section side-projects-section">
+            <div class="section-header">
+                <div class="header-line"></div>
+                <h2 class="section-title enchanted-underline">
+                    <span class="title-ornament">☙</span>
+                    Side Quests
+                    <span class="title-ornament">❧</span>
+                </h2>
+                <p class="section-subtitle">Websites, articles, collaborations & interactive experiences</p>
+                <div class="header-line"></div>
             </div>
 
-            <div class="header">
-                <h1>Akira ishi</h1>
-                <p>Hey there 👋 Congratulations, you've found this website! But it's still under construction 🚧</p>
+            <!-- Side Projects Filters -->
+            <div class="side-projects-filters">
+                <button class="side-filter-btn active" data-filter="all">All</button>
+                <button class="side-filter-btn" data-filter="website">Websites</button>
+                <button class="side-filter-btn" data-filter="live">Live Experiences</button>
+                <button class="side-filter-btn" data-filter="collab">Collaborations</button>
+                <button class="side-filter-btn" data-filter="article">Articles</button>
             </div>
 
-            <p class="projects-label">Live Projects</p>
-            <div class="projects">
-                <a href="Jardin-Algorithmique.html" class="project-link">
-                    <div class="project-preview">
-                        <img src="images/project-images/jardin-algorithmique.webp" alt="Jardin Algorithmique Preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <div class="project-preview-placeholder" style="display:none;">[ Preview ]</div>
+            <!-- Featured Side Projects -->
+            <div class="side-projects-featured">
+                <div class="side-project-card featured" data-type="live">
+                    <span class="side-project-featured-banner">Featured</span>
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/connecting.gif" alt="Connecting Real-Time" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Live Experience</span>
+                            <h3 class="side-project-title">Connecting Real-Time</h3>
+                            <p class="side-project-desc">Live visualization breathing to the pulse of the Bitcoin blockchain</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
                     </div>
-                    <div class="project-info">
-                        <span class="folder-icon">📁</span>
-                        <span class="project-name">Gallery viewer : Jardin Algorithmique</span>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">Experience Connecting in real-time as it breathes with the Bitcoin blockchain. This live version reacts directly to chain activity. Watch particles dance faster during high network congestion, see colors shift with transaction volume, and witness the system reset with every new block. A living artwork that transforms blockchain data into visual poetry.</p>
+                        <a href="https://akiraishi.com/Connecting.html" target="_blank" class="side-project-link">View Live →</a>
                     </div>
-                    <a href="https://highlight.xyz/mint/base:0x1ff29F84fbb8C50837845d485aaFc70EF6858EC1" class="project-external-link" target="_blank">View original project on Highlight.xyz (BASE)</a>
-                </a>
-                <a href="Connecting.html" class="project-link">
-                    <div class="project-preview">
-                        <img src="images/project-images/connecting.webp" alt="Connecting Preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <div class="project-preview-placeholder" style="display:none;">[ Preview ]</div>
+                </div>
+                
+                <div class="side-project-card featured" data-type="website">
+                    <span class="side-project-featured-banner">Featured</span>
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/jardin-algorithmique.webp" alt="Jardin Algorithmique Gallery" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Website</span>
+                            <h3 class="side-project-title">Jardin Algorithmique Gallery</h3>
+                            <p class="side-project-desc">Interactive gallery to explore all 200 unique garden compositions</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
                     </div>
-                    <div class="project-info">
-                        <span class="folder-icon">📁</span>
-                        <span class="project-name">Connecting: in real time version</span>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">The Jardin Algorithmique Gallery is a dedicated space to explore all 200 unique pieces from the collection. Browse through mathematical gardens, and discover the intricate and unique patterns created through p6m and p31 symmetry groups. Each piece curated, waiting to be explored in detail.</p>
+                        <a href="https://akiraishi.com/Jardin-Algorithmique" target="_blank" class="side-project-link">Visit Gallery →</a>
                     </div>
-                    <a href="https://gamma.io/ordinals/prints/5addbcf2beb3f10a0d0c263585d65041d770bd4c9ddd3a18bd6050479b8f73a9i0/details" class="project-external-link" target="_blank">View original project on Gamma.io (BTC)</a>
-                </a>
-                <a href="https://technosignatures.xyz/" class="project-link">
-                    <div class="project-preview">
-                        <img src="images/project-images/technosignatures.webp" alt="Technosignatures Preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <div class="project-preview-placeholder" style="display:none;">[ Preview ]</div>
+                </div>
+                
+                <div class="side-project-card featured" data-type="website">
+                    <span class="side-project-featured-banner">Featured</span>
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/technosignatures-website.webp" alt="Technosignatures Website" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Website</span>
+                            <h3 class="side-project-title">Technosignatures Website</h3>
+                            <p class="side-project-desc">Immersive website with 3D viewer, easter eggs & custom narration</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
                     </div>
-                    <div class="project-info">
-                        <span class="folder-icon">📁</span>
-                        <span class="project-name">Technosignatures</span>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">The Technosignatures website is an immersive journey into outer space. Featuring a custom 3D viewer where you can explore any piece in the collection, hidden easter eggs throughout the site, and fun narration that guides you through the lore.</p>
+                        <a href="https://technosignatures.xyz/" target="_blank" class="side-project-link">Visit Website →</a>
                     </div>
-                    <a href="https://gamma.io/ordinals/collections/technosignatures/items" class="project-external-link" target="_blank">View original project on Gamma.io (BTC)</a>
-                </a>
+                </div>
             </div>
-        </div>
-        <div class="status-bar">
-            <div class="status-bar-field">3 project(s) available</div>
+            
+            <div class="side-projects-grid" id="side-projects-grid">
+                <!-- Live Experiences -->
+                <div class="side-project-card" data-type="live">
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/3dviewer.webp" alt="Technosignatures 3D Viewer" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Live Experience</span>
+                            <h3 class="side-project-title">Technosignatures 3D Viewer</h3>
+                            <p class="side-project-desc">Explore your piece or any other in this amazing 3D view into a portion of space</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
+                    </div>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">The 3D Viewer is a standalone experience that lets you explore any Technosignature in full three-dimensional glory. Navigate through space, zoom into details, and discover the intricate alien structures from every angle. Enter any inscription number to load and explore that specific piece, or browse through the collection in an entirely new dimension.</p>
+                        <a href="https://technosignatures.xyz/3d-viewer/3dviewer.html" target="_blank" class="side-project-link">Launch 3D Viewer →</a>
+                    </div>
+                </div>
+                
+                <!-- Technosignatures Four Seasons Article -->
+                <div class="side-project-card" data-type="article">
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/gamma.webp" alt="Artist Spotlight : Gamma (BTC)" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Article</span>
+                            <h3 class="side-project-title">Artist Spotlight : Gamma (BTC)</h3>
+                            <p class="side-project-desc">Partner interview with the Gamma.io team</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
+                    </div>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">An intimate look at the Four Seasons concept and Technosignatures aswell as the broader vision for Bitcoin ordinals. This article shares personal insights into the artistic journey, the philosophy behind creating on Bitcoin, and the building of a cohesive narrative across all inscriptions. A roadmap written in code and preserved on-chain.</p>
+                        <a href="https://blog.gamma.io/partner-artist-spotlight-akira-ishi" target="_blank" class="side-project-link">Read Article →</a>
+                    </div>
+                </div>
+                
+                <!-- Don't Avoid Bright Light Collaboration -->
+                <div class="side-project-card" data-type="collab">
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/brightlights.gif" alt="Don't Avoid Bright Light" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Collaboration</span>
+                            <h3 class="side-project-title">Don't Avoid Bright Light</h3>
+                            <p class="side-project-desc">A collaborative art piece exploring light and shadow</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
+                    </div>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">Akira's take for the "Don't Avoid Bright Lights" collaboration with many artists around the "Avoid Bright Lights" piece from @TheArtistBTC.</p>
+                        <a href="https://www.trio.xyz/collections/dabl?attr_Artist_Akira+Ishi=true" target="_blank" class="side-project-link">View Collection →</a>
+                    </div>
+                </div>
+                
+                <!-- Googly Rocks Website -->
+                <div class="side-project-card" data-type="website">
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/googly.webp" alt="Googly Rocks" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Website</span>
+                            <h3 class="side-project-title">Googly Rocks</h3>
+                            <p class="side-project-desc">Interactive website for the Googly Rocks NFT collection on Base L2</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
+                    </div>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">The Googly Rocks website is built for the playful "Googly Rocks" NFT collection on Base L2. The site brings personality to every googly-eyed stone. Built with love innocence and humor, it's a celebration of fun in the Web3 space.</p>
+                        <a href="https://googlyrocks.com/" target="_blank" class="side-project-link">Visit Website →</a>
+                    </div>
+                </div>
+                
+                <!-- Articles -->
+                <div class="side-project-card" data-type="article">
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/whatsthepoint.webp" alt="What's the Point Article" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Article</span>
+                            <h3 class="side-project-title">What's the Point</h3>
+                            <p class="side-project-desc">My debut and constraint-based generative art</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
+                    </div>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">This article explores the philosophy behind constraint-based creating, proving that limitations don't restrict creativity, they focus it. A deep dive into building generative art with simple forms, this piece laid the groundwork for everything that followed.</p>
+                        <a href="https://medium.com/@leAkira_Ishi/whats-the-point-921ff4c86eed" target="_blank" class="side-project-link">Read Article →</a>
+                    </div>
+                </div>
+                
+                <!-- Terminator Pepe Collaboration -->
+                <div class="side-project-card" data-type="collab">
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/teminapepe.webp" alt="Terminator Pepe" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Collaboration</span>
+                            <h3 class="side-project-title">Terminator Pepe</h3>
+                            <p class="side-project-desc">A fun collaborative project merging meme culture with generative art</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
+                    </div>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">Terminator Pepe is a pixel art collaboration with @dan1el_d1g1tal for his Pepix collection, taking the iconic Pepe and reimagines it each artist at a time.</p>
+                        <a href="https://www.trio.xyz/collections/dabl?attr_Artist_Akira+Ishi=true" target="_blank" class="side-project-link">View Collection →</a>
+                    </div>
+                </div>
+                
+                <div class="side-project-card" data-type="article">
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/aodach-1.webp" alt="Aodach Article" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Article</span>
+                            <h3 class="side-project-title">Aodach & More On Me</h3>
+                            <p class="side-project-desc">A dive into Akira's background, Aodach collection and the story behind the project</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
+                    </div>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">This article explores the Aodach collection and the artist background, its inspiration from celtic motifs, the algorithmic approach to textile patterns, and how this project serves as a tribute. Beyond the art, it delves into the personal journey of Akira Ishi, revealing things one might not see without knowing the story behind the work.</p>
+                        <a href="https://puzzled-glade-885.notion.site/Akira-Ishi-6db8e8b1701049008c3080937f9e903f" target="_blank" class="side-project-link">Read Article →</a>
+                    </div>
+                </div>
+
+                <div class="side-project-card" data-type="article">
+                    <div class="side-project-header">
+                        <div class="side-project-image">
+                            <img src="images/projects/kort.webp" alt="Knights of the Round Table" decoding="async" loading="lazy">
+                        </div>
+                        <div class="side-project-content">
+                            <span class="side-project-type">Article</span>
+                            <h3 class="side-project-title">Knights of the Round Table</h3>
+                            <p class="side-project-desc">The beginning of a grand narrative - soon to be reinscribed on Bitcoin</p>
+                        </div>
+                        <div class="side-project-arrow">▼</div>
+                    </div>
+                    <div class="side-project-expanded">
+                        <p class="side-project-full-desc">The Knights of the Round Table represents the genesis of something much larger. Originally a collection of twelve unique minimalistic NFTs exploring the concept of depth through perception and distance, this project drew inspiration from Arthurian legends and Celtic mythology. The collection will be reinscribed on Bitcoin, marking the beginning of a grand interconnected narrative that weaves together all past and future creations into one cohesive epic.</p>
+                        <a href="https://medium.com/@leAkira_Ishi/the-knights-of-the-round-table-9569c3cca28d" target="_blank" class="side-project-link">Read Article →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Googly Rocks Music Subsection -->
+            <div class="side-projects-subsection">
+                <h3 class="subsection-title">
+                    <img src="images/desktop-icons/reliquary/mediaplayer_a.webp" alt="" class="subsection-icon" decoding="async">
+                    Googly Rocks Music
+                    <img src="images/desktop-icons/reliquary/mediaplayer_a.webp" alt="" class="subsection-icon" decoding="async">
+                </h3>
+                <p class="subsection-subtitle">Music videos and audio releases from the Googly Rocks universe</p>
+                
+                <div class="music-player-container">
+                    <ul class="music-list">
+                        <li class="music-item active" data-src="images/music/Googly rocks.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">Googly Rocks (Epic Metal)</li>
+                        <li class="music-item" data-src="images/music/googlylads.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">Googly Lads (Irish Punk Rock)</li>
+                        <li class="music-item" data-src="images/music/GooglySignatures.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">GooglySignatures (Trance)</li>
+                        <li class="music-item" data-src="images/music/ChristmasRock.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">Christmas Rock (Hard Rock)</li>
+                        <li class="music-item" data-src="images/music/Googly swing Collective.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">Googly Swing Collective (Electro Jazz)</li>
+                        <li class="music-item" data-src="images/music/Gleamstone.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">Gleamstone (K-Pop)</li>
+                        <li class="music-item" data-src="images/music/Googly rocks psy-trance ed.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">I am Googly (Psy-Trance)</li>
+                        <li class="music-item" data-src="images/music/Funky Googly.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">Funky Googly (Disco)</li>
+                        <li class="music-item" data-src="images/music/The Og rock.mp4" data-nft="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95">OG Rock (Rap)</li>
+                    </ul>
+                    <div class="music-player">
+                        <div class="video-wrapper">
+                            <video id="music-video-player" controls poster="images/projects/Googly Rocks.webp" preload="none">
+                                <!-- Source loaded on play/track selection -->
+                            </video>
+                        </div>
+                        <div class="music-player-info">
+                            <h4 class="music-now-playing" id="music-now-playing">Now Playing: Googly Rocks</h4>
+                            <a href="https://zora.co/collect/base:0x03e6ba3c4450a864ba0b3bc42e5a7e559c2f7706/3?referrer=0xf42816cd44f68d99efade1521d4f0c49a935dd95" target="_blank" class="music-nft-link" id="music-nft-link">Collect on Zora →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="section gallery-section">
+            <div class="section-header">
+                <div class="header-line"></div>
+                <h2 class="section-title enchanted-underline">
+                    <span class="title-ornament">☙</span>
+                    The Gallery
+                    <span class="title-ornament">❧</span>
+                </h2>
+                <p class="section-subtitle">Visual treasures from the collection</p>
+                <div class="header-line"></div>
+            </div>
+            
+            <div class="gallery-showcase">
+                <div class="gallery-main" id="gallery-main">
+                    <img src="images/gallery/4seasons_AkiraIshi-89.gif" alt="Featured Work" class="gallery-featured-img" decoding="async" loading="lazy">
+                </div>
+                <div class="gallery-info" id="gallery-info">
+                    <h3 class="gallery-title" id="gallery-title">Four Seasons #89</h3>
+                    <a href="https://gamma.io/ordinals/collections/four-seasons/items" target="_blank" class="gallery-link" id="gallery-link">View →</a>
+                </div>
+                <div class="gallery-thumbnails" id="gallery-thumbnails">
+                    <!-- Thumbnails will be dynamically inserted -->
+                </div>
+                <button class="gallery-expand-btn" id="gallery-expand">
+                    <span class="btn-ornament">❧</span>
+                    <span class="expand-text">More Gallery</span>
+                    <span class="btn-ornament">❧</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section about-section">
+            <div class="section-header">
+                <div class="header-line"></div>
+                <h2 class="section-title enchanted-underline">
+                    <span class="title-ornament">☙</span>
+                    The Artisan
+                    <span class="title-ornament">❧</span>
+                </h2>
+                <p class="section-subtitle">The mind behind the creations</p>
+                <div class="header-line"></div>
+            </div>
+            <div class="about-container stagger-children">
+                <div class="about-image">
+                    <div class="image-frame">
+                        <img src="images/desktop-icons/reliquary/network_a.webp" alt="Akira Ishi" class="about-portrait" decoding="async" loading="lazy">
+                    </div>
+                </div>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>
+Akira Ishi is an anonymous artist based in France , their artistic philosophy centers on simplicity with depth, using minimal forms to express complex ideas. Their process is iterative and deeply personal, driven by the expressive power of code and a continued exploration of human self-awareness and our relationship with the world.
+                        </p>
+                        <p>
+They began their creative journey in music—first violin, then drums where live performance shaped their understanding of emotional connection, now translated into visual storytelling and artworks. With a background in graphic design and web development, they merge aesthetics with code, starting from an idea, then sculpting and refining the algorithms to achieve the desired results.
+                        </p>
+                        <p>
+Their journey reflects both creative and personal growth, building resilience through the act of sharing deeply personal work. Influenced more by ideas than aesthetics, their sense of originality lies in creating work that is unmistakably their own.
+                        </p>
+                        <p>
+Akira releases works on multiple blockchain, but it is important to note that generative art on Bitcoin aligns naturally with their approach, where constraints become a catalyst for creativity. Each piece is conceived as a compact, on-chain fusion of art and technology, influenced by the raw, grassroots energy of the Bitcoin art community. 
+                        </p>
+                        <p>
+They are currently developing an ambitious long-term project that is already taking shape across nearly every work he releases, embedding hidden elements and secrets that will be unveiled when the time is right and that unifies their creations into a single evolving narrative.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section contact-section">
+            <div class="section-header">
+                <div class="header-line"></div>
+                <h2 class="section-title enchanted-underline">
+                    <span class="title-ornament">☙</span>
+                    Seek Audience
+                    <span class="title-ornament">❧</span>
+                </h2>
+                <p class="section-subtitle">Send forth your message</p>
+                <div class="header-line"></div>
+            </div>
+            
+            <div class="contact-container">
+                <div class="contact-scroll">
+                    <p class="contact-intro">Speak your mind, brave traveler! Whether ye seek counsel on matters of art, wish to commission a sacred artifact, or simply desire to share tales from your own quest — the gates of this realm stand open.</p>
+                    
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <img src="images/desktop-icons/reliquary/messages_a.webp" alt="" class="contact-method-icon" decoding="async" loading="lazy">
+                            <h3>Send a Raven</h3>
+                            <p class="contact-method-desc">For formal correspondence and matters of great import, dispatch your message via electronic scroll:</p>
+                            <a href="mailto:leakiraishi@gmail.com" class="contact-link">leakiraishi@gmail.com</a>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <img src="images/desktop-icons/reliquary/network_a.webp" alt="" class="contact-method-icon" decoding="async" loading="lazy">
+                            <h3>The Town Square</h3>
+                            <p class="contact-method-desc">Join the fellowship on X, send a DM (Distant Missive) and Akira shall answer it the quickest.</p>
+                            <a href="https://x.com/leAkira_Ishi" target="_blank" class="contact-link">@leAkira_Ishi</a>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <img src="images/desktop-icons/reliquary/images_a.webp" alt="" class="contact-method-icon" decoding="async" loading="lazy">
+                            <h3>The Gallery of Visions (Instagram)</h3>
+                            <p class="contact-method-desc">Selected pieces from the Chronicles on display.</p>
+                            <a href="https://www.instagram.com/le_akira_ishi/" target="_blank" class="contact-link">@le_akira_ishi</a>
+                        </div>
+                    </div>
+                    
+                    <p class="contact-outro">Fear not, for no quest is too small and no question too bold. The Round Table welcomes all who seek with pure intent. ⚔️</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="section faq-section">
+            <div class="section-header">
+                <div class="header-line"></div>
+                <h2 class="section-title enchanted-underline">
+                    <span class="title-ornament">☙</span>
+                    Frequently Asked Questions
+                    <span class="title-ornament">❧</span>
+                </h2>
+                <p class="section-subtitle">Answers to common inquiries</p>
+                <div class="header-line"></div>
+            </div>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Why is the site designed like this?</span>
+                        <span class="faq-icon">❧</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>It's to be discovered later...</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>What is generative art?</span>
+                        <span class="faq-icon">❧</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Generative art is created using algorithms and code, where the artist designs systems that produce unique visual outputs. Each piece emerges from the intersection of human creativity and computational precision—the artist sets the rules, and the code brings infinite variations to life.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>How can I acquire your work?</span>
+                        <span class="faq-icon">❧</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Artifacts can be acquired through various marketplaces depending on the blockchain. Visit the Chronicles section to find links to each collection, or reach out directly through the Contact section for commissions.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Do you accept commissions?</span>
+                        <span class="faq-icon">❧</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes, custom commissions are welcomed. Use the contact form to describe your vision, and we shall discuss the possibilities of bringing your ideas to the eternal ledger.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="reliquary-footer">
+            <div class="footer-ornament"></div>
+            <div class="footer-content">
+                <p class="footer-text">⚜ The Reliquary ⚜</p>
+                <p class="footer-copyright">© 2026 Akira Ishi. All artifacts preserved.</p>
+            </div>
+            <div class="footer-ornament"></div>
+        </footer>
+    </div>
+
+    <!-- Project Modal -->
+    <div class="modal-overlay" id="project-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">×</button>
+            <div class="modal-header">
+                <img src="" alt="" class="modal-image" id="modal-image">
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modal-title"></h2>
+                <div class="modal-tags">
+                    <span class="modal-category" id="modal-category"></span>
+                    <span class="modal-l2" id="modal-l2"></span>
+                    <span class="modal-onchain" id="modal-onchain"></span>
+                </div>
+                <p class="modal-description" id="modal-description"></p>
+                <div class="modal-features" id="modal-features">
+                    <h3>Features</h3>
+                    <ul id="modal-features-list"></ul>
+                </div>
+                <p class="modal-conclusion" id="modal-conclusion"></p>
+                <div class="modal-links">
+                    <a href="#" class="modal-link" id="modal-link" target="_blank">
+                        <span class="btn-ornament">❧</span>
+                        View Project
+                        <span class="btn-ornament">❧</span>
+                    </a>
+                    <a href="#" class="modal-link modal-article-link" id="modal-article-link" target="_blank" style="display: none;">
+                        <span class="btn-ornament">❧</span>
+                        Read Article
+                        <span class="btn-ornament">❧</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
