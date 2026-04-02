@@ -2698,11 +2698,6 @@ video::-webkit-media-controls-toggle-closed-captions-button,
     margin-top: 100px;
   }
   
-  /* Hide knight on mobile */
-  .knight-character {
-    display: none !important;
-  }
-  
   /* About section - fix card clipping */
   .about-container {
     grid-template-columns: 1fr;

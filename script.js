@@ -1673,12 +1673,11 @@ function initMusicPlayer() {
 }
 
 /* ============================================
-   KNIGHT CHASING CURSOR ANIMATION
+   KNIGHT ANIMATION (Desktop: chase cursor, Mobile: wander)
    ============================================ */
 
 function initKnight() {
-    // Skip on mobile/touch devices or small screens
-    if (window.matchMedia('(hover: none)').matches || window.innerWidth <= 768) return;
+    const isMobile = window.matchMedia('(hover: none)').matches || window.innerWidth <= 768;
     
     // Create knight element
     const knight = document.createElement('img');
@@ -1707,33 +1706,44 @@ function initKnight() {
     });
     
     // Knight state
-    let knightX = 50; // Start at left edge
-    let knightY = window.innerHeight - 100; // Start near bottom
+    let knightX = 50;
+    let knightY = window.innerHeight - 100;
     let cursorX = window.innerWidth / 2;
     let cursorY = window.innerHeight / 2;
-    let state = 'idle'; // idle, standing, ready, walking, ded, victory
+    let state = 'idle';
     let walkFrame = 0;
     let chaseStartTime = 0;
     let frameCounter = 0;
-    let cursorMoved = false; // Track if cursor has moved
-    let cursorMovedAfterPose = false; // Track if cursor moved after victory/ded pose
-    let lastCursorX = cursorX; // Track cursor position for movement detection
+    let cursorMoved = false;
+    let cursorMovedAfterPose = false;
+    let lastCursorX = cursorX;
     let lastCursorY = cursorY;
-    const CHASE_TIMEOUT = 10000; // 10 seconds
-    const DED_DURATION = 3000; // 3 seconds
-    const VICTORY_DURATION = 2000; // 2 seconds
-    const CATCH_DISTANCE = 60; // pixels to catch cursor
-    const BASE_SPEED = 1.5; // slower base movement speed
-    const FRAME_DELAY = 16; // slower frames between walk animation changes
     
-    // Inject knight styles - GPU accelerated
+    // Mobile wandering state
+    let targetX = 0;
+    let targetY = 0;
+    let wanderStartTime = 0;
+    
+    const CHASE_TIMEOUT = 10000;
+    const DED_DURATION = 3000;
+    const VICTORY_DURATION = 2000;
+    const CATCH_DISTANCE = 60;
+    const BASE_SPEED = 1.5;
+    const FRAME_DELAY = 16;
+    
+    // Mobile-specific settings
+    const MOBILE_WANDER_DURATION = 4000; // 4 seconds of walking
+    const MOBILE_POSE_DURATION = 2000; // 2 seconds in pose
+    const MOBILE_SPEED = 1.2;
+    
+    // Inject knight styles
     const style = document.createElement('style');
     style.textContent = `
         .knight-character {
             position: fixed;
             left: 0;
             top: 0;
-            width: 64px;
+            width: ${isMobile ? '48px' : '64px'};
             height: auto;
             z-index: 10001;
             pointer-events: none;
@@ -1744,24 +1754,133 @@ function initKnight() {
     `;
     document.head.appendChild(style);
     
-    // Helper to update knight position with GPU-accelerated transform
     function updateKnightPosition() {
         const scaleX = knight.classList.contains('flipped') ? -1 : 1;
         knight.style.transform = `translate3d(${knightX}px, ${knightY}px, 0) scaleX(${scaleX})`;
     }
     
+    function setKnightImage(src) {
+        knight.src = src;
+    }
+    
+    function showKnight() {
+        knight.style.opacity = '1';
+    }
+    
+    // ========== MOBILE WANDERING BEHAVIOR ==========
+    if (isMobile) {
+        // Pick a random target position on screen
+        function pickNewTarget() {
+            const margin = 50;
+            targetX = margin + Math.random() * (window.innerWidth - margin * 2 - 48);
+            targetY = margin + Math.random() * (window.innerHeight - margin * 2 - 48);
+        }
+        
+        // Start wandering cycle
+        function startWanderCycle() {
+            state = 'standing';
+            setKnightImage(images.standing);
+            updateKnightPosition();
+            
+            // After brief pause, start walking
+            setTimeout(() => {
+                state = 'walking';
+                pickNewTarget();
+                wanderStartTime = Date.now();
+                walkFrame = 0;
+                frameCounter = 0;
+                
+                // Flip based on target direction
+                if (targetX > knightX) {
+                    knight.classList.add('flipped');
+                } else {
+                    knight.classList.remove('flipped');
+                }
+                
+                runWanderLoop();
+            }, 500);
+        }
+        
+        // Main wander loop
+        function runWanderLoop() {
+            if (state !== 'walking') return;
+            
+            const elapsed = Date.now() - wanderStartTime;
+            
+            // Calculate distance to target
+            const deltaX = targetX - knightX;
+            const deltaY = targetY - knightY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            // Check if reached target or timeout
+            if (distance < 20 || elapsed >= MOBILE_WANDER_DURATION) {
+                // Randomly choose victory or ded pose
+                const isVictory = Math.random() > 0.5;
+                state = isVictory ? 'victory' : 'ded';
+                setKnightImage(isVictory ? images.victory : images.ded);
+                
+                // After pose duration, restart cycle
+                setTimeout(() => {
+                    startWanderCycle();
+                }, MOBILE_POSE_DURATION);
+                return;
+            }
+            
+            // Move toward target
+            if (distance > 0) {
+                const dirX = deltaX / distance;
+                const dirY = deltaY / distance;
+                knightX += dirX * MOBILE_SPEED;
+                knightY += dirY * MOBILE_SPEED;
+            }
+            
+            // Flip based on direction
+            if (deltaX > 0) {
+                knight.classList.add('flipped');
+            } else {
+                knight.classList.remove('flipped');
+            }
+            
+            // Keep on screen
+            knightX = Math.max(0, Math.min(window.innerWidth - 48, knightX));
+            knightY = Math.max(0, Math.min(window.innerHeight - 48, knightY));
+            updateKnightPosition();
+            
+            // Update walk animation
+            frameCounter++;
+            if (frameCounter >= FRAME_DELAY) {
+                frameCounter = 0;
+                walkFrame = (walkFrame + 1) % 4;
+                setKnightImage(images.walking[walkFrame]);
+            }
+            
+            requestAnimationFrame(runWanderLoop);
+        }
+        
+        // Initialize mobile knight
+        knightX = Math.random() * (window.innerWidth - 48);
+        knightY = window.innerHeight - 100;
+        setKnightImage(images.standing);
+        updateKnightPosition();
+        showKnight();
+        
+        // Start wandering after a short delay
+        setTimeout(startWanderCycle, 1000);
+        
+        return; // Exit early for mobile
+    }
+    
+    // ========== DESKTOP CURSOR CHASING BEHAVIOR ==========
     // Track cursor position and detect first movement
     document.addEventListener('mousemove', (e) => {
         cursorX = e.clientX;
         cursorY = e.clientY;
         
-        // Start cycle on first cursor movement
         if (!cursorMoved && state === 'idle') {
             cursorMoved = true;
             startCycle();
         }
         
-        // Detect cursor movement after victory/ded pose (need significant movement)
         if ((state === 'victory' || state === 'ded') && !cursorMovedAfterPose) {
             const dx = cursorX - lastCursorX;
             const dy = cursorY - lastCursorY;
@@ -1774,17 +1893,10 @@ function initKnight() {
         lastCursorY = cursorY;
     }, { passive: true });
     
-    // Set knight image
-    function setKnightImage(src) {
-        knight.src = src;
-    }
-    
-    // Start the knight cycle
     function startCycle() {
+        showKnight();
         state = 'standing';
         setKnightImage(images.standing);
-        // Stay at last position (where victory/ded happened), don't reset to initial
-        // Update flip based on cursor position
         if (cursorX > knightX + 32) {
             knight.classList.add('flipped');
         } else {
@@ -1792,12 +1904,10 @@ function initKnight() {
         }
         updateKnightPosition();
         
-        // After 1 second, go to ready
         setTimeout(() => {
             state = 'ready';
             setKnightImage(images.ready);
             
-            // After 0.5 seconds, start walking
             setTimeout(() => {
                 state = 'walking';
                 chaseStartTime = Date.now();
@@ -1808,14 +1918,12 @@ function initKnight() {
         }, 1000);
     }
     
-    // Wait for cursor movement before restarting cycle (with fallback timeout)
     function waitForCursorThenRestart() {
         const poseStartTime = Date.now();
         const maxWaitTime = state === 'victory' ? VICTORY_DURATION : DED_DURATION;
         
         function checkCursorMoved() {
             const elapsed = Date.now() - poseStartTime;
-            // Restart if cursor moved OR if max wait time exceeded
             if (cursorMovedAfterPose || elapsed >= maxWaitTime) {
                 startCycle();
             } else {
@@ -1825,13 +1933,11 @@ function initKnight() {
         checkCursorMoved();
     }
     
-    // Main chase loop
     function runChaseLoop() {
         if (state !== 'walking') return;
         
         const elapsed = Date.now() - chaseStartTime;
         
-        // Check timeout
         if (elapsed >= CHASE_TIMEOUT) {
             state = 'ded';
             setKnightImage(images.ded);
@@ -1840,14 +1946,12 @@ function initKnight() {
             return;
         }
         
-        // Calculate distance to cursor (2D diagonal distance)
         const knightCenterX = knightX + 32;
         const knightCenterY = knightY + 32;
         const deltaX = cursorX - knightCenterX;
         const deltaY = cursorY - knightCenterY;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         
-        // Check if caught cursor
         if (distance < CATCH_DISTANCE) {
             state = 'victory';
             setKnightImage(images.victory);
@@ -1856,12 +1960,10 @@ function initKnight() {
             return;
         }
         
-        // Calculate speed (slower when closer)
         const maxDistance = Math.sqrt(window.innerWidth * window.innerWidth + window.innerHeight * window.innerHeight);
         const speedMultiplier = Math.max(0.2, distance / maxDistance);
         const speed = BASE_SPEED * speedMultiplier;
         
-        // Normalize direction and move diagonally
         if (distance > 0) {
             const dirX = deltaX / distance;
             const dirY = deltaY / distance;
@@ -1869,19 +1971,16 @@ function initKnight() {
             knightY += dirY * speed;
         }
         
-        // Flip based on horizontal direction (reversed: flipped when going right, normal when going left)
         if (deltaX > 0) {
             knight.classList.add('flipped');
         } else {
             knight.classList.remove('flipped');
         }
         
-        // Keep knight on screen
         knightX = Math.max(0, Math.min(window.innerWidth - 64, knightX));
         knightY = Math.max(0, Math.min(window.innerHeight - 64, knightY));
         updateKnightPosition();
         
-        // Update walk animation frame
         frameCounter++;
         if (frameCounter >= FRAME_DELAY) {
             frameCounter = 0;
@@ -1889,25 +1988,13 @@ function initKnight() {
             setKnightImage(images.walking[walkFrame]);
         }
         
-        animationFrame = requestAnimationFrame(runChaseLoop);
+        requestAnimationFrame(runChaseLoop);
     }
     
-    // Initialize - hide knight until cursor moves
+    // Initialize desktop knight - hidden until cursor moves
     setKnightImage(images.standing);
     updateKnightPosition();
     knight.style.opacity = '0';
-    
-    // Knight becomes visible when cycle starts
-    function showKnight() {
-        knight.style.opacity = '1';
-    }
-    
-    // Override startCycle to show knight on first run
-    const originalStartCycle = startCycle;
-    startCycle = function() {
-        showKnight();
-        originalStartCycle();
-    };
 }
 
 /* ============================================
