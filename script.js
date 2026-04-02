@@ -28,7 +28,23 @@ document.addEventListener('DOMContentLoaded', function() {
     initMusicPlayer(); // Music player list selection
     initSideProjectFilters(); // Side project category filters
     initProvenanceTree(); // Bitcoin provenance tree
+    initHeaderToggle(); // Mobile header minimize/expand
 });
+
+/* ============================================
+   MOBILE HEADER TOGGLE
+   ============================================ */
+
+function initHeaderToggle() {
+    const toggleBtn = document.getElementById('header-toggle');
+    const header = document.querySelector('.reliquary-header');
+    
+    if (!toggleBtn || !header) return;
+    
+    toggleBtn.addEventListener('click', () => {
+        header.classList.toggle('minimized');
+    });
+}
 
 /* ============================================
    AMBIENT PARTICLES
@@ -1519,22 +1535,10 @@ function initMusicPlayer() {
         videoLoaded = true;
     }
     
-    // On mobile, load first video source immediately so it shows
-    if (isTouchDevice) {
-        const activeItem = document.querySelector('.music-item.active');
-        if (activeItem) {
-            loadVideoSource(activeItem.getAttribute('data-src'));
-        }
-    } else {
-        // On desktop, load first track source on first play attempt
-        videoPlayer.addEventListener('play', () => {
-            if (!videoLoaded) {
-                const activeItem = document.querySelector('.music-item.active');
-                if (activeItem) {
-                    loadVideoSource(activeItem.getAttribute('data-src'));
-                }
-            }
-        }, { once: true });
+    // Load first video source on both mobile and desktop so poster shows and click works
+    const activeItem = document.querySelector('.music-item.active');
+    if (activeItem) {
+        loadVideoSource(activeItem.getAttribute('data-src'));
     }
     
     // Only create cursor overlay on non-touch devices (desktop)
@@ -1550,27 +1554,9 @@ function initMusicPlayer() {
             bottom: 0;
             cursor: none !important;
             z-index: 100;
+            pointer-events: none;
         `;
         videoWrapper.appendChild(cursorOverlay);
-        
-        // Forward all mouse events to the video element beneath
-        ['click', 'dblclick', 'mousedown', 'mouseup'].forEach(eventType => {
-            cursorOverlay.addEventListener(eventType, (e) => {
-                cursorOverlay.style.pointerEvents = 'none';
-                const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
-                cursorOverlay.style.pointerEvents = 'auto';
-                
-                if (elementBelow && elementBelow !== cursorOverlay) {
-                    const newEvent = new MouseEvent(eventType, {
-                        bubbles: true,
-                        cancelable: true,
-                        clientX: e.clientX,
-                        clientY: e.clientY
-                    });
-                    elementBelow.dispatchEvent(newEvent);
-                }
-            });
-        });
     }
     
     musicItems.forEach(item => {

@@ -2498,7 +2498,56 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   }
 }
 
+/* Mobile header toggle button */
+.header-toggle {
+  display: none;
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(26, 15, 5, 0.95) 0%, rgba(26, 15, 5, 0.9) 100%);
+  border: 2px solid var(--gold-dark);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 2px 16px 4px;
+  cursor: pointer;
+  z-index: 1001;
+  transition: all 0.3s ease;
+}
+
+.header-toggle .toggle-icon {
+  color: var(--gold);
+  font-size: 0.75rem;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.header-toggle:hover {
+  background: linear-gradient(180deg, var(--gold-dark) 0%, var(--gold) 100%);
+}
+
+.header-toggle:hover .toggle-icon {
+  color: var(--brown-dark);
+}
+
+/* Header minimized state */
+.reliquary-header.minimized .main-nav {
+  display: none;
+}
+
+.reliquary-header.minimized {
+  padding: 0.25rem 0.5rem;
+}
+
+.reliquary-header.minimized .header-toggle .toggle-icon {
+  transform: rotate(180deg);
+}
+
 @media (max-width: 768px) {
+  .header-toggle {
+    display: block;
+  }
+  
   /* Mobile performance optimizations */
   /* Reduce/disable heavy animations on mobile */
   .banner-wave {
