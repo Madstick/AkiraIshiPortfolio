@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ensure page starts at top
     window.scrollTo(0, 0);
     
+    // On mobile, load door images immediately (remove lazy loading)
+    if (window.innerWidth <= 768) {
+        const doorLeft = document.getElementById('door-left');
+        const doorRight = document.getElementById('door-right');
+        if (doorLeft) doorLeft.removeAttribute('loading');
+        if (doorRight) doorRight.removeAttribute('loading');
+    }
+    
     initParticles();
     initNavigation();
     initDescendButton();
@@ -1006,11 +1014,6 @@ function initFairyDust() {
             // Store offset from title rect, not absolute position
             this.offsetX = offsetX + (Math.random() - 0.5) * 20;
             this.offsetY = offsetY + (Math.random() - 0.5) * 10;
-            // On mobile, capture the initial position at spawn time
-            if (isTouchDevice && initialRect) {
-                this.fixedX = initialRect.left + this.offsetX;
-                this.fixedY = initialRect.top + this.offsetY;
-            }
             this.size = Math.random() * 4 + 2;
             this.maxSize = this.size + Math.random() * 6;
             this.alpha = 0;
@@ -1055,13 +1058,6 @@ function initFairyDust() {
         
         // Get current screen position based on title rect
         getScreenPos() {
-            // On mobile, use fixed position captured at spawn time
-            if (isTouchDevice && this.fixedX !== undefined) {
-                return {
-                    x: this.fixedX,
-                    y: this.fixedY
-                };
-            }
             if (!targetRect) return { x: 0, y: 0 };
             return {
                 x: targetRect.left + this.offsetX,
@@ -1123,9 +1119,8 @@ function initFairyDust() {
         const dpr = window.devicePixelRatio || 1;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         
-        // Update targetRect each frame to follow scroll (desktop only)
-        // On mobile, sparkles use fixed positions so no need to update
-        if (targetElement && !isTouchDevice) {
+        // Update targetRect each frame to follow scroll (both mobile and desktop)
+        if (targetElement) {
             targetRect = targetElement.getBoundingClientRect();
         }
         
@@ -1168,8 +1163,8 @@ function initFairyDust() {
         // Spawn sparkles using offsets from title rect (not absolute positions)
         for (let i = 0; i < sparkleCount; i++) {
             setTimeout(() => {
-                // Update targetRect for fresh position (desktop only)
-                if (targetElement && !isTouchDevice) {
+                // Update targetRect for fresh position
+                if (targetElement) {
                     targetRect = targetElement.getBoundingClientRect();
                 }
                 const offsetX = Math.random() * width;
