@@ -585,6 +585,26 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* Status Banner (e.g. Suspended) */
+.status-banner {
+  position: absolute;
+  top: 15px;
+  right: -35px;
+  background: linear-gradient(90deg, rgba(90, 20, 20, 0.95) 0%, #a33a2a 50%, rgba(90, 20, 20, 0.95) 100%);
+  color: var(--parchment);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.4rem 3rem;
+  transform: rotate(45deg);
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(201, 162, 39, 0.5);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.5);
+}
+
 /* Expand Button */
 .chronicles-expand-btn {
   display: flex;
@@ -1324,6 +1344,13 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   padding: 1rem;
   border: 2px solid var(--gold-dark);
   background: rgba(26, 15, 5, 0.5);
+  /* Hug the portrait and stay centered in its column at every width */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 .image-frame::before {
@@ -1341,6 +1368,10 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   width: 100%;
   max-width: 300px;
   display: block;
+  margin-inline: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
 }
 
 .about-title {
@@ -2574,7 +2605,7 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   display: none !important;
 }
 
-/* Mobile peek class - shows 1/3 of project with fade */
+/* Peek class - teaser of the next row, fades out at the cut */
 .mobile-peek {
   display: block !important;
   max-height: 100px;
@@ -2584,6 +2615,23 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%);
   pointer-events: none;
   margin-bottom: 0;
+}
+
+/* Desktop: the whole next row peeks at half a card height */
+@media (min-width: 769px) {
+  /* Peek cards keep their column width (never centered like a lone odd card) */
+  .chronicles-grid .chronicle-card.mobile-peek:last-child:nth-child(odd) {
+    grid-column: auto;
+    max-width: 100%;
+    justify-self: stretch;
+  }
+
+  .mobile-peek {
+    max-height: var(--peek-height, 320px);
+    opacity: 0.9;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0) 100%);
+  }
 }
 
 /* Mobile: Position expand buttons properly */

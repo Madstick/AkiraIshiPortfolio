@@ -55,6 +55,23 @@ const projects = [
     link: "https://akiraishi.com/Connecting.html"
   },
   {
+    id: 11,
+    title: "Comics Extracts",
+    category: "tezos",
+    chain: "Polkadot",
+    imageUrl: "images/projects/comicsthumbnailc.png",
+    description: "Comics Extracts is a visual project that translates the emotional language of comic books into generative art. Inspired by classic comic tropes and displays of emotion (impact, tension, surprise, chaos,..) the project deconstructs familiar visual storytelling devices into dynamic compositions of shape, rhythm, and motion. Rather than illustrating characters or scenes directly, it captures the feeling behind them and rebuilds those emotions as abstract storytelling systems.",
+    features: [
+      "Generative art minted on Polkadot",
+      "Emotional vocabulary of comics distilled into pure form",
+      "Impact, tension, surprise and chaos as generative parameters",
+      "Panels, speed lines and onomatopoeia deconstructed into rhythm and motion",
+      "No characters, no scenes, only the feeling they leave behind"
+    ],
+    conclusion: "Comics Extracts strips the page down to its raw emotional machinery, proving that a panel can still shout, tremble or explode long after the characters have left it.",
+    link: "https://www.chaotic.art/ahp/drops/comics"
+  },
+  {
     id: 3,
     title: "Navigating the Trenches",
     category: "bitcoin",
@@ -126,6 +143,8 @@ const projects = [
     id: 7,
     title: "Art on Solana",
     category: "tezos",
+    chain: "Solana",
+    status: "Suspended",
     imageUrl: "images/projects/solana.webp",
     description: "A curated collection of Akira Ishi's artwork available on Exchange Art, exploring the visual tension between structure and perception. These pieces focus on Moiré patterns and optical illusions, where layered geometries and fine line interactions generate shifting, almost hypnotic effects. Each work invites the viewer into a dynamic experience, where movement and distortion emerge from static code.",
     features: [

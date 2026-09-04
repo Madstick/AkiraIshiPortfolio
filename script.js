@@ -157,12 +157,72 @@ let chroniclesExpanded = false;
 const FEATURED_COUNT = 3;
 const INITIAL_ROW_COUNT = 3; // Show 1 row of 3 initially in regular grid
 
-// Mobile progressive reveal settings
+// Progressive reveal settings
 const isMobileView = () => window.innerWidth <= 768;
-let mobileChroniclesShown = 3; // Start with 3 on mobile (featured only)
+let mobileChroniclesShown = 3; // Start with 3 (featured only)
 const MOBILE_CHRONICLES_INCREMENT = 3;
+// How many cards peek from the next row: full row on desktop (3), 2 on tablet,
+// only the first card of the row on mobile
+const chroniclesPeekCount = () => {
+    if (isMobileView()) return 1;
+    return window.innerWidth <= 1024 ? 2 : 3;
+};
 let mobileSideProjectsShown = 5; // Start with 5 on mobile
 const MOBILE_SIDE_PROJECTS_INCREMENT = 5;
+
+function getFilteredProjects() {
+    const grid = document.getElementById('projects-grid');
+    const category = (grid && grid.dataset.filteredCategory) || 'all';
+    return category === 'all'
+        ? projects
+        : projects.filter(p => p.category === category);
+}
+
+// Peek cards are clipped to half a card height on desktop; mobile keeps its slim sliver
+function updateChroniclesPeekHeight() {
+    const featuredGrid = document.getElementById('featured-grid');
+    const grid = document.getElementById('projects-grid');
+    if (!featuredGrid || !grid) return;
+
+    if (isMobileView()) {
+        grid.style.removeProperty('--peek-height');
+        return;
+    }
+
+    const sample = grid.querySelector('.chronicle-card:not(.mobile-peek)')
+        || featuredGrid.querySelector('.chronicle-card');
+    if (sample && sample.offsetHeight) {
+        grid.style.setProperty('--peek-height', Math.round(sample.offsetHeight * 0.5) + 'px');
+    }
+}
+
+// Show the next row (or first card of it on mobile) as a half-visible teaser
+function updateChroniclesPeek() {
+    const grid = document.getElementById('projects-grid');
+    const expandBtn = document.getElementById('chronicles-expand');
+    if (!grid) return;
+
+    grid.querySelectorAll('.mobile-peek').forEach(card => card.remove());
+
+    const filteredProjects = getFilteredProjects();
+    const peekProjects = filteredProjects.slice(
+        mobileChroniclesShown,
+        mobileChroniclesShown + chroniclesPeekCount()
+    );
+
+    peekProjects.forEach((peekProject, index) => {
+        const peekCard = createProjectCard(peekProject, mobileChroniclesShown + index, false);
+        peekCard.classList.add('mobile-peek');
+        peekCard.classList.remove('reveal');
+        grid.appendChild(peekCard);
+    });
+
+    updateChroniclesPeekHeight();
+
+    if (expandBtn) {
+        expandBtn.style.display = mobileChroniclesShown >= filteredProjects.length ? 'none' : 'flex';
+    }
+}
 
 function initProjects() {
     const featuredGrid = document.getElementById('featured-grid');
@@ -173,47 +233,23 @@ function initProjects() {
     
     renderChronicles();
     
+    // Peek at the next row on both desktop and mobile
+    updateChroniclesPeek();
+    
+    // Keep the peek in sync when switching between mobile and desktop layouts
+    let peekResizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(peekResizeTimer);
+        peekResizeTimer = setTimeout(updateChroniclesPeek, 150);
+    });
+    
     // Expand button handler - progressive reveal on both mobile and desktop
     if (expandBtn) {
-        // Function to update peek preview
-        const updateChroniclesPeek = () => {
-            const category = grid.dataset.filteredCategory || 'all';
-            const filteredProjects = category === 'all' 
-                ? projects 
-                : projects.filter(p => p.category === category);
-            
-            // Remove existing peek
-            const existingPeek = grid.querySelector('.mobile-peek');
-            if (existingPeek) {
-                existingPeek.remove();
-            }
-            
-            // Add peek for next project if there are more
-            if (mobileChroniclesShown < filteredProjects.length) {
-                const peekProject = filteredProjects[mobileChroniclesShown];
-                const peekCard = createProjectCard(peekProject, mobileChroniclesShown, false);
-                peekCard.classList.add('mobile-peek');
-                peekCard.classList.remove('reveal');
-                grid.appendChild(peekCard);
-            }
-        };
-        
-        // Initial peek on mobile
-        if (isMobileView()) {
-            updateChroniclesPeek();
-        }
-        
         expandBtn.addEventListener('click', () => {
-            const category = grid.dataset.filteredCategory || 'all';
-            const filteredProjects = category === 'all' 
-                ? projects 
-                : projects.filter(p => p.category === category);
+            const filteredProjects = getFilteredProjects();
             
-            // Remove peek card first
-            const existingPeek = grid.querySelector('.mobile-peek');
-            if (existingPeek) {
-                existingPeek.remove();
-            }
+            // Remove peek cards first
+            grid.querySelectorAll('.mobile-peek').forEach(card => card.remove());
             
             const nextBatch = filteredProjects.slice(mobileChroniclesShown, mobileChroniclesShown + MOBILE_CHRONICLES_INCREMENT);
             
@@ -224,10 +260,10 @@ function initProjects() {
             
             mobileChroniclesShown += nextBatch.length;
             
-            // Hide button if all shown, otherwise update peek
+            // Hide button if all shown, otherwise peek at what remains
             if (mobileChroniclesShown >= filteredProjects.length) {
                 expandBtn.style.display = 'none';
-            } else if (isMobileView()) {
+            } else {
                 updateChroniclesPeek();
             }
         });
@@ -315,6 +351,7 @@ function createProjectCard(project, index, isFeatured = false) {
     let imageUrl = project.imageUrl;
     
     const featuredBanner = isFeatured ? '<span class="featured-banner">Featured</span>' : '';
+    const statusBanner = project.status ? `<span class="status-banner">${project.status}</span>` : '';
     
     const l2Tag = project.l2 ? `<span class="chronicle-l2">${project.l2}</span>` : '';
     const onchainTag = project.onchain ? `<span class="chronicle-onchain">${project.onchain}</span>` : '';
@@ -322,11 +359,12 @@ function createProjectCard(project, index, isFeatured = false) {
     card.innerHTML = `
         <div class="chronicle-image-container">
             ${featuredBanner}
+            ${statusBanner}
             <img src="${imageUrl}" alt="${project.title}" class="chronicle-image" loading="lazy" decoding="async">
         </div>
         <div class="chronicle-content">
             <div class="chronicle-tags">
-                <span class="chronicle-category">${project.category}</span>
+                <span class="chronicle-category">${project.chain || project.category}</span>
                 ${l2Tag}
                 ${onchainTag}
             </div>
@@ -368,13 +406,15 @@ function initFilters() {
 function filterProjects(category) {
     const featuredGrid = document.getElementById('featured-grid');
     const grid = document.getElementById('projects-grid');
-    const expandBtn = document.getElementById('chronicles-expand');
     
     if (!featuredGrid || !grid) return;
     
     // Clear grids for new filter
     featuredGrid.innerHTML = '';
     grid.innerHTML = '';
+    
+    // Store filtered category before rendering (peek logic reads it)
+    grid.dataset.filteredCategory = category;
     
     // Filter projects by category
     const filteredProjects = category === 'all' 
@@ -383,7 +423,6 @@ function filterProjects(category) {
     
     // Get featured (first 3 of filtered)
     const featuredProjects = filteredProjects.slice(0, FEATURED_COUNT);
-    const regularProjects = filteredProjects.slice(FEATURED_COUNT);
     
     // Render featured
     featuredProjects.forEach((project, index) => {
@@ -391,36 +430,12 @@ function filterProjects(category) {
         featuredGrid.appendChild(card);
     });
     
-    // Render only visible regular projects (collapsed: first row, expanded: all)
-    const projectsToRender = chroniclesExpanded 
-        ? regularProjects 
-        : regularProjects.slice(0, INITIAL_ROW_COUNT);
+    // Reset progressive reveal, then show the next row as a half-visible teaser
+    chroniclesExpanded = false;
+    mobileChroniclesShown = featuredProjects.length;
+    grid.classList.remove('collapsed', 'expanded');
     
-    projectsToRender.forEach((project, index) => {
-        const card = createProjectCard(project, index + FEATURED_COUNT, false);
-        grid.appendChild(card);
-    });
-    
-    // Store filtered projects for expand action
-    grid.dataset.filteredCategory = category;
-    
-    // Apply collapsed/expanded class
-    if (chroniclesExpanded) {
-        grid.classList.remove('collapsed');
-        grid.classList.add('expanded');
-    } else {
-        grid.classList.add('collapsed');
-        grid.classList.remove('expanded');
-    }
-    
-    // Update expand button visibility
-    if (expandBtn) {
-        if (regularProjects.length <= INITIAL_ROW_COUNT) {
-            expandBtn.style.display = 'none';
-        } else {
-            expandBtn.style.display = 'flex';
-        }
-    }
+    updateChroniclesPeek();
 }
 
 /* ============================================
@@ -610,7 +625,7 @@ function openProjectModal(project) {
     // Populate modal content
     document.getElementById('modal-image').src = imageUrl;
     document.getElementById('modal-title').textContent = project.title;
-    document.getElementById('modal-category').textContent = project.category;
+    document.getElementById('modal-category').textContent = project.chain || project.category;
     
     // L2 layer
     const modalL2 = document.getElementById('modal-l2');
@@ -2054,7 +2069,7 @@ function initProvenanceTree() {
         { id: '108715264', title: 'Pumpkin', image: 'images/tree/pumpkintree.webp', link: 'https://ordinals.com/inscription/108715264', row: 4, col: 0, parentId: '106846686' },
         
         // Technosignatures (child of Main Code)
-        { id: '85158696', title: 'Technosignatures', children: '128 children', image: 'images/tree/technosignaturestree.webp', link: 'https://technosignatures.xyz', row: 4, col: 2, parentId: '85153943' },
+        { id: '85158696', title: 'Technosignatures', children: '128 delegated', image: 'images/tree/technosignaturestree.webp', link: 'https://technosignatures.xyz', row: 4, col: 2, parentId: '85153943' },
         
         // Row 5: 4 Pioneers (children of Main Code)
         { id: '86357837', title: 'Pioneer', image: 'images/tree/pioneer86357837.webp', link: 'https://ordinals.com/inscription/86357837', row: 5, col: 3, parentIds: [ '85153943','85158696'] },
