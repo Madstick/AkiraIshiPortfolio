@@ -160,6 +160,7 @@ const projects = [
     id: 8,
     title: "Songe d'un soir",
     category: "ethereum",
+    status: "Suspended",
     imageUrl: "images/projects/songe.webp",
     description: "Songe d'un soir (Dream of an Evening) is a deeply personal generative art piece created during a dark period, yet born from an unwavering love for generative art. The work is accompanied by a bilingual poem that captures the essence of dreams, reality, and the fear of loss. It represents the artist's resilience and the healing power of creative expression.",
     features: [
@@ -188,7 +189,7 @@ const projects = [
       "The starting point of a cohesive artistic journey"
     ],
     conclusion: "What's the point? The point is that constraints don't limit creativity—they focus it. Read the accompanying article to understand the philosophy that drives all future creations.",
-    link: "https://www.fxhash.xyz/project/what's-the-point.",
+    link: "https://objkt.com/collections/fxhash/projects/27775",
     articleLink: "https://medium.com/@leAkira_Ishi/whats-the-point-921ff4c86eed"
   },
   {
@@ -206,6 +207,6 @@ const projects = [
       "Energy-efficient Tezos network"
     ],
     conclusion: "These curated works shows us what emerges when code meets creativity under carefully chosen constraints.",
-    link: "https://www.fxhash.xyz/u/Akira%20Ishi"
+    link: "https://objkt.com/collections/KT1TsR4XFGnNbBVRMotagBA9PoV1uRXtWC1o"
   }
 ];
