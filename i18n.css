@@ -1,0 +1,211 @@
+/* ============================================
+   LANGUAGE SWITCHER
+   Shared by the Gates, the Reliquary and the Shops.
+   Dark by default, light variant for the shop page.
+   ============================================ */
+
+.lang-switcher {
+  --lang-gold: #c9a227;
+  --lang-gold-dark: #8b6914;
+  --lang-ink: #f4e4bc;
+  --lang-surface: rgba(26, 15, 5, 0.95);
+
+  position: relative;
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  z-index: 60;
+}
+
+.lang-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.55rem;
+  background: rgba(26, 15, 5, 0.75);
+  border: 1px solid var(--lang-gold-dark);
+  color: var(--lang-ink);
+  font-family: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.lang-current:hover,
+.lang-switcher.open .lang-current {
+  border-color: var(--lang-gold);
+  color: var(--lang-gold);
+}
+
+.lang-globe {
+  color: var(--lang-gold);
+  font-size: 0.8em;
+}
+
+.lang-caret {
+  font-size: 0.65em;
+  transition: transform 0.2s ease;
+}
+
+.lang-switcher.open .lang-caret {
+  transform: rotate(180deg);
+}
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 150px;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--lang-surface);
+  border: 1px solid var(--lang-gold-dark);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.lang-switcher.open .lang-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.lang-option {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  background: none;
+  border: none;
+  color: var(--lang-ink);
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lang-option:hover {
+  background: rgba(201, 162, 39, 0.15);
+  color: var(--lang-gold);
+}
+
+.lang-option[aria-selected="true"] {
+  color: var(--lang-gold);
+}
+
+.lang-option[aria-selected="true"]::after {
+  content: '❧';
+  margin-left: auto;
+  font-size: 0.7em;
+}
+
+.lang-option-short {
+  min-width: 2.2em;
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+/* ---- Light variant (shop page) ---- */
+
+.lang-switcher-light {
+  --lang-ink: #2b1c0c;
+  --lang-surface: #faf5e8;
+}
+
+.lang-switcher-light .lang-current {
+  background: transparent;
+  color: #5c4a33;
+}
+
+.lang-switcher-light .lang-current:hover,
+.lang-switcher-light.open .lang-current {
+  color: #8b6914;
+}
+
+.lang-switcher-light .lang-menu {
+  box-shadow: 0 14px 30px rgba(43, 28, 12, 0.18);
+}
+
+.lang-switcher-light .lang-option:hover {
+  background: rgba(201, 162, 39, 0.16);
+  color: #8b6914;
+}
+
+/* ---- Mount points ---- */
+
+/* Gates: floats over the closed doors, top right */
+.lang-mount-gates {
+  position: absolute;
+  top: clamp(0.75rem, 2vw, 1.5rem);
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  z-index: 70;
+}
+
+/* Reliquary: rides along with the header bar */
+.lang-mount-reliquary {
+  position: absolute;
+  top: 50%;
+  right: clamp(0.35rem, 0.8vw, 0.9rem);
+  transform: translateY(-50%);
+  z-index: 1100;
+}
+
+/* Shops: sits inside the nav row */
+.lang-mount-shop {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 1050px) {
+  .lang-mount-reliquary {
+    top: 0.4rem;
+    transform: none;
+  }
+
+  /* Header room is tight here: trim the control down to its code */
+  .lang-mount-reliquary .lang-current {
+    padding: 0.25rem 0.4rem;
+    gap: 0.25rem;
+  }
+
+  .lang-mount-reliquary .lang-caret {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .lang-mount-shop {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .lang-menu {
+    right: auto;
+    left: 0;
+  }
+
+  .lang-mount-gates .lang-menu,
+  .lang-mount-reliquary .lang-menu {
+    right: 0;
+    left: auto;
+  }
+}
+
+/* The Reliquary hides the real cursor; keep the switcher consistent with it */
+@media (hover: hover) and (pointer: fine) {
+  .reliquary-header ~ .lang-mount-reliquary .lang-current,
+  .lang-mount-gates .lang-current,
+  .lang-mount-gates .lang-option,
+  .lang-mount-reliquary .lang-current,
+  .lang-mount-reliquary .lang-option {
+    cursor: none;
+  }
+}

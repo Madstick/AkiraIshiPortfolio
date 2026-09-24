@@ -10,7 +10,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Jardin Algorithmique">
     <meta property="og:description" content="Jardin Algorithmique (Algorithmic Garden) is a flora inspired project created using code, carefully curated to showcase unique and beautiful visuals.">
-    <meta property="og:image" content="https://akiraishi.com/images/cards/jardin-algorithmique.jpg">
+    <meta property="og:image" content="https://akiraishi.com/images/cards/jardin-algorithmique.webp">
     <meta property="og:image:type" content="image/webp">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -19,7 +19,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Jardin Algorithmique">
     <meta name="twitter:description" content="Jardin Algorithmique (Algorithmic Garden) is a flora inspired project created using code, carefully curated to showcase unique and beautiful visuals.">
-    <meta name="twitter:image" content="https://akiraishi.com/images/cards/jardin-algorithmique.jpg">
+    <meta name="twitter:image" content="https://akiraishi.com/images/cards/jardin-algorithmique.webp">
     <meta property="og:image:type" content="image/webp">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -363,7 +363,8 @@
     <script>
         // ============ CONFIGURATION ============
         const EXT = '.webp'; // Image extension
-        const IMG_FOLDER = 'images/JardinAlgo/'; // Image folder path
+        const IMG_FOLDER = 'images/JardinAlgo/'; // Full-size images (opened in the lightbox)
+        const THUMB_FOLDER = 'images/JardinAlgo/thumbs/'; // Light versions for the grid
 
         // List all your image hashes here (without extension):
         const images = [
@@ -380,13 +381,18 @@
             const gallery = document.getElementById('gallery');
             const mintedSet = new Set(minted);
 
-            images.forEach((hash, i) => {
+            // Built as one string, then parsed once: 200 separate innerHTML
+            // appends would re-parse the whole grid every time.
+            const html = images.map((hash, i) => {
                 const isMinted = mintedSet.has(hash);
-                const filename = IMG_FOLDER + hash + EXT;
-                gallery.innerHTML += `
-                    <div class="gallery-item${isMinted ? ' minted' : ''}" data-id="image${i}" onclick="openLightbox('${filename}', '${hash}')">
+                const full = IMG_FOLDER + hash + EXT;
+                const thumb = THUMB_FOLDER + hash + EXT;
+                // The first row is visible immediately; the rest waits until scrolled to.
+                const loading = i < 8 ? '' : ' loading="lazy"';
+                return `
+                    <div class="gallery-item${isMinted ? ' minted' : ''}" data-id="image${i}" onclick="openLightbox('${full}', '${hash}')">
                         <div class="image-container">
-                            <img src="${filename}" alt="NFT Image">
+                            <img src="${thumb}" alt="${hash}" width="420" height="455" decoding="async"${loading}>
                         </div>
                         <div class="minted-overlay">
                             <span class="minted-text">Minted</span>
@@ -397,9 +403,9 @@
                         </div>
                     </div>
                 `;
-            });
+            }).join('');
 
-            
+            gallery.innerHTML = html;
         }
 
 

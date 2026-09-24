@@ -24,7 +24,6 @@
   --font-display: 'Cinzel Decorative', serif;
   --font-heading: 'Cinzel', serif;
   --font-body: 'Cormorant Garamond', serif;
-  --font-accent: 'MedievalSharp', cursive;
   
   --transition-slow: 0.5s ease;
   --transition-medium: 0.3s ease;
@@ -157,9 +156,11 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+  column-gap: clamp(0.4rem, 1vw, 1rem);
+  row-gap: 0.35rem;
   width: 100%;
   max-width: 100%;
-  padding: 0 clamp(0.5rem, 2vw, 2rem);
+  padding: 0 clamp(0.75rem, 2vw, 2rem);
   margin: 0 auto;
 }
 
@@ -171,18 +172,16 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   text-decoration: none;
   color: var(--gold-light);
   font-family: var(--font-heading);
-  font-size: clamp(0.55rem, 1vw, 0.85rem);
+  font-size: clamp(0.52rem, 0.85vw, 0.78rem);
   text-transform: uppercase;
-  letter-spacing: clamp(0.5px, 0.15vw, 2px);
+  letter-spacing: clamp(0.5px, 0.1vw, 1.3px);
   transition: var(--transition-medium);
-  padding: clamp(0.25rem, 0.5vw, 0.5rem) 0;
+  padding: clamp(0.25rem, 0.5vw, 0.5rem) clamp(0.15rem, 0.4vw, 0.45rem);
   white-space: nowrap;
-  width: clamp(55px, 7vw, 90px);
+  text-align: center;
+  /* labels set their own width, so long words in other languages never collide */
+  min-width: clamp(52px, 6vw, 74px);
   flex: 0 0 auto;
-}
-
-.nav-link[data-section="chronicles"] span {
-  font-size: clamp(0.45rem, 0.85vw, 0.75rem);
 }
 
 .nav-link:hover {
@@ -207,9 +206,20 @@ video::-webkit-media-controls-toggle-closed-captions-button,
 }
 
 .logo-frame {
+  display: block;
+  /* hug the wordmark: in the stacked header the row is full width */
+  width: fit-content;
+  margin-inline: auto;
   border: 2px solid var(--gold);
   padding: 0.75rem 2rem;
   position: relative;
+  text-decoration: none;
+  transition: box-shadow var(--transition-medium);
+}
+
+/* The logo is the way back to the Gates */
+.logo-frame:hover {
+  box-shadow: 0 0 25px rgba(201, 162, 39, 0.35);
 }
 
 .logo-frame::before,
@@ -1650,84 +1660,8 @@ video::-webkit-media-controls-toggle-closed-captions-button,
 }
 
 /* ============================================
-   TREASURE SECTION WITH DOORS
+   THE SECRET PHRASE (foot of the provenance tree)
    ============================================ */
-
-.treasure-section {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-x: clip;
-  overflow-y: visible;
-  background: transparent;
-}
-
-.treasure-doors {
-  position: absolute;
-  top: -100px;
-  left: 0;
-  width: 100%;
-  height: calc(100% + 300px); /* Extend above and below section */
-  display: flex;
-  z-index: 100; /* Higher z-index to overlap next section */
-  pointer-events: none;
-}
-
-.door {
-  width: 50%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  transition: transform 0.3s ease-out;
-  will-change: transform;
-}
-
-.door-left {
-  object-position: right center;
-}
-
-.door-right {
-  object-position: left center;
-}
-
-.treasure-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: 2rem;
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-.treasure-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 70%;
-  height: 70%;
-  background: radial-gradient(circle, rgba(201, 162, 39, 0.35) 0%, transparent 70%);
-  border-radius: 50%;
-  opacity: 0.8;
-  z-index: -1;
-}
-
-.treasure-title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 4rem);
-  color: var(--gold);
-  text-shadow: 0 0 30px var(--gold), 0 0 60px rgba(201, 162, 39, 0.5);
-  margin-bottom: 1rem;
-}
-
-.treasure-text {
-  font-family: var(--font-body);
-  font-size: 1.2rem;
-  color: var(--parchment);
-  font-style: italic;
-}
 
 .vault-password {
   margin-top: 2rem;
@@ -1816,18 +1750,6 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   cursor: none;
 }
 
-.provenance-title {
-  font-family: var(--font-heading);
-  font-size: 1.2rem;
-  color: var(--gold);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-align: center;
-  white-space: nowrap;
-  justify-self: center;
-  padding-bottom: 0.5rem;
-}
-
 /* Grid Layout - columns/rows set dynamically via inline style */
 .tree-grid {
   display: grid;
@@ -1900,6 +1822,24 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   color: var(--gold);
   letter-spacing: 0.2em;
   text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* Gallery Node - an on-chain collection gallery inscription */
+.tree-node.gallery-node {
+  border-style: double;
+  border-width: 4px;
+  border-color: var(--gold);
+}
+
+.gallery-mark {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-size: clamp(0.5rem, 1vw, 0.8rem);
+  line-height: 1;
+  color: var(--gold-light);
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(212, 175, 55, 0.6);
+  pointer-events: none;
 }
 
 /* Node Info - with background for visibility over images */
@@ -2129,12 +2069,16 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   position: fixed;
   top: 0;
   left: 0;
-  width: 0%;
+  width: 100%;
   height: 3px;
   background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
   z-index: 9999;
   box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
-  transition: width 0.1s ease-out;
+  /* scaled rather than resized: the compositor handles it, layout never runs */
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+  transition: transform 0.1s ease-out;
 }
 
 /* ============================================
@@ -2165,6 +2109,136 @@ video::-webkit-media-controls-toggle-closed-captions-button,
 .footer-copyright {
   font-size: 0.9rem;
   color: var(--parchment-dark);
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.footer-links a {
+  color: var(--parchment);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.footer-links a:hover {
+  color: var(--gold);
+  border-bottom-color: var(--gold-dark);
+}
+
+.footer-sep {
+  color: var(--gold-dark);
+}
+
+/* ============================================
+   OFF-SCREEN RENDERING BUDGET
+   Sections nobody is looking at yet are skipped by the
+   renderer. Only sections whose layout JS never measures.
+   ============================================ */
+
+#music,
+#about,
+#contact,
+#faq,
+.crossing-band {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+/* ============================================
+   PROVENANCE & MUSIC SECTIONS
+   ============================================ */
+
+.provenance-section,
+.music-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.music-section .side-projects-subsection {
+  margin-top: 0;
+}
+
+.provenance-vault {
+  margin: 3rem auto 0;
+  text-align: center;
+}
+
+.provenance-vault-rule {
+  width: min(320px, 70%);
+  height: 1px;
+  margin: 0 auto 1.75rem;
+  background: linear-gradient(90deg, transparent 0%, var(--gold-dark) 50%, transparent 100%);
+}
+
+.provenance-vault-text {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--parchment);
+}
+
+.provenance-vault .vault-password {
+  margin-top: 1.25rem;
+}
+
+/* ============================================
+   CROSSING TO THE ONLINE SHOPS
+   ============================================ */
+
+.crossing-band {
+  position: relative;
+  padding: clamp(3rem, 8vw, 5rem) 2rem;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at center, rgba(201, 162, 39, 0.16) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(61, 41, 20, 0.55) 0%, rgba(26, 15, 5, 0.9) 100%);
+  border-top: 1px solid var(--gold-dark);
+  border-bottom: 1px solid var(--gold-dark);
+}
+
+.crossing-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.crossing-ornament {
+  display: block;
+  color: var(--gold-dark);
+  font-size: 1.1rem;
+}
+
+.crossing-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  color: var(--gold);
+  margin: 0.75rem 0 1rem;
+  text-shadow: 0 0 25px rgba(201, 162, 39, 0.35);
+}
+
+.crossing-text {
+  font-size: 1.15rem;
+  color: var(--parchment);
+  margin-bottom: 2rem;
+}
+
+.crossing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 /* ============================================
@@ -2384,6 +2458,38 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   .about-portrait {
     max-width: 200px;
     margin: 0 auto;
+  }
+}
+
+/* Narrow headers (below 900px): the logo takes its own row so the eight
+   links keep their breathing room whatever the language */
+@media (max-width: 900px) {
+  .logo-container {
+    order: -1;
+    width: 100%;
+    text-align: center;
+    padding: 0 0 0.4rem;
+  }
+
+  .main-nav {
+    row-gap: 0.25rem;
+    padding-top: 0.35rem;
+  }
+}
+
+/* Laptop breakpoint (1051px - 1280px): trim the logo so the nav keeps one row */
+@media (max-width: 1280px) and (min-width: 1051px) {
+  .logo-frame {
+    padding: 0.5rem 1rem;
+  }
+
+  .logo-text {
+    font-size: 0.95rem;
+    letter-spacing: 1.5px;
+  }
+
+  .logo-container {
+    padding: 0 clamp(0.4rem, 1.2vw, 1rem);
   }
 }
 
@@ -2910,15 +3016,7 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   .contact-intro {
     font-size: 1rem;
   }
-  
-  /* Treasure section */
-  .treasure-title {
-    font-size: 1.5rem;
-  }
-  
-  .treasure-text {
-    font-size: 1rem;
-  }
+
 }
 
 /* Nav 2 rows under 622px */
@@ -3512,4 +3610,34 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   animation: dustFloat 8s ease-in-out infinite;
   will-change: transform, opacity;
   backface-visibility: hidden;
+}
+
+
+/* ============================================
+   REDUCED MOTION
+   Ambient effects are decoration; switch them off when
+   the visitor asks for less movement (and save the work).
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ambient-particles,
+  .particle,
+  .knight-character,
+  #fairy-dust-canvas {
+    display: none !important;
+  }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

@@ -2,24 +2,19 @@
    THE RELIQUARY - Portfolio Scripts
    ============================================ */
 
+/* Translation helpers - they fall back to English when i18n.js is absent */
+const tr = (key, fallback) => (window.AkiraI18n ? window.AkiraI18n.t(key, fallback) : fallback);
+const trProject = (project) => (window.AkiraI18n ? window.AkiraI18n.project(project) : project);
+
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
     // Ensure page starts at top
     window.scrollTo(0, 0);
     
-    // On mobile, load door images immediately (remove lazy loading)
-    if (window.innerWidth <= 768) {
-        const doorLeft = document.getElementById('door-left');
-        const doorRight = document.getElementById('door-right');
-        if (doorLeft) doorLeft.removeAttribute('loading');
-        if (doorRight) doorRight.removeAttribute('loading');
-    }
-    
-    initParticles();
     initNavigation();
     initDescendButton();
     initProjects();
-    initGallery();
+    whenIdle(() => initGallery());
     initModal();
     initContactForm();
     initFilters();
@@ -30,14 +25,32 @@ document.addEventListener('DOMContentLoaded', function() {
     initRevealObserver(); // Intersection Observer for reveals
     initVisibilityHandler(); // Pause animations when tab hidden
     initFAQ(); // FAQ accordion
-    initKnight(); // Knight chasing cursor animation
-    initVaultPassword(); // Vault password input
-    initSideProjectExpand(); // Side project card expand
-    initMusicPlayer(); // Music player list selection
-    initSideProjectFilters(); // Side project category filters
-    initProvenanceTree(); // Bitcoin provenance tree
+    // Ambient extras: pure decoration, so they are skipped for reduced motion
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        initParticles();
+        whenIdle(() => initKnight()); // Knight chasing cursor animation
+    }
     initHeaderToggle(); // Mobile header minimize/expand
+
+    // Everything below the first screens can wait for a quiet moment;
+    // the timeout keeps it well ahead of anyone scrolling down.
+    whenIdle(() => {
+        initVaultPassword(); // Vault password input
+        initSideProjectExpand(); // Side project card expand
+        initMusicPlayer(); // Music player list selection
+        initSideProjectFilters(); // Side project category filters
+        initProvenanceTree(); // Bitcoin provenance tree
+    });
 });
+
+/* Run work once the browser is free, with a hard deadline as a fallback */
+function whenIdle(fn, timeout = 1200) {
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(fn, { timeout });
+    } else {
+        setTimeout(fn, 200);
+    }
+}
 
 /* ============================================
    MOBILE HEADER TOGGLE
@@ -284,12 +297,12 @@ if (galleryGrid && galleryExpandBtn) {
             galleryGrid.classList.remove('expanded');
             galleryGrid.classList.add('collapsed');
             galleryExpandBtn.classList.remove('expanded');
-            galleryExpandBtn.querySelector('.expand-text').textContent = 'More Gallery';
+            galleryExpandBtn.querySelector('.expand-text').textContent = tr('rel.more-gallery', 'More Gallery');
         } else {
             galleryGrid.classList.remove('collapsed');
             galleryGrid.classList.add('expanded');
             galleryExpandBtn.classList.add('expanded');
-            galleryExpandBtn.querySelector('.expand-text').textContent = 'Show Less';
+            galleryExpandBtn.querySelector('.expand-text').textContent = tr('rel.show-less', 'Show Less');
         }
     });
 }
@@ -312,9 +325,8 @@ function renderChronicles() {
         });
     }
     
-    // Update button text and visibility
+    // Update button visibility (its label lives in the markup, translated by i18n.js)
     if (expandBtn) {
-        expandBtn.querySelector('.expand-text').textContent = 'See More Chronicles';
         if (mobileChroniclesShown >= projects.length) {
             expandBtn.style.display = 'none';
         } else {
@@ -341,7 +353,8 @@ function renderChroniclesLegacy() {
     }
 }
 
-function createProjectCard(project, index, isFeatured = false) {
+function createProjectCard(source, index, isFeatured = false) {
+    const project = trProject(source);
     const card = document.createElement('div');
     card.className = 'chronicle-card reveal' + (isFeatured ? ' featured' : '');
     card.style.animationDelay = (index * 0.1) + 's';
@@ -350,8 +363,8 @@ function createProjectCard(project, index, isFeatured = false) {
     
     let imageUrl = project.imageUrl;
     
-    const featuredBanner = isFeatured ? '<span class="featured-banner">Featured</span>' : '';
-    const statusBanner = project.status ? `<span class="status-banner">${project.status}</span>` : '';
+    const featuredBanner = isFeatured ? `<span class="featured-banner">${tr('rel.featured', 'Featured')}</span>` : '';
+    const statusBanner = project.status ? `<span class="status-banner">${tr('rel.status.' + source.status.toLowerCase(), project.status)}</span>` : '';
     
     const l2Tag = project.l2 ? `<span class="chronicle-l2">${project.l2}</span>` : '';
     const onchainTag = project.onchain ? `<span class="chronicle-onchain">${project.onchain}</span>` : '';
@@ -370,11 +383,11 @@ function createProjectCard(project, index, isFeatured = false) {
             </div>
             <h3 class="chronicle-title">${project.title}</h3>
             <p class="chronicle-excerpt">${project.description}</p>
-            <span class="chronicle-link">View Details ❧</span>
+            <span class="chronicle-link">${tr('rel.view-details', 'View Details')} ❧</span>
         </div>
     `;
     
-    card.addEventListener('click', () => openProjectModal(project));
+    card.addEventListener('click', () => openProjectModal(source));
     
     // Trigger reveal animation
     setTimeout(() => {
@@ -510,10 +523,17 @@ function initGallery() {
         }
     }
     
+    // 120px thumbnails get their own light files; the full image is fetched
+    // only when a piece is selected or opened in the lightbox.
+    const thumbUrl = (url) => 'images/gallery/thumbs/' +
+        url.split('/').pop().replace(/\.(webp|gif|png|jpe?g)$/i, '.webp');
+
     // Create thumbnails
     galleryImages.forEach((img, index) => {
         const thumb = document.createElement('img');
-        thumb.src = img.url;
+        thumb.src = thumbUrl(img.url);
+        thumb.width = 120;
+        thumb.height = 120;
         thumb.alt = img.title;
         thumb.className = 'gallery-thumb' + (index === 0 ? ' active' : '');
         thumb.loading = 'lazy';
@@ -617,8 +637,10 @@ function initModal() {
     });
 }
 
-function openProjectModal(project) {
+function openProjectModal(source) {
+    const project = trProject(source);
     const modal = document.getElementById('project-modal');
+    modal.dataset.projectId = source.id;
     
     let imageUrl = project.imageUrl;
     
@@ -884,9 +906,17 @@ function initMagicalCursor() {
     `;
     document.head.appendChild(style);
     
-    // Use CSS transform for GPU acceleration
+    // One GPU-friendly write per frame instead of one per mousemove event
+    let cursorX = 0, cursorY = 0, cursorQueued = false;
     document.addEventListener('mousemove', (e) => {
-        cursor.style.transform = `translate3d(${e.clientX - 4}px, ${e.clientY - 4}px, 0)`;
+        cursorX = e.clientX - 4;
+        cursorY = e.clientY - 4;
+        if (cursorQueued) return;
+        cursorQueued = true;
+        requestAnimationFrame(() => {
+            cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+            cursorQueued = false;
+        });
     }, { passive: true });
     
     // Simplified hover detection using event delegation
@@ -916,6 +946,9 @@ function initCardAnimations() {
     
     let activeCard = null;
     let resetTimeout = null;
+    let tiltRect = null;
+    let tiltQueued = false;
+    const pointer = { x: 0, y: 0 };
     
     // Shared tilt handler for both grids
     function handleTiltMove(e) {
@@ -933,17 +966,25 @@ function initCardAnimations() {
             activeCard.style.transform = '';
         }
         
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = (y - centerY) / 20;
-        const rotateY = (centerX - x) / 20;
-        
-        card.style.transition = 'none';
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+        // The rect only changes when the pointer moves to another card
+        if (card !== activeCard) {
+            tiltRect = card.getBoundingClientRect();
+            card.style.transition = 'none';
+        }
         activeCard = card;
+        pointer.x = e.clientX;
+        pointer.y = e.clientY;
+        
+        if (tiltQueued) return;
+        tiltQueued = true;
+        requestAnimationFrame(() => {
+            tiltQueued = false;
+            if (!activeCard || !tiltRect) return;
+            const rotateX = (pointer.y - tiltRect.top - tiltRect.height / 2) / 20;
+            const rotateY = (tiltRect.width / 2 - (pointer.x - tiltRect.left)) / 20;
+            activeCard.style.transform =
+                `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+        });
     }
     
     function handleTiltOut(e) {
@@ -1198,7 +1239,7 @@ function initFairyDust() {
     const sparkledTitles = new WeakSet();
     
     // Observe all section titles directly
-    const titles = document.querySelectorAll('h2.section-title, .treasure-title');
+    const titles = document.querySelectorAll('h2.section-title');
     
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -1232,7 +1273,10 @@ function initFairyDust() {
     };
 }
 
-document.addEventListener('DOMContentLoaded', initFairyDust);
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    whenIdle(() => initFairyDust(), 2000);
+});
 
 /* ============================================
    MASTER SCROLL HANDLER - Single throttled scroll listener
@@ -1241,17 +1285,27 @@ document.addEventListener('DOMContentLoaded', initFairyDust);
 function initMasterScrollHandler() {
     // Cache all DOM elements once
     const header = document.querySelector('.reliquary-header');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const sections = document.querySelectorAll('.section');
+    const navLinks = [...document.querySelectorAll('.nav-link')];
+    const sections = [...document.querySelectorAll('.section')];
     const descendBtn = document.getElementById('descend-btn');
     const progressBar = document.getElementById('scroll-progress');
     
-    // Door animation elements
-    const treasureSection = document.getElementById('treasure');
-    const doorLeft = document.getElementById('door-left');
-    const doorRight = document.getElementById('door-right');
-    const treasureContent = treasureSection?.querySelector('.treasure-content');
+    // Section geometry, measured once instead of on every scroll frame:
+    // reading offsetTop/offsetHeight mid-scroll forces a full layout.
+    let metrics = [];
+    let scrollRange = 1;
+    let activeId = null;
+    let scrolledState = null;
+    let descendHidden = null;
     
+    function measure() {
+        metrics = sections.map(section => ({
+            id: section.getAttribute('id'),
+            top: section.offsetTop,
+            height: section.offsetHeight
+        }));
+        scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    }
     
     // Throttle flag
     let ticking = false;
@@ -1259,92 +1313,67 @@ function initMasterScrollHandler() {
     function onScroll() {
         const scrollY = window.scrollY;
         const windowHeight = window.innerHeight;
-        const docHeight = document.documentElement.scrollHeight - windowHeight;
+        
+        // Self-heal if the first measurement happened before layout settled
+        if (!metrics.length || metrics[metrics.length - 1].top === 0) measure();
         
         // 1. Header background
         if (header) {
-            if (scrollY > 100) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
+            const scrolled = scrollY > 100;
+            if (scrolled !== scrolledState) {
+                scrolledState = scrolled;
+                header.classList.toggle('scrolled', scrolled);
             }
         }
         
-        // 2. Active nav link
+        // 2. Active nav link - the DOM is only touched when it actually changes
         const scrollPos = scrollY + 200;
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-            const sectionId = section.getAttribute('id');
-            
-            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === '#' + sectionId) {
-                        link.classList.add('active');
-                    }
-                });
+        let current = null;
+        for (const m of metrics) {
+            if (scrollPos >= m.top && scrollPos < m.top + m.height) {
+                current = m.id;
+                break;
             }
-        });
+        }
+        if (current !== activeId) {
+            activeId = current;
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+            });
+        }
         
         // 3. Descend button visibility
-        if (descendBtn && sections.length > 0) {
-            const lastSection = sections[sections.length - 1];
-            const lastSectionTop = lastSection.offsetTop;
-            if (scrollY + windowHeight >= lastSectionTop + windowHeight * 0.5) {
-                descendBtn.classList.add('hidden');
-            } else {
-                descendBtn.classList.remove('hidden');
+        if (descendBtn && metrics.length) {
+            const last = metrics[metrics.length - 1];
+            const hidden = scrollY + windowHeight >= last.top + windowHeight * 0.5;
+            if (hidden !== descendHidden) {
+                descendHidden = hidden;
+                descendBtn.classList.toggle('hidden', hidden);
             }
         }
         
-        // 4. Scroll progress bar
+        // 4. Scroll progress bar - scaled, not resized, so it stays on the compositor
         if (progressBar) {
-            const scrollPercent = (scrollY / docHeight) * 100;
-            progressBar.style.width = scrollPercent + '%';
+            progressBar.style.transform = 'scaleX(' + (scrollY / scrollRange) + ')';
         }
         
         // 5. Reveal elements - Now handled by initRevealObserver()
-        
-// 6. Door animation (fast until 40%, then slower until fully open)
-if (treasureSection && doorLeft && doorRight) {
-    const rect = treasureSection.getBoundingClientRect();
-    const isMobile = window.innerWidth <= 768;
-
-    const startPoint = isMobile ? windowHeight * 0.6 : windowHeight * 0.6;
-    // Extend end point further past the section so doors stay open longer
-    const endPoint = isMobile ? -windowHeight * 0.3 : -windowHeight * 1.2;
-
-    let progress = (startPoint - rect.top) / (startPoint - endPoint);
-    progress = Math.max(0, Math.min(1, progress));
-
-    let doorProgress;
-
-    // Easing function to slow down the animation (ease-out cubic)
-    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+    }
     
-    if (progress <= 0.4) {
-        // Reach 55% open by the time scroll reaches 40%
-        const normalizedProgress = progress / 0.4;
-        doorProgress = easeOutCubic(normalizedProgress) * 0.45;
-    } else {
-        // Then slowly go from 55% to 100% over the remaining 60% of scroll
-        const slowProgress = (progress - 0.4) / 0.6;
-        doorProgress = 0.55 + easeOutCubic(slowProgress) * 0.55;
-    }
-
-    lastDoorProgress = doorProgress;
-
-    const translateAmount = doorProgress * 100;
-    doorLeft.style.transform = `translateX(-${translateAmount}%)`;
-    doorRight.style.transform = `translateX(${translateAmount}%)`;
-
-    if (treasureContent) {
-        const contentProgress = Math.min(1, doorProgress * 2.5);
-        treasureContent.style.opacity = contentProgress;
-        treasureContent.style.transform = `scale(${0.9 + contentProgress * 0.1})`;
-    }
-}
+    measure();
+    window.addEventListener('load', measure);
+    
+    // Anything that changes the page height re-measures: resize, a language
+    // swap, revealing more cards, or images finally arriving.
+    let remeasureTimer;
+    const scheduleMeasure = () => {
+        clearTimeout(remeasureTimer);
+        remeasureTimer = setTimeout(() => { measure(); onScroll(); }, 150);
+    };
+    window.addEventListener('resize', scheduleMeasure, { passive: true });
+    document.addEventListener('akira:langchange', scheduleMeasure);
+    if ('ResizeObserver' in window) {
+        new ResizeObserver(scheduleMeasure).observe(document.body);
     }
     
     // Single scroll listener with requestAnimationFrame throttling
@@ -1432,7 +1461,7 @@ function initRevealObserver() {
 function initVisibilityHandler() {
     document.addEventListener('visibilitychange', () => {
         const particles = document.getElementById('particles');
-        const animatedElements = document.querySelectorAll('.shimmer-text, .banner-wave, .treasure-glow, .particle');
+        const animatedElements = document.querySelectorAll('.shimmer-text, .banner-wave, .particle');
         
         if (document.hidden) {
             // Pause all animations when tab is hidden
@@ -1488,7 +1517,7 @@ function initVaultPassword() {
     if (!input || !submitBtn || !response) return;
     
     function showResponse() {
-        response.textContent = 'The question is not yet written';
+        response.textContent = tr('rel.the-question-is-not-yet-written', 'The question is not yet written');
         response.classList.add('show');
         input.value = '';
         
@@ -1619,8 +1648,9 @@ function initMusicPlayer() {
     // Set initial volume to 30%
     videoPlayer.volume = 0.3;
     
-    // Defer video source loading - only load when user interacts
-    let videoLoaded = false;
+    // Nothing is fetched until someone asks for a track: the poster stands in
+    // for the video, and a 5 MB file is a lot to spend on a page visit.
+    let sourceReady = false;
     function loadVideoSource(src) {
         if (!videoPlayer.querySelector('source')) {
             const source = document.createElement('source');
@@ -1629,14 +1659,20 @@ function initMusicPlayer() {
         }
         videoPlayer.querySelector('source').src = src;
         videoPlayer.load();
-        videoLoaded = true;
+        sourceReady = true;
     }
     
-    // Load first video source on both mobile and desktop so poster shows and click works
+    // Remember the first track, but wait for a click on the player itself
     const activeItem = document.querySelector('.music-item.active');
-    if (activeItem) {
-        loadVideoSource(activeItem.getAttribute('data-src'));
-    }
+    let pendingSrc = activeItem ? activeItem.getAttribute('data-src') : null;
+    
+    const startPending = () => {
+        if (sourceReady || !pendingSrc) return;
+        loadVideoSource(pendingSrc);
+        videoPlayer.play();
+    };
+    videoPlayer.addEventListener('click', startPending);
+    videoPlayer.addEventListener('touchstart', startPending, { passive: true });
     
     // Only create cursor overlay on non-touch devices (desktop)
     // On mobile, skip overlay so native video controls work properly
@@ -1672,7 +1708,7 @@ function initMusicPlayer() {
             videoPlayer.play();
             
             // Update now playing text
-            nowPlaying.textContent = 'Now Playing: ' + title;
+            nowPlaying.textContent = tr('rel.now-playing', 'Now Playing:') + ' ' + title;
             
             // Update NFT link
             if (nftLink && nftUrl) {
@@ -2060,7 +2096,10 @@ function initProvenanceTree() {
         
         // Row 3: Children of Akira + Main Code (child of both Akira and Volker)
         { id: '90172797', title: 'Prints (Editions)', image: 'images/tree/prints.webp', link: 'https://ordinals.com/inscription/90172797', row: 3, col: -2, parentId: '83979554' },
+        // On-chain collection galleries (the new ordinals way of gathering a collection)
+        { id: 'b92bd0c6e260a5bbeceebfbe597b9cc4cbc00988a73476d47b5b564f0a1847b8i0', title: 'Four Seasons Gallery', image: 'images/tree/four-seasons-gallery.webp', link: 'https://ordinals.com/inscription/b92bd0c6e260a5bbeceebfbe597b9cc4cbc00988a73476d47b5b564f0a1847b8i0', row: 3, col: -1, parentId: '83979554', isGallery: true },
         { id: '106846686', title: '1/1', image: 'images/tree/oneone.webp', link: 'https://ordinals.com/inscription/106846686', row: 3, col: 0, parentId: '83979554' },
+        { id: '94821c4059562600ecd3982c53da3cc0efbeb3be601775a2e2be55e5dbd2512bi0', title: 'Technosignatures Gallery', image: 'images/tree/technosignatures-gallery.webp', link: 'https://ordinals.com/inscription/94821c4059562600ecd3982c53da3cc0efbeb3be601775a2e2be55e5dbd2512bi0', row: 3, col: 1, parentId: '83979554', isGallery: true },
         { id: '85153943', title: 'Technosignatures Main Code', image: '', link: 'https://ordinals.com/inscription/85153943', row: 3, col: 2, parentIds: ['83979554', '84070307'], isCode: true },
         
         // Row 4: Children of Prints (left side) + Pumpkin (child of 1/1)
@@ -2098,24 +2137,29 @@ function initProvenanceTree() {
     // Add extra row at top for title
     let html = `<div class="tree-grid" style="grid-template-columns: repeat(${totalCols}, var(--node-size)); grid-template-rows: auto repeat(${maxRow}, calc(var(--node-size) + var(--grid-gap)));">`;
     html += `<svg class="tree-branches"></svg>`;
-    // Add title centered at column 0 (centerCol)
-    html += `<h3 class="provenance-title" style="grid-row: 1; grid-column: ${centerCol};">Bitcoin Provenance Tree</h3>`;
+    // The section header carries the title now, row 1 stays empty
     
+    // Inscription ids come as a number or as a 66-character hash; hashes get shortened
+    const shortId = (id) => (id.length > 20 ? id.slice(0, 6) + '…' + id.slice(-5) : id);
+
     nodes.forEach(node => {
-        const nodeData = JSON.stringify({ id: node.id, title: node.title, image: node.image, link: node.link }).replace(/"/g, '&quot;');
+        const nodeData = JSON.stringify({ id: node.id, shortId: shortId(node.id), title: node.title, image: node.image, link: node.link }).replace(/"/g, '&quot;');
         const rootClass = node.isRoot ? ' root' : '';
         const codeClass = node.isCode ? ' code-node' : '';
+        const galleryClass = node.isGallery ? ' gallery-node' : '';
         const gridCol = node.col + centerCol; // col 0 maps to centerCol
         // Support both single parentId and multiple parentIds
         const parentData = node.parentIds ? node.parentIds.join(',') : (node.parentId || '');
-        const bgStyle = node.image ? `background-image: url('${node.image}');` : '';
+        // held back until the tree scrolls into view (see the observer below)
+        const bgAttr = node.image ? ` data-bg="${node.image}"` : '';
         
         html += `
-            <div class="tree-node${rootClass}${codeClass}" data-node="${nodeData}" data-id="${node.id}" data-parents="${parentData}" style="grid-row: ${node.row + 1}; grid-column: ${gridCol}; ${bgStyle}">
+            <div class="tree-node${rootClass}${codeClass}${galleryClass}" data-node="${nodeData}" data-id="${node.id}" data-parents="${parentData}"${bgAttr} style="grid-row: ${node.row + 1}; grid-column: ${gridCol};">
                 ${node.isCode ? '<span class="code-text">CODE</span>' : ''}
+                ${node.isGallery ? '<span class="gallery-mark" aria-hidden="true">▦</span>' : ''}
                 <div class="node-info">
                     <span class="node-title">${node.title}</span>
-                    <span class="node-id">#${node.id}</span>
+                    <span class="node-id">#${shortId(node.id)}</span>
                     ${node.children ? `<span class="node-children">${node.children}</span>` : ''}
                 </div>
             </div>
@@ -2183,11 +2227,19 @@ function initProvenanceTree() {
             container.scrollLeft = scrollWidth / 2;
         }
     }, 100);
-    window.addEventListener('resize', drawBranches);
+    let branchResizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(branchResizeTimer);
+        branchResizeTimer = setTimeout(drawBranches, 150);
+    }, { passive: true });
     
-    // Redraw when tree becomes visible and center scroll
+    // Paint the node artwork in, redraw, and centre the scroll once the tree is near
     const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
+            container.querySelectorAll('[data-bg]').forEach(node => {
+                node.style.backgroundImage = `url('${node.dataset.bg}')`;
+                node.removeAttribute('data-bg');
+            });
             setTimeout(() => {
                 drawBranches();
                 // Center the scrollbar horizontally
@@ -2197,7 +2249,7 @@ function initProvenanceTree() {
                 }
             }, 50);
         }
-    }, { threshold: 0.1 });
+    }, { threshold: 0, rootMargin: '300px 0px' });
     observer.observe(container);
     
     // Create popup element
@@ -2209,7 +2261,7 @@ function initProvenanceTree() {
         <div class="popup-info">
             <h4 class="popup-title"></h4>
             <span class="popup-id"></span>
-            <a class="popup-link" href="" target="_blank">Link →</a>
+            <a class="popup-link" href="" target="_blank">${tr('rel.link', 'Link')} →</a>
         </div>
     `;
     document.body.appendChild(popup);
@@ -2223,7 +2275,7 @@ function initProvenanceTree() {
         
         popup.querySelector('.popup-image').src = data.image || '';
         popup.querySelector('.popup-title').textContent = data.title;
-        popup.querySelector('.popup-id').textContent = '#' + data.id;
+        popup.querySelector('.popup-id').textContent = '#' + (data.shortId || data.id);
         popup.querySelector('.popup-link').href = data.link || '#';
         
         popup.classList.add('active');
@@ -2240,3 +2292,45 @@ function initProvenanceTree() {
         }
     });
 }
+
+/* ============================================
+   LANGUAGE CHANGES
+   The static text is swapped by i18n.js; anything
+   built from data.js has to be rebuilt here.
+   ============================================ */
+
+document.addEventListener('akira:langchange', () => {
+    // Project cards and the modal carry translated copy
+    const grid = document.getElementById('projects-grid');
+    if (grid && typeof projects !== 'undefined') {
+        filterProjects(grid.dataset.filteredCategory || 'all');
+    }
+
+    const modal = document.getElementById('project-modal');
+    if (modal && modal.classList.contains('active')) {
+        const open = projects.find(p => String(p.id) === modal.dataset.projectId);
+        if (open) openProjectModal(open);
+    }
+
+    // The provenance popup is built once, with its label baked in
+    const popupLink = document.querySelector('.tree-node-popup .popup-link');
+    if (popupLink) popupLink.textContent = tr('rel.link', 'Link') + ' →';
+
+    // "Now playing" keeps the track name, translates the label
+    const nowPlaying = document.getElementById('music-now-playing');
+    const activeTrack = document.querySelector('.music-item.active');
+    if (nowPlaying && activeTrack) {
+        nowPlaying.textContent = tr('rel.now-playing', 'Now Playing:') + ' ' +
+            activeTrack.textContent.replace(/\s*\([^)]*\)\s*$/, '').trim();
+    }
+
+    // The gallery button label depends on its current state
+    const galleryGrid = document.querySelector('.gallery-thumbnails');
+    const galleryBtn = document.getElementById('gallery-expand');
+    if (galleryGrid && galleryBtn) {
+        const expanded = galleryGrid.classList.contains('expanded');
+        galleryBtn.querySelector('.expand-text').textContent = expanded
+            ? tr('rel.show-less', 'Show Less')
+            : tr('rel.more-gallery', 'More Gallery');
+    }
+});

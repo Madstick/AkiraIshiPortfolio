@@ -41,7 +41,7 @@ const projects = [
     title: "Connecting",
     category: "bitcoin",
     onchain: "On-chain",
-    imageUrl: "images/projects/connecting.gif",
+    imageUrl: "images/projects/connecting.webp",
     description: "\"Connecting\" is an interactive living system, breathing to the pulse of the Bitcoin blockchain. Each particle an entity, each link a connection. Multiple functionalities are available: interactivity, lens to zoom into the system, possibility to change and lock fonts (only inscribed fonts are used), as well as being able to manually change the activity to see different stages.",
     features: [
       "Two-piece algorithm: Ordinals version uses time between blocks and network busyness",
@@ -59,7 +59,7 @@ const projects = [
     title: "Comics Extracts",
     category: "tezos",
     chain: "Polkadot",
-    imageUrl: "images/projects/comicsthumbnailc.png",
+    imageUrl: "images/projects/comicsthumbnailc.webp",
     description: "Comics Extracts is a visual project that translates the emotional language of comic books into generative art. Inspired by classic comic tropes and displays of emotion (impact, tension, surprise, chaos,..) the project deconstructs familiar visual storytelling devices into dynamic compositions of shape, rhythm, and motion. Rather than illustrating characters or scenes directly, it captures the feeling behind them and rebuilds those emotions as abstract storytelling systems.",
     features: [
       "Generative art minted on Polkadot",
@@ -76,7 +76,7 @@ const projects = [
     title: "Navigating the Trenches",
     category: "bitcoin",
     onchain: "On-chain",
-    imageUrl: "images/projects/navigating.gif",
+    imageUrl: "images/projects/navigating.webp",
     description: "It's tough. Navigating the Trenches is a conceptual project that uses a few sub-4k inscriptions recursively and aims to depict the Crypto market with a simple animated chart. The piece reflects on human nature in volatile markets, how crowds rejoice and cheer when everything is working out, but quickly give up when things go down.",
     features: [
       "Recursive inscription using sub-4k inscriptions",
