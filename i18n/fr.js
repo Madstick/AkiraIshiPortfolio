@@ -213,10 +213,25 @@ ui: {
 "rel.view-project": "Voir le projet",
 "rel.read-article-modal": "Lire l'article",
 "rel.view-details": "Voir les détails",
-"rel.status.suspended": "Suspendu"
+"rel.status.suspended": "Suspendu",
+"rel.status.upcoming": "À venir"
 
 },
 projects: {
+12: {
+  description: "Beaties, c'est un groupe de poche qui joue sans fin. Neuf petits personnages, neuf instruments, scellés sur Bitcoin en un seul système vivant : on remonte le mécanisme et il joue un morceau sans fin, écrit sur le moment à partir d'un hash de bloc. Rien n'est samplé, rien n'est stocké : la musique et l'image se fabriquent en direct dans le navigateur à chaque ouverture du jouet, chaque écoute est donc un original. Sous le plastique de console des années 90 se cache une vraie écriture musicale : des mélodies tenues dans la gamme de chaque genre, des voix qui s'appellent et se répondent, des morceaux qui montent et qui cassent.",
+  features: [
+    "200 groupes, entièrement on-chain sur Bitcoin, avec un mécanisme parent-enfant sur mesure",
+    "Neuf personnages, neuf instruments synthétisés en direct dans le navigateur, aucun sample",
+    "Chaque morceau est amorcé par l'ID d'inscription, le hash du bloc et le nonce de la preuve de travail",
+    "19 genres, chacun avec sa propre construction, plus des modes question-réponse et choral",
+    "Les blocs chargés jouent plus dense : le nombre de transactions décide de la densité des solos",
+    "Couper, boucler, sauter pendant que ça tourne, puis sauver une prise en une ligne de texte rejouable",
+    "Quatre mini-jeux transforment les neuf pads en véritable jouet",
+    "Date de mint et prix à annoncer"
+  ],
+  conclusion: "Un kick tout seul n'est qu'un coup sourd, un charleston tout seul qu'un tic, mais neuf petites voix qui s'accordent sur un même bloc Bitcoin font un groupe. Un objet fait pour être oublié en grandissant, scellé dans un registre fait pour ne jamais oublier."
+},
 0: {
   description: "Jardin Algorithmique est une collection générative de 200 pièces uniques et curatées, où la nature rencontre le code. En s'appuyant sur les groupes de symétrie p6m et p31m — les mêmes que l'on trouve dans les alvéoles ou les flocons de neige — l'algorithme compose des formes d'allure organique par la seule force des mathématiques. Chaque pièce naît à la croisée de la symétrie naturelle et de la précision du calcul, pour une profusion de motifs tous différents.",
   features: [

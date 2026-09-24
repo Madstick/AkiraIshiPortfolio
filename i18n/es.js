@@ -213,10 +213,25 @@ ui: {
 "rel.view-project": "Ver el proyecto",
 "rel.read-article-modal": "Leer el artículo",
 "rel.view-details": "Ver detalles",
-"rel.status.suspended": "Suspendido"
+"rel.status.suspended": "Suspendido",
+"rel.status.upcoming": "Próximamente"
 
 },
 projects: {
+12: {
+  description: "Beaties es una banda de bolsillo que toca sin parar. Nueve personajes pequeños, nueve instrumentos, sellados en Bitcoin como un solo sistema vivo: le das cuerda y suena una canción sin final, escrita en el momento a partir del hash de un bloque. Nada está sampleado y nada está guardado: la música y la imagen se construyen en vivo en el navegador cada vez que abres el juguete, así que cada interpretación es un original. Bajo el plástico de consola noventera hay composición de verdad: melodías dentro de la escala de cada género, voces que se llaman y se responden, canciones que suben y rompen.",
+  features: [
+    "200 bandas, totalmente on-chain en Bitcoin, con un mecanismo padre-hijo hecho a medida",
+    "Nueve personajes, nueve instrumentos sintetizados en vivo en el navegador, sin samples",
+    "Cada canción parte del ID de inscripción, el hash del bloque y el nonce de la prueba de trabajo",
+    "19 géneros, cada uno con su propia estructura, más modos de llamada-respuesta y coral",
+    "Los bloques cargados suenan más llenos: el número de transacciones decide cuánto tocan los solistas",
+    "Silencia, repite y salta mientras suena, y guarda la toma como una línea de texto que cualquiera puede reproducir",
+    "Cuatro minijuegos convierten los nueve pads en un juguete de verdad",
+    "Fecha de minteo y precio por anunciar"
+  ],
+  conclusion: "Un bombo solo es un golpe y un charles solo es un tic, pero nueve voces pequeñas puestas de acuerdo sobre un bloque de Bitcoin son una banda. Un objeto pensado para dejarse atrás al crecer, sellado en un registro pensado para no olvidar nunca."
+},
 0: {
   description: "Jardin Algorithmique es una colección generativa de 200 piezas únicas y seleccionadas donde la naturaleza se cruza con el código. A partir de los grupos de simetría p6m y p31m — los mismos que hay en un panal o en un copo de nieve — el algoritmo compone formas de aire orgánico solo con matemáticas. Cada pieza nace en el cruce entre la simetría natural y la precisión del cálculo, con una profusión de patrones siempre distintos.",
   features: [

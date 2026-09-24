@@ -615,6 +615,12 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   border-bottom: 1px solid rgba(201, 162, 39, 0.5);
 }
 
+/* An announced piece, not a lost one */
+.status-banner.status-upcoming {
+  background: linear-gradient(90deg, rgba(23, 62, 43, 0.95) 0%, #2f7d56 50%, rgba(23, 62, 43, 0.95) 100%);
+  color: var(--parchment-light);
+}
+
 /* Expand Button */
 .chronicles-expand-btn {
   display: flex;

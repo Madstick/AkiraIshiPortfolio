@@ -48,9 +48,25 @@
         // The invitation belongs to the closed doors
         invitation.style.opacity = Math.max(0, 1 - open * 3.2);
 
+        // The hall's mosaic starts loading (and drifting) with the first push
+        if (open > 0.02) wakeHall();
+        
         // Nothing is clickable until the choices are properly in view
         const ready = open > 0.55;
         choices.style.pointerEvents = ready ? 'auto' : 'none';
+    }
+    
+    // The works behind the doors: fetched on the first movement, not at load,
+    // so arriving at a closed door still costs nothing but the doors.
+    let hallAwake = false;
+    function wakeHall() {
+        if (hallAwake) return;
+        hallAwake = true;
+        document.querySelectorAll('#hall-mosaic img[data-src]').forEach(img => {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        });
+        gates.classList.add('ajar');
     }
 
     function onScroll() {

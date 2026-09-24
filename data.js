@@ -19,24 +19,6 @@ const projects = [
     link: "https://akiraishi.com/Jardin-Algorithmique"
   },
   {
-    id: 1,
-    title: "Technosignatures",
-    category: "bitcoin",
-    onchain: "On-chain",
-    imageUrl: "images/projects/Technosignatures2.webp",
-    description: "Technosignatures is a retro SCI-FI generative art project inscribed on the Bitcoin blockchain. Through the power of the human mind and the blockchain, users can interact with the algorithm to take their own snapshot of outer Space, uncovering alien structures far across the Universe. The project features 15 discovered subject types grouped into 4 main factions, with 5 more waiting to be found by pioneers. Emotions might even influence the output, and special satoshis like Black, Vintage, or Palindrome can unlock unique visual effects.",
-    features: [
-      "Generative algorithm creating unique alien structures",
-      "Interactive minting experience",
-      "15+ subject types across 4 factions",
-      "Special satoshi traits (Black, Vintage, Palindrome)",
-      "3D Viewer for immersive exploration",
-      "Parent-child provenance on Block9x450 Sat"
-    ],
-    conclusion: "A collaborative project with Völker, Technosignatures represents a journey into the unknown, exploring and discovering the Universe's wonders through blockchain technology.",
-    link: "https://technosignatures.xyz/"
-  },
-  {
     id: 2,
     title: "Connecting",
     category: "bitcoin",
@@ -55,6 +37,27 @@ const projects = [
     link: "https://akiraishi.com/Connecting.html"
   },
   {
+    id: 12,
+    title: "Beaties",
+    category: "bitcoin",
+    onchain: "On-chain",
+    status: "Upcoming",
+    imageUrl: "images/projects/beaties.webp",
+    description: "Beaties is a pocket band that jams forever. Nine little characters, nine instruments, sealed on Bitcoin as one living system: wind one up and it plays a song with no ending, written on the spot from a block hash. Nothing is sampled and nothing is stored, the music and the picture are built live in the browser every time the toy is opened, so every performance is an original. Under the plastic 90s handheld surface sits real composition: melodies held inside each genre's scale, voices that call and answer each other, songs that build and drop.",
+    features: [
+      "200 bands, fully on-chain on Bitcoin, using a custom parent-child mechanic",
+      "Nine characters, nine instruments synthesised live in the browser, nothing sampled",
+      "Each song is seeded by the inscription ID, the block hash and the proof-of-work nonce",
+      "19 genres, each with its own arrangement, plus call-and-response and choral modes",
+      "Busy blocks play busier: the transaction count decides how much the soloists say",
+      "Mute, loop and skip while it runs, then save a take as one line of text anyone can replay",
+      "Four mini-games turn the nine pads into a toy you can play",
+      "Mint date and price to be announced"
+    ],
+    conclusion: "A kick alone is a thump, a hi-hat alone is a tick, but nine small voices agreeing on one Bitcoin block become a band. A thing designed to be outgrown, sealed in a ledger designed never to forget.",
+    link: "https://beaties.xyz"
+  },
+  {
     id: 11,
     title: "Comics Extracts",
     category: "tezos",
@@ -70,6 +73,24 @@ const projects = [
     ],
     conclusion: "Comics Extracts strips the page down to its raw emotional machinery, proving that a panel can still shout, tremble or explode long after the characters have left it.",
     link: "https://www.chaotic.art/ahp/drops/comics"
+  },
+  {
+    id: 1,
+    title: "Technosignatures",
+    category: "bitcoin",
+    onchain: "On-chain",
+    imageUrl: "images/projects/Technosignatures2.webp",
+    description: "Technosignatures is a retro SCI-FI generative art project inscribed on the Bitcoin blockchain. Through the power of the human mind and the blockchain, users can interact with the algorithm to take their own snapshot of outer Space, uncovering alien structures far across the Universe. The project features 15 discovered subject types grouped into 4 main factions, with 5 more waiting to be found by pioneers. Emotions might even influence the output, and special satoshis like Black, Vintage, or Palindrome can unlock unique visual effects.",
+    features: [
+      "Generative algorithm creating unique alien structures",
+      "Interactive minting experience",
+      "15+ subject types across 4 factions",
+      "Special satoshi traits (Black, Vintage, Palindrome)",
+      "3D Viewer for immersive exploration",
+      "Parent-child provenance on Block9x450 Sat"
+    ],
+    conclusion: "A collaborative project with Völker, Technosignatures represents a journey into the unknown, exploring and discovering the Universe's wonders through blockchain technology.",
+    link: "https://technosignatures.xyz/"
   },
   {
     id: 3,

@@ -364,7 +364,9 @@ function createProjectCard(source, index, isFeatured = false) {
     let imageUrl = project.imageUrl;
     
     const featuredBanner = isFeatured ? `<span class="featured-banner">${tr('rel.featured', 'Featured')}</span>` : '';
-    const statusBanner = project.status ? `<span class="status-banner">${tr('rel.status.' + source.status.toLowerCase(), project.status)}</span>` : '';
+    const statusBanner = project.status
+        ? `<span class="status-banner status-${source.status.toLowerCase()}">${tr('rel.status.' + source.status.toLowerCase(), project.status)}</span>`
+        : '';
     
     const l2Tag = project.l2 ? `<span class="chronicle-l2">${project.l2}</span>` : '';
     const onchainTag = project.onchain ? `<span class="chronicle-onchain">${project.onchain}</span>` : '';
@@ -2100,12 +2102,16 @@ function initProvenanceTree() {
         { id: 'b92bd0c6e260a5bbeceebfbe597b9cc4cbc00988a73476d47b5b564f0a1847b8i0', title: 'Four Seasons Gallery', image: 'images/tree/four-seasons-gallery.webp', link: 'https://ordinals.com/inscription/b92bd0c6e260a5bbeceebfbe597b9cc4cbc00988a73476d47b5b564f0a1847b8i0', row: 3, col: -1, parentId: '83979554', isGallery: true },
         { id: '106846686', title: '1/1', image: 'images/tree/oneone.webp', link: 'https://ordinals.com/inscription/106846686', row: 3, col: 0, parentId: '83979554' },
         { id: '94821c4059562600ecd3982c53da3cc0efbeb3be601775a2e2be55e5dbd2512bi0', title: 'Technosignatures Gallery', image: 'images/tree/technosignatures-gallery.webp', link: 'https://ordinals.com/inscription/94821c4059562600ecd3982c53da3cc0efbeb3be601775a2e2be55e5dbd2512bi0', row: 3, col: 1, parentId: '83979554', isGallery: true },
+        { id: 'c08fc18bd7bf9d7045e1c9272739bee611efe9197fafbb2ac09171320899dfc5i0', title: 'Beaties', image: 'images/tree/beaties.webp', link: 'https://ordinals.com/inscription/c08fc18bd7bf9d7045e1c9272739bee611efe9197fafbb2ac09171320899dfc5i0', row: 3, col: 3, parentId: '83979554' },
         { id: '85153943', title: 'Technosignatures Main Code', image: '', link: 'https://ordinals.com/inscription/85153943', row: 3, col: 2, parentIds: ['83979554', '84070307'], isCode: true },
         
         // Row 4: Children of Prints (left side) + Pumpkin (child of 1/1)
         { id: '90186667', title: 'Navigating the Trenches', image: 'images/tree/navigatingtree.webp', link: 'https://ordinals.com/inscription/90186667', row: 4, col: -3, parentId: '90172797' },
         { id: '114964852', title: 'Connecting', image: 'images/tree/connectingtree.webp', link: 'https://ordinals.com/inscription/114964852', row: 4, col: -1, parentId: '90172797' },
         { id: '108715264', title: 'Pumpkin', image: 'images/tree/pumpkintree.webp', link: 'https://ordinals.com/inscription/108715264', row: 4, col: 0, parentId: '106846686' },
+        
+        // The Beaties band, 200 children of the Beaties parent inscription
+        { id: 'beaties-children', title: 'Beaties', children: '200 children', image: 'images/tree/beatieschildren.webp', link: 'https://beaties.xyz', row: 4, col: 3, parentId: 'c08fc18bd7bf9d7045e1c9272739bee611efe9197fafbb2ac09171320899dfc5i0', noId: true },
         
         // Technosignatures (child of Main Code)
         { id: '85158696', title: 'Technosignatures', children: '128 delegated', image: 'images/tree/technosignaturestree.webp', link: 'https://technosignatures.xyz', row: 4, col: 2, parentId: '85153943' },
@@ -2143,7 +2149,7 @@ function initProvenanceTree() {
     const shortId = (id) => (id.length > 20 ? id.slice(0, 6) + '…' + id.slice(-5) : id);
 
     nodes.forEach(node => {
-        const nodeData = JSON.stringify({ id: node.id, shortId: shortId(node.id), title: node.title, image: node.image, link: node.link }).replace(/"/g, '&quot;');
+        const nodeData = JSON.stringify({ id: node.id, shortId: node.noId ? '' : shortId(node.id), title: node.title, image: node.image, link: node.link }).replace(/"/g, '&quot;');
         const rootClass = node.isRoot ? ' root' : '';
         const codeClass = node.isCode ? ' code-node' : '';
         const galleryClass = node.isGallery ? ' gallery-node' : '';
@@ -2159,7 +2165,7 @@ function initProvenanceTree() {
                 ${node.isGallery ? '<span class="gallery-mark" aria-hidden="true">▦</span>' : ''}
                 <div class="node-info">
                     <span class="node-title">${node.title}</span>
-                    <span class="node-id">#${shortId(node.id)}</span>
+                    ${node.noId ? '' : `<span class="node-id">#${shortId(node.id)}</span>`}
                     ${node.children ? `<span class="node-children">${node.children}</span>` : ''}
                 </div>
             </div>
@@ -2275,7 +2281,7 @@ function initProvenanceTree() {
         
         popup.querySelector('.popup-image').src = data.image || '';
         popup.querySelector('.popup-title').textContent = data.title;
-        popup.querySelector('.popup-id').textContent = '#' + (data.shortId || data.id);
+        popup.querySelector('.popup-id').textContent = data.shortId ? '#' + data.shortId : '';
         popup.querySelector('.popup-link').href = data.link || '#';
         
         popup.classList.add('active');

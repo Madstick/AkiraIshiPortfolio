@@ -213,10 +213,25 @@ ui: {
 "rel.view-project": "Projekt ansehen",
 "rel.read-article-modal": "Artikel lesen",
 "rel.view-details": "Details ansehen",
-"rel.status.suspended": "Eingestellt"
+"rel.status.suspended": "Eingestellt",
+"rel.status.upcoming": "Demnächst"
 
 },
 projects: {
+12: {
+  description: "Beaties ist eine Band für die Hosentasche, die ewig weiterspielt. Neun kleine Figuren, neun Instrumente, als ein lebendiges System auf Bitcoin versiegelt: einmal aufziehen, und sie spielt ein Stück ohne Ende, im Moment geschrieben aus einem Block-Hash. Nichts ist gesampelt und nichts gespeichert — Musik und Bild entstehen bei jedem Öffnen live im Browser, jede Aufführung ist also ein Original. Unter der Plastikoberfläche eines 90er-Handhelds steckt echte Komposition: Melodien innerhalb der Tonleiter des jeweiligen Genres, Stimmen, die sich rufen und antworten, Songs, die aufbauen und abreißen.",
+  features: [
+    "200 Bands, vollständig on-chain auf Bitcoin, mit einem eigenen Eltern-Kind-Mechanismus",
+    "Neun Figuren, neun live im Browser synthetisierte Instrumente, nichts gesampelt",
+    "Jeder Song wird aus Inschriften-ID, Block-Hash und Proof-of-Work-Nonce geseedet",
+    "19 Genres mit jeweils eigenem Aufbau, dazu Frage-Antwort- und Chormodus",
+    "Volle Blöcke spielen voller: die Zahl der Transaktionen bestimmt, wie viel die Solisten sagen",
+    "Stummschalten, loopen und springen im laufenden Stück, dann die Aufnahme als eine Textzeile sichern, die jeder abspielen kann",
+    "Vier Minispiele machen aus den neun Pads ein echtes Spielzeug",
+    "Mint-Termin und Preis werden noch bekanntgegeben"
+  ],
+  conclusion: "Eine Bassdrum allein ist ein Rumms, eine Hi-Hat allein ein Ticken — doch neun kleine Stimmen, die sich auf einen Bitcoin-Block einigen, sind eine Band. Ein Ding, das man im Erwachsenwerden weglegt, versiegelt in einem Register, das nie vergisst."
+},
 0: {
   description: "Jardin Algorithmique ist eine generative Sammlung aus 200 kuratierten Einzelstücken, in denen Natur auf Code trifft. Mit den Symmetriegruppen p6m und p31m — denselben, die in Bienenwaben oder Schneeflocken stecken — komponiert der Algorithmus organisch wirkende Formen allein aus Mathematik. Jede Arbeit entsteht dort, wo natürliche Symmetrie und rechnerische Präzision sich kreuzen, und bringt eine Fülle immer neuer Muster hervor.",
   features: [
