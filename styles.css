@@ -1848,6 +1848,31 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   pointer-events: none;
 }
 
+/* Category Node - a plain label that groups a branch, no inscription behind it */
+.tree-node.category-node {
+  background: linear-gradient(135deg, rgba(26, 15, 5, 0.9) 0%, rgba(61, 41, 20, 0.75) 100%);
+  border-style: dashed;
+  border-color: var(--gold);
+  justify-content: center;
+}
+
+.tree-node.category-node:hover {
+  transform: none;
+  box-shadow: 0 0 12px rgba(201, 162, 39, 0.25);
+  border-color: var(--gold);
+}
+
+.tree-node.category-node .node-info {
+  background: none;
+}
+
+.tree-node.category-node .node-title {
+  font-size: clamp(0.5rem, 1vw, 1rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
 /* Node Info - with background for visibility over images */
 .node-info {
   display: flex;
