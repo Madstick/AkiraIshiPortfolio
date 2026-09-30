@@ -61,6 +61,7 @@
             <nav class="shop-nav" id="shop-nav">
                 <a href="#shops" data-i18n="shop.shops">Shops</a>
                 <a href="#works" data-i18n="shop.works">Works</a>
+                <a href="#atelier" data-i18n="shop.atelier">Atelier</a>
                 <a href="#about" data-i18n="shop.about">About</a>
                 <a href="#contact" data-i18n="shop.contact">Contact</a>
                 <span class="lang-mount lang-mount-shop" data-i18n-switcher data-variant="light"></span>
@@ -316,6 +317,120 @@
             </div>
         </section>
 
+        <!-- ============ ATELIER : NATURE MORTE ============ -->
+        <section class="section" id="atelier">
+            <div class="wrap">
+                <div class="section-head reveal">
+                    <span class="eyebrow" data-i18n="shop.paint-your-own">Paint your own</span>
+                    <h2 class="section-title" data-i18n="shop.the-nature-morte-atelier">The Nature Morte Atelier</h2>
+                    <p class="section-lede" data-i18n="shop.nature-morte-is-a-painter-written">
+                        Nature Morte is a painter written in code. It sets a table of fruit and vessels, lights it from a
+                        single window, and then paints the scene the way a 17th-century workshop would &mdash; ground, dead
+                        colouring, body colour, glazes, highlights, varnish. Every click makes a still life that has never
+                        existed before. When one of them belongs on your wall, keep its reference and I print that exact painting.
+                    </p>
+                </div>
+
+                <div class="atelier reveal">
+                    <div class="atelier-stage" id="atelier-stage">
+                        <div class="atelier-poster" id="atelier-poster">
+                            <img src="images/atelier/nm-dutch.webp" width="1400" height="1120" loading="lazy" decoding="async"
+                                 alt="A generated still life: fruit, a stoneware jug and a glass on a blue cloth, lit from a window"
+                                 data-i18n-alt="shop.atelier-poster-alt">
+                            <div class="atelier-poster-body">
+                                <p data-i18n="shop.it-paints-in-your-own-browser">
+                                    It paints in your own browser &mdash; nothing is uploaded, and a painting takes about 20 to 30 seconds.
+                                </p>
+                                <button type="button" class="btn btn-primary" id="atelier-open" data-i18n="shop.open-the-atelier">Open the atelier</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class="atelier-panel">
+                        <h3 data-i18n="shop.your-painting">Your painting</h3>
+                        <p class="atelier-title" id="atelier-title" data-i18n="shop.nothing-painted-yet">Nothing painted yet</p>
+                        <p class="atelier-meta" id="atelier-meta" data-i18n="shop.open-the-atelier-and-click-the">
+                            Open the atelier, then click the canvas whenever you want another one.
+                        </p>
+
+                        <div class="atelier-ref">
+                            <span class="atelier-ref-label" data-i18n="shop.reference">Reference</span>
+                            <code class="atelier-ref-value" id="atelier-ref">&mdash;</code>
+                        </div>
+
+                        <div class="atelier-actions">
+                            <button type="button" class="btn btn-ghost" id="atelier-new" disabled data-i18n="shop.new-painting">New painting</button>
+                            <button type="button" class="btn btn-ghost" id="atelier-save" disabled data-i18n="shop.download-the-image">Download the image</button>
+                        </div>
+
+                        <!-- TODO: swap the href below for the real Etsy listing (see ETSY_SHOP in shop.js) -->
+                        <a class="btn btn-primary atelier-order" id="atelier-order" href="https://www.etsy.com/" target="_blank" rel="noopener"
+                           data-i18n="shop.order-this-as-a-print">Order this as a print</a>
+
+                        <p class="atelier-fineprint" data-i18n="shop.the-order-button-copies-the-reference">
+                            The order button copies the reference for you &mdash; paste it into the &ldquo;note to seller&rdquo; box at
+                            checkout and I print that painting, at full resolution, on archival paper.
+                        </p>
+                    </aside>
+                </div>
+
+                <ul class="atelier-facts reveal">
+                    <li>
+                        <strong data-i18n="shop.twelve-manners">Twelve manners</strong>
+                        <span data-i18n="shop.the-same-table-repainted-as-dutch">
+                            The same table repainted as Dutch pronk, Spanish bodeg&oacute;n, French tonal or alla prima &mdash;
+                            or in gold leaf, Delft blue, woodblock, silk thread and three manners that exist nowhere else.
+                        </span>
+                    </li>
+                    <li>
+                        <strong data-i18n="shop.your-own-arrangement">Your own arrangement</strong>
+                        <span data-i18n="shop.set-the-composition-the-backdrop-the">
+                            Set the composition, the backdrop, the mirror and the light &mdash; window or candle &mdash; and the
+                            scene is rebuilt around your choices.
+                        </span>
+                    </li>
+                    <li>
+                        <strong data-i18n="shop.made-to-be-printed">Made to be printed</strong>
+                        <span data-i18n="shop.ask-for-ultra-and-the-painting">
+                            Ask for Ultra and the painting is worked at four times the pixels, with finer brushes, water drops,
+                            insects and tendrils. It takes a couple of minutes and prints large.
+                        </span>
+                    </li>
+                    <li>
+                        <strong data-i18n="shop.one-of-a-kind">One of a kind</strong>
+                        <span data-i18n="shop.the-reference-brings-the-same-painting">
+                            The reference brings the same painting back, brushstroke for brushstroke. Nobody else will find it
+                            unless you give it to them.
+                        </span>
+                    </li>
+                </ul>
+
+                <figure class="atelier-examples reveal">
+                    <div class="atelier-example">
+                        <img src="images/atelier/nm-tonal.webp" width="900" height="720" loading="lazy" decoding="async"
+                             alt="Still life in the French tonal manner: pears and lemons on white linen"
+                             data-i18n-alt="shop.atelier-example-tonal-alt">
+                        <span data-i18n="shop.french-tonal">French tonal</span>
+                    </div>
+                    <div class="atelier-example">
+                        <img src="images/atelier/nm-isophote.webp" width="760" height="608" loading="lazy" decoding="async"
+                             alt="Still life drawn only in glowing lines of equal light on near-black"
+                             data-i18n-alt="shop.atelier-example-isophote-alt">
+                        <span data-i18n="shop.isophote">Isophote</span>
+                    </div>
+                    <div class="atelier-example">
+                        <img src="images/atelier/nm-horologium.webp" width="900" height="1125" loading="lazy" decoding="async"
+                             alt="Two lemons and a book on a pale ledge, cast in the coloured shadows of three suns"
+                             data-i18n-alt="shop.atelier-example-horologium-alt">
+                        <span data-i18n="shop.horologium">Horologium</span>
+                    </div>
+                    <figcaption data-i18n="shop.three-of-the-manners-the-same">
+                        Three of the manners. The same painter, the same table, a different workshop.
+                    </figcaption>
+                </figure>
+            </div>
+        </section>
+
         <!-- ============ ABOUT ============ -->
         <section class="section" id="about">
             <div class="wrap">
@@ -421,6 +536,7 @@
                 <a href="index.html" data-i18n="shop.the-gates">The Gates</a>
                 <a href="reliquary.html" data-i18n="shop.web3-amp-nfts">Web3 &amp; NFTs</a>
                 <a href="#shops" data-i18n="shop.shops">Shops</a>
+                <a href="#atelier" data-i18n="shop.atelier">Atelier</a>
                 <a href="mailto:leakiraishi@gmail.com" data-i18n="shop.contact">Contact</a>
             </nav>
         </div>

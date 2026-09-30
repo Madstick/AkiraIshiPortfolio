@@ -82,14 +82,14 @@
             <div class="choices" id="choices">
 
                 <!-- Choice 1 : Online shops -->
-                <a class="choice choice-shop" href="shop.html" data-choice="shop">
+                <div class="choice choice-shop is-closed" data-choice="shop" aria-disabled="true">
                     <span class="choice-frame"></span>
                     <span class="choice-body">
                         <img src="images/desktop-icons/reliquary/images_a.webp" alt="" class="choice-icon" decoding="async">
                         <span class="choice-title" data-i18n="gates.online-shops">Online Shops</span>
                         <span class="choice-tagline" data-i18n="gates.prints-amp-physical-works">Prints &amp; physical works</span>
                         <span class="choice-desc" data-i18n="gates.pieces-you-can-hold-framed-and">Pieces you can hold, framed and shipped from my shops.</span>
-                        <span class="choice-enter"><span data-i18n="gates.enter">Enter</span> <span class="choice-arrow">→</span></span>
+                        <span class="choice-warning" role="note"><span aria-hidden="true">⚠</span> <span data-i18n="gates.under-construction">Under construction &mdash; not open yet</span></span>
                     </span>
 
                     <!-- Hover preview of the shop page -->
@@ -112,7 +112,7 @@
                         </span>
                         <span class="preview-caption" data-i18n="gates.shop-the-prints-rarr">Shop the prints &rarr;</span>
                     </span>
-                </a>
+                </div>
 
                 <!-- Choice 2 : Web3 / NFTs -->
                 <a class="choice choice-web3" href="reliquary.html" data-choice="web3">
@@ -176,7 +176,7 @@
 
     <noscript>
         <div class="noscript-links">
-            <a href="shop.html" data-i18n="gates.online-shops">Online Shops</a>
+            <span><span data-i18n="gates.online-shops">Online Shops</span> (<span data-i18n="gates.under-construction">Under construction &mdash; not open yet</span>)</span>
             <a href="reliquary.html" data-i18n="gates.web3-amp-nfts-mdash-the-reliquary">Web3 &amp; NFTs &mdash; The Reliquary</a>
         </div>
     </noscript>

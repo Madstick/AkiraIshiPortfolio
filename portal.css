@@ -312,6 +312,58 @@ html {
   transform: translateX(4px);
 }
 
+/* A path that is not open yet: dimmed, no lift, no preview, and a warning where "Enter" would be */
+.choice.is-closed {
+  cursor: not-allowed;
+  border-style: dashed;
+  border-color: var(--gold-dark);
+}
+
+.choice.is-closed .choice-body > :not(.choice-warning) {
+  opacity: 0.55;
+}
+
+.choice.is-closed:hover {
+  transform: none;
+  border-color: var(--gold-dark);
+  box-shadow: none;
+}
+
+.choice.is-closed:hover .choice-icon {
+  transform: none;
+}
+
+.choice.is-closed .preview {
+  display: none;
+}
+
+.choice-warning {
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 1.4;
+  text-align: center;
+  color: #e8b4a0;
+  border: 1px solid rgba(200, 90, 60, 0.6);
+  background: rgba(120, 30, 15, 0.35);
+}
+
+.choice.is-refused {
+  animation: choice-refused 0.4s ease;
+}
+
+@keyframes choice-refused {
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice.is-refused { animation: none; }
+}
+
 /* ============================================
    HOVER PREVIEW OF THE OTHER PAGE
    ============================================ */

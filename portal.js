@@ -112,14 +112,14 @@
 
     choices.addEventListener('mouseover', (e) => {
         const choice = e.target.closest('.choice');
-        if (!choice) return;
+        if (!choice || choice.classList.contains('is-closed')) return;
         prefetch(choice.getAttribute('href'));
         wakePreview(choice);
     }, { passive: true });
 
     choices.addEventListener('focusin', (e) => {
         const choice = e.target.closest('.choice');
-        if (!choice) return;
+        if (!choice || choice.classList.contains('is-closed')) return;
         prefetch(choice.getAttribute('href'));
         wakePreview(choice);
     }, { passive: true });
@@ -162,6 +162,13 @@
     choices.addEventListener('click', (e) => {
         const choice = e.target.closest('.choice');
         if (!choice) return;
+        // A path that is still being built: nudge the card instead of opening it
+        if (choice.classList.contains('is-closed')) {
+            choice.classList.remove('is-refused');
+            void choice.offsetWidth;
+            choice.classList.add('is-refused');
+            return;
+        }
         // Leave new-tab and middle-click behaviour alone
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
         e.preventDefault();

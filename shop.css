@@ -599,6 +599,250 @@ a {
 }
 
 /* ============================================
+   THE ATELIER - Nature Morte, painted live
+   The generator is a page of its own; it is
+   only fetched once the visitor asks for it.
+   ============================================ */
+
+button.btn {
+  cursor: pointer;
+}
+
+button.btn[disabled] {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Once the painter is running, stop skipping the section's rendering */
+#atelier.atelier-live {
+  content-visibility: visible;
+}
+
+.atelier {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+.atelier-stage {
+  position: relative;
+  height: clamp(420px, 68vh, 760px);
+  padding: 0.9rem;
+  border: 1px solid var(--gold-deep);
+  background: var(--brown-dark);
+  box-shadow: var(--shadow-soft);
+}
+
+.atelier-stage iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #0f0d0b;
+}
+
+/* The closed atelier: one finished painting and the way in */
+.atelier-poster {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: #0f0d0b;
+}
+
+.atelier-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+.atelier-poster-body {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  text-align: center;
+  background: linear-gradient(180deg, transparent 0%, rgba(15, 13, 11, 0.86) 55%);
+}
+
+.atelier-poster-body p {
+  max-width: 44ch;
+  margin: 0 auto 1.1rem;
+  color: #e7dcc4;
+  font-size: 1rem;
+}
+
+.atelier-poster-body .btn-primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--brown-dark);
+}
+
+.atelier-poster-body .btn-primary:hover {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+/* Side panel: what has just been painted, and how to own it */
+.atelier-panel {
+  padding: 1.5rem;
+  border: 1px solid var(--paper-edge);
+  background: var(--paper-warm);
+  box-shadow: var(--shadow-soft);
+}
+
+.atelier-panel h3 {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--ink-faint);
+}
+
+.atelier-title {
+  margin-top: 0.6rem;
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.atelier-meta {
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.atelier-ref {
+  margin: 1.1rem 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px dashed var(--paper-edge);
+  background: var(--paper);
+}
+
+.atelier-ref-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--ink-faint);
+}
+
+.atelier-ref-value {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+  color: var(--ink);
+}
+
+.atelier-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.atelier-actions .btn,
+.atelier-order {
+  justify-content: center;
+  padding: 0.8rem 1rem;
+  font-size: 0.72rem;
+}
+
+.atelier-order {
+  display: flex;
+  margin-top: 0.55rem;
+}
+
+.atelier-fineprint {
+  margin-top: 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+
+/* A short word on what the painter can do */
+.atelier-facts {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.25rem 1.75rem;
+  margin-top: 2.25rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--paper-edge);
+}
+
+.atelier-facts strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gold-deep);
+  margin-bottom: 0.35rem;
+}
+
+.atelier-facts span {
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* Three finished paintings, as a taste of the range */
+.atelier-examples {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.atelier-example {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--paper-edge);
+  background: var(--brown-dark);
+}
+
+.atelier-example img {
+  width: 100%;
+  /* height:auto so the width/height attributes stop overriding the ratio */
+  height: auto;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  transition: transform var(--transition);
+}
+
+.atelier-example:hover img {
+  transform: scale(1.03);
+}
+
+.atelier-example span {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--paper);
+  background: rgba(15, 13, 11, 0.72);
+}
+
+.atelier-examples figcaption {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+/* ============================================
    CROSSING TO THE RELIQUARY
    ============================================ */
 
@@ -672,12 +916,13 @@ a {
 }
 
 /* Sections further down the page are skipped by the renderer until needed */
+#atelier,
 #about,
 #contact,
 .crossing,
 .shop-footer {
   content-visibility: auto;
-  contain-intrinsic-size: auto 800px;
+  contain-intrinsic-size: auto 1200px;
 }
 
 /* ============================================
@@ -719,6 +964,14 @@ a {
   .shop-card-figure {
     max-width: 320px;
   }
+
+  .atelier {
+    grid-template-columns: 1fr;
+  }
+
+  .atelier-stage {
+    height: clamp(360px, 60vh, 600px);
+  }
 }
 
 @media (max-width: 760px) {
@@ -757,6 +1010,10 @@ a {
     margin: 0.9rem 1.5rem;
     justify-content: center;
   }
+
+  .atelier-examples {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -773,7 +1030,8 @@ a {
   .work,
   .work-figure img,
   .btn,
-  .contact-card {
+  .contact-card,
+  .atelier-example img {
     transition: none;
   }
 }
