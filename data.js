@@ -34,7 +34,7 @@ const projects = [
       "Interactive controls and zoom lens functionality"
     ],
     conclusion: "Connecting bridges art and blockchain in real-time, creating a visual representation of Bitcoin's heartbeat. The live data algorithm is available to everyone until mint completion, then exclusively to holders.",
-    link: "https://akiraishi.com/Connecting.html"
+    link: "https://gamma.io/ordinals/prints/5addbcf2beb3f10a0d0c263585d65041d770bd4c9ddd3a18bd6050479b8f73a9i0"
   },
   {
     id: 12,
