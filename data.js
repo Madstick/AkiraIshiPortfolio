@@ -29,12 +29,12 @@ const projects = [
       "Two-piece algorithm: Ordinals version uses time between blocks and network busyness",
       "Real-time data version at akiraishi.com reacts directly to chain activity",
       "Recognizes spikes in activity and network congestion",
-      "Influences gravity, particle speed, link count, and halo colors",
+      "Activity influences gravity, particle speed, link count, and halo",
       "Resets and refreshes with every new block",
       "Interactive controls and zoom lens functionality"
     ],
     conclusion: "Connecting bridges art and blockchain in real-time, creating a visual representation of Bitcoin's heartbeat. The live data algorithm is available to everyone until mint completion, then exclusively to holders.",
-    link: "https://gamma.io/ordinals/prints/5addbcf2beb3f10a0d0c263585d65041d770bd4c9ddd3a18bd6050479b8f73a9i0"
+    link: "https://gamma.io/ordinals/prints/5addbcf2beb3f10a0d0c263585d65041d770bd4c9ddd3a18bd6050479b8f73a9i0/details"
   },
   {
     id: 12,
