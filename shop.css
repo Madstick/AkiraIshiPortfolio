@@ -636,6 +636,22 @@ button.btn[disabled] {
   box-shadow: var(--shadow-soft);
 }
 
+/* full screen: the frame alone, either by the browser's own full screen or laid over the page (an iPhone has no
+   full screen for anything but video) */
+.atelier-stage:fullscreen { padding: 0; border: 0; background: #000; }
+.atelier-stage.atelier-full {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  height: auto;
+  padding: 0;
+  border: 0;
+  background: #000;
+}
+html.atelier-noscroll, html.atelier-noscroll body { overflow: hidden; }
+/* a transformed ancestor (the reveal animation) would hold a fixed box inside itself */
+html.atelier-noscroll .atelier { transform: none !important; transition: none !important; }
+
 .atelier-stage iframe {
   display: block;
   width: 100%;
@@ -764,6 +780,67 @@ button.btn[disabled] {
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--ink-faint);
+}
+
+/* Ordering through the Etsy Worker: size, price, the human check, then the button */
+.atelier-buy {
+  margin-top: 1.1rem;
+}
+
+.atelier-field {
+  display: block;
+  margin-top: 0.7rem;
+}
+
+.atelier-field[hidden] {
+  display: none;
+}
+
+.atelier-field > span {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--ink-faint);
+}
+
+.atelier-field select {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  border-radius: var(--radius);
+}
+
+.atelier-price {
+  margin-top: 0.5rem;
+  min-height: 1.4em;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.atelier-captcha {
+  margin-top: 0.4rem;
+  min-height: 0;
+}
+
+.atelier-order[aria-disabled="true"] {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.atelier-status {
+  margin-top: 0.6rem;
+  min-height: 1.3em;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--ink);
 }
 
 /* A short word on what the painter can do */

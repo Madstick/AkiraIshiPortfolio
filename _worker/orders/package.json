@@ -1,0 +1,15 @@
+{
+  "name": "still-life-code-orders",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker that sells a Still Life Code painting as a print: Stripe takes the payment, Gelato makes it",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "test": "node test/run.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

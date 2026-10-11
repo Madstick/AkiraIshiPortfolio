@@ -1,0 +1,58 @@
+# Copy to .github/workflows/render.yml in the prints repo (GITHUB_REPO), with render.mjs in render/ beside it.
+# Repo settings: a secret RENDER_SECRET (the same value as the Worker's RENDER_SECRET) and, if the site is not
+# akiraishi.com, a variable SITE_URL. The Worker starts this job after a paid order on the direct route.
+name: Paint a print file
+
+on:
+  repository_dispatch:
+    types: [render]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: render-${{ github.event.client_payload.key }}
+
+jobs:
+  paint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install the browser driver
+        run: npm install --no-save --no-package-lock puppeteer-core@23
+
+      # payload values only ever reach the scripts through the environment, never pasted into them
+      - name: Paint
+        env:
+          URL: ${{ github.event.client_payload.url }}
+          OUT: ${{ github.event.client_payload.path }}
+          SITE: ${{ vars.SITE_URL || 'https://akiraishi.com' }}
+        run: node render/render.mjs
+
+      - name: Keep the file
+        env:
+          OUT: ${{ github.event.client_payload.path }}
+          KEY: ${{ github.event.client_payload.key }}
+        run: |
+          git config user.name "still-life-code-render"
+          git config user.email "render@users.noreply.github.com"
+          git add "$OUT"
+          git commit -m "print file $KEY" || echo "the file was already there"
+          for i in 1 2 3 4 5; do git push && break; git pull --rebase; done
+
+      - name: Tell the shop
+        env:
+          ORDER: ${{ github.event.client_payload.order_id }}
+          KEY: ${{ github.event.client_payload.key }}
+          CALLBACK: ${{ github.event.client_payload.callback }}
+          SECRET: ${{ secrets.RENDER_SECRET }}
+        run: |
+          SIG=$(printf '%s' "$ORDER:$KEY" | openssl dgst -sha256 -hmac "$SECRET" -hex | sed 's/^.* //')
+          curl -fsS -X POST "$CALLBACK" -H 'content-type: application/json' \
+            -d "{\"order_id\":\"$ORDER\",\"key\":\"$KEY\",\"sig\":\"$SIG\"}"

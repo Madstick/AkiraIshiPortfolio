@@ -1,0 +1,7 @@
+# Copy to .dev.vars for `wrangler dev` (that file is git-ignored)
+ADMIN_KEY=change-me-to-a-long-random-string
+GELATO_API_KEY=
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+GITHUB_TOKEN=
+TURNSTILE_SECRET=

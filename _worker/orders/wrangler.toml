@@ -1,0 +1,85 @@
+name = "still-life-code-orders"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# One KV namespace holds the rate-limit counters, the order records and, if GitHub is not set up, the print
+# files. Create it with:  npx wrangler kv namespace create TOKENS
+# then paste the id it prints below.
+[[kv_namespaces]]
+binding = "TOKENS"
+id = "REPLACE_WITH_THE_KV_NAMESPACE_ID"
+
+[vars]
+# --- where the site lives -----------------------------------------------------
+SITE_URL = "https://akiraishi.com"
+# Browsers on these origins may call the Worker (comma separated)
+ALLOWED_ORIGINS = "https://akiraishi.com,https://www.akiraishi.com"
+
+# --- the switch -----------------------------------------------------------------
+# Stripe payment on this site, then Gelato prints and ships. Keep "false" until everything below is
+# filled in and tested.
+DIRECT_ENABLED = "false"
+
+# --- Gelato (printed and framed) -----------------------------------------------------
+# What visitors can print on. Each entry is one of two kinds:
+#   a template, built in the Gelato dashboard (Templates): the exact sizes and frames you want to sell.
+#       "poster": {"templateId": "...", "label": "Print"}
+#   a catalogue, straight from what Gelato makes: the visitor picks among every product of that catalogue that
+#     fits the painting (sizes, frames, paper...). Needs no template.
+#     "filters" narrows it (attribute names and values are listed by /admin/discover); "maxOptions" caps the list.
+#       "framed": {"catalogUid": "framed-posters", "label": "Framed print", "filters": {}, "maxOptions": 30}
+#   GELATO_TEMPLATES = '{"poster":{"templateId":"..."},"framed":{"catalogUid":"framed-posters","label":"Framed print"}}'
+GELATO_TEMPLATES = ""
+
+# --- the prices and the delivery -----------------------------------------------------------
+CURRENCY = "EUR"
+# What you charge = Gelato's price for the product x this. Shipping is charged on top, per country.
+DIRECT_MARKUP = "2"
+DIRECT_SHIPPING_JSON = '{"FR": 6, "default": 12}'
+# Where you deliver. Latin-alphabet countries only: Gelato wants CN, JP, KR and RU addresses in local script.
+DIRECT_COUNTRIES = "FR,BE,DE,ES,IT,NL,PT,AT,IE,LU,GB,US,CA,AU"
+# "draft": Gelato receives each paid order as a draft that you confirm in its dashboard (safe while testing).
+# "order": it goes to print by itself.
+GELATO_ORDER_TYPE = "draft"
+DIRECT_SHIPMENT_METHOD = "normal"
+# Optional, shown on the parcel if it comes back
+# RETURN_ADDRESS_JSON = '{"companyName":"Akira Ishi","addressLine1":"...","city":"...","postCode":"...","country":"FR","email":"..."}'
+
+# --- the painting file -------------------------------------------------------------------
+# Gelato fetches the print file from a public address. Keep it on GitHub: a public repo that holds
+# only these files, a fine-grained token with Contents read/write on that one repo (secret GITHUB_TOKEN).
+# Left empty, the Worker keeps the files in KV instead.
+GITHUB_REPO = ""            # "owner/name"
+GITHUB_BRANCH = "main"
+GITHUB_DIR = "prints"
+
+# --- the print file painted after the payment ----------------------------------
+# "true": a visitor orders from the picture they see, and the 300 dpi print file is painted afterwards by a
+# GitHub Actions job in GITHUB_REPO (copy render/render.yml and render/render.mjs there, see the README).
+# Needs GITHUB_REPO, GITHUB_TOKEN and the secret RENDER_SECRET (also set as a secret of that repo).
+RENDER_ENABLED = "false"
+RENDER_DPI = "300"
+# Longest side a job paints (7016 = A2 at 300 dpi; a public repo's runner has 16 GB)
+MAX_RENDER_PX = "7016"
+
+# --- the product ---------------------------------------------------------------------------
+# Lowest print resolution a painting may be offered at. The atelier paints the print file itself at 300 dpi
+# (see PRINT_DPI in shop.js), so only sizes it can fill at that resolution are offered.
+MIN_DPI = "300"
+
+# --- abuse limits ----------------------------------------------------------------------------
+MAX_PER_IP_PER_DAY = "3"
+MAX_PER_DAY = "20"
+MAX_IMAGE_MB = "25"            # KV keeps at most 25 MB a file; a 300 dpi A3 JPEG is about 8-12 MB
+
+# Cloudflare Turnstile (free). Site key is public; the secret goes in with `wrangler secret put`.
+TURNSTILE_SITE_KEY = ""
+
+# Secrets, set with `npx wrangler secret put NAME` (never written in this file):
+#   ADMIN_KEY              long random string that protects /admin/discover
+#   GELATO_API_KEY         from the Gelato dashboard (Developer > API keys)
+#   STRIPE_SECRET_KEY      Stripe secret key (start with a test key: sk_test_...)
+#   STRIPE_WEBHOOK_SECRET  the signing secret of the Stripe webhook that points to /stripe/webhook
+#   GITHUB_TOKEN           only if GITHUB_REPO is set (Contents: read and write; also starts the render job)
+#   RENDER_SECRET          long random string, only with RENDER_ENABLED; the same value as the prints repo's secret
+#   TURNSTILE_SECRET       the Turnstile secret key

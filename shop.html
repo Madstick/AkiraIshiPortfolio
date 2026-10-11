@@ -317,29 +317,29 @@
             </div>
         </section>
 
-        <!-- ============ ATELIER : NATURE MORTE ============ -->
+        <!-- ============ ATELIER : STILL LIFE CODE ============ -->
         <section class="section" id="atelier">
             <div class="wrap">
                 <div class="section-head reveal">
                     <span class="eyebrow" data-i18n="shop.paint-your-own">Paint your own</span>
-                    <h2 class="section-title" data-i18n="shop.the-nature-morte-atelier">The Nature Morte Atelier</h2>
-                    <p class="section-lede" data-i18n="shop.nature-morte-is-a-painter-written">
-                        Nature Morte is a painter written in code. It sets a table of fruit and vessels, lights it from a
-                        single window, and then paints the scene the way a 17th-century workshop would &mdash; ground, dead
-                        colouring, body colour, glazes, highlights, varnish. Every click makes a still life that has never
-                        existed before. When one of them belongs on your wall, keep its reference and I print that exact painting.
+                    <h2 class="section-title" data-i18n="shop.the-still-life-code-atelier">The Still Life Code Atelier</h2>
+                    <p class="section-lede" data-i18n="shop.still-life-code-is-a-painter-written">
+                        Still Life Code is a painter written in code. It sets a table of fruit and vessels, lights it from a
+                        single window, and then paints the scene the way a studio would &mdash; in oil, acrylic, watercolour,
+                        charcoal, on Delft tiles or in silk thread. Every click makes a still life that has never existed
+                        before. When one of them belongs on your wall, order it and I print that exact painting.
                     </p>
                 </div>
 
                 <div class="atelier reveal">
                     <div class="atelier-stage" id="atelier-stage">
                         <div class="atelier-poster" id="atelier-poster">
-                            <img src="images/atelier/nm-dutch.webp" width="1400" height="1120" loading="lazy" decoding="async"
-                                 alt="A generated still life: fruit, a stoneware jug and a glass on a blue cloth, lit from a window"
+                            <img src="images/atelier/slc-oil.webp" width="1400" height="1120" loading="lazy" decoding="async"
+                                 alt="A generated still life in oil: pomegranates, a candlestick and an hourglass on a table against a golden wall"
                                  data-i18n-alt="shop.atelier-poster-alt">
                             <div class="atelier-poster-body">
                                 <p data-i18n="shop.it-paints-in-your-own-browser">
-                                    It paints in your own browser &mdash; nothing is uploaded, and a painting takes about 20 to 30 seconds.
+                                    It paints in your own browser &mdash; nothing is uploaded, and a painting takes about 20 to 45 seconds.
                                 </p>
                                 <button type="button" class="btn btn-primary" id="atelier-open" data-i18n="shop.open-the-atelier">Open the atelier</button>
                             </div>
@@ -350,7 +350,7 @@
                         <h3 data-i18n="shop.your-painting">Your painting</h3>
                         <p class="atelier-title" id="atelier-title" data-i18n="shop.nothing-painted-yet">Nothing painted yet</p>
                         <p class="atelier-meta" id="atelier-meta" data-i18n="shop.open-the-atelier-and-click-the">
-                            Open the atelier, then click the canvas whenever you want another one.
+                            Open the atelier, then choose how it is made and press &ldquo;New scene&rdquo; whenever you want another one.
                         </p>
 
                         <div class="atelier-ref">
@@ -360,40 +360,60 @@
 
                         <div class="atelier-actions">
                             <button type="button" class="btn btn-ghost" id="atelier-new" disabled data-i18n="shop.new-painting">New painting</button>
-                            <button type="button" class="btn btn-ghost" id="atelier-save" disabled data-i18n="shop.download-the-image">Download the image</button>
+                            <button type="button" class="btn btn-ghost" id="atelier-full" disabled data-i18n="shop.full-screen">Full screen</button>
                         </div>
 
-                        <!-- TODO: swap the href below for the real Etsy listing (see ETSY_SHOP in shop.js) -->
-                        <a class="btn btn-primary atelier-order" id="atelier-order" href="https://www.etsy.com/" target="_blank" rel="noopener"
-                           data-i18n="shop.order-this-as-a-print">Order this as a print</a>
+                        <!-- Only shown once the order Worker is configured (see ORDER_API in shop.js) -->
+                        <div class="atelier-buy" id="atelier-buy" hidden>
+                            <label class="atelier-field" id="atelier-product-field" for="atelier-product">
+                                <span data-i18n="shop.what-do-you-want">What would you like?</span>
+                                <select id="atelier-product"></select>
+                            </label>
+                            <label class="atelier-field" for="atelier-country">
+                                <span data-i18n="shop.delivery-country">Deliver to</span>
+                                <select id="atelier-country"></select>
+                            </label>
+                            <label class="atelier-field" for="atelier-variant">
+                                <span data-i18n="shop.size-and-frame">Size and frame</span>
+                                <select id="atelier-variant" disabled></select>
+                            </label>
+                            <p class="atelier-price" id="atelier-price" aria-live="polite"></p>
+                            <div class="atelier-captcha" id="atelier-captcha"></div>
 
-                        <p class="atelier-fineprint" data-i18n="shop.the-order-button-copies-the-reference">
-                            The order button copies the reference for you &mdash; paste it into the &ldquo;note to seller&rdquo; box at
-                            checkout and I print that painting, at full resolution, on archival paper.
+                            <button type="button" class="btn btn-primary atelier-order" id="atelier-order"
+                                    data-i18n="shop.order-direct">Pay securely and order</button>
+                            <p class="atelier-fineprint" id="atelier-fineprint" data-i18n="shop.api-fineprint">
+                                Pay securely on this site; the print is made to order and shipped to you.
+                            </p>
+                        </div>
+
+                        <p class="atelier-fineprint" id="atelier-soon" data-i18n="shop.orders-soon">
+                            Ordering prints opens soon. Until then, keep the reference above: it brings this painting back.
                         </p>
+                        <p class="atelier-status" id="atelier-status" role="status" aria-live="polite"></p>
                     </aside>
                 </div>
 
                 <ul class="atelier-facts reveal">
                     <li>
-                        <strong data-i18n="shop.twelve-manners">Twelve manners</strong>
-                        <span data-i18n="shop.the-same-table-repainted-as-dutch">
-                            The same table repainted as Dutch pronk, Spanish bodeg&oacute;n, French tonal or alla prima &mdash;
-                            or in gold leaf, Delft blue, woodblock, silk thread and three manners that exist nowhere else.
+                        <strong data-i18n="shop.seven-ways-of-making-it">Seven ways of making it</strong>
+                        <span data-i18n="shop.the-same-table-in-oil-acrylic">
+                            Oil, acrylic, watercolour, charcoal, cobalt on Delft tiles, silk embroidery &mdash; or
+                            Evanescence, where light lifts the paint off everything it touches. An engraving is on its way.
                         </span>
                     </li>
                     <li>
                         <strong data-i18n="shop.your-own-arrangement">Your own arrangement</strong>
-                        <span data-i18n="shop.set-the-composition-the-backdrop-the">
-                            Set the composition, the backdrop, the mirror and the light &mdash; window or candle &mdash; and the
-                            scene is rebuilt around your choices.
+                        <span data-i18n="shop.choose-how-crowded-the-table">
+                            Choose how crowded the table is, then the light, the fruit, the vessels, a skull or a mirror
+                            &mdash; and the scene is rebuilt around your choices.
                         </span>
                     </li>
                     <li>
                         <strong data-i18n="shop.made-to-be-printed">Made to be printed</strong>
-                        <span data-i18n="shop.ask-for-ultra-and-the-painting">
-                            Ask for Ultra and the painting is worked at four times the pixels, with finer brushes, water drops,
-                            insects and tendrils. It takes a couple of minutes and prints large.
+                        <span data-i18n="shop.pick-a-finish-and-a-format">
+                            Pick a format. When you order, your painting is painted again for the print, at 300 dpi,
+                            which takes a few minutes.
                         </span>
                     </li>
                     <li>
@@ -407,25 +427,25 @@
 
                 <figure class="atelier-examples reveal">
                     <div class="atelier-example">
-                        <img src="images/atelier/nm-tonal.webp" width="900" height="720" loading="lazy" decoding="async"
-                             alt="Still life in the French tonal manner: pears and lemons on white linen"
-                             data-i18n-alt="shop.atelier-example-tonal-alt">
-                        <span data-i18n="shop.french-tonal">French tonal</span>
+                        <img src="images/atelier/slc-acrylic.webp" width="900" height="1125" loading="lazy" decoding="async"
+                             alt="Acrylic still life: apples, pears and an orange beside a stoneware jug"
+                             data-i18n-alt="shop.atelier-example-acrylic-alt">
+                        <span data-i18n="shop.acrylic">Acrylic</span>
                     </div>
                     <div class="atelier-example">
-                        <img src="images/atelier/nm-isophote.webp" width="760" height="608" loading="lazy" decoding="async"
-                             alt="Still life drawn only in glowing lines of equal light on near-black"
-                             data-i18n-alt="shop.atelier-example-isophote-alt">
-                        <span data-i18n="shop.isophote">Isophote</span>
+                        <img src="images/atelier/slc-watercolour.webp" width="900" height="720" loading="lazy" decoding="async"
+                             alt="Watercolour still life: a row of pomegranates and a small skull on a pale ledge"
+                             data-i18n-alt="shop.atelier-example-watercolour-alt">
+                        <span data-i18n="shop.watercolour">Watercolour</span>
                     </div>
                     <div class="atelier-example">
-                        <img src="images/atelier/nm-horologium.webp" width="900" height="1125" loading="lazy" decoding="async"
-                             alt="Two lemons and a book on a pale ledge, cast in the coloured shadows of three suns"
-                             data-i18n-alt="shop.atelier-example-horologium-alt">
-                        <span data-i18n="shop.horologium">Horologium</span>
+                        <img src="images/atelier/slc-charcoal.webp" width="900" height="720" loading="lazy" decoding="async"
+                             alt="Charcoal still life: figs and plums beside a burning candle in the dark"
+                             data-i18n-alt="shop.atelier-example-charcoal-alt">
+                        <span data-i18n="shop.charcoal">Charcoal</span>
                     </div>
-                    <figcaption data-i18n="shop.three-of-the-manners-the-same">
-                        Three of the manners. The same painter, the same table, a different workshop.
+                    <figcaption data-i18n="shop.three-of-the-media-the-same">
+                        Three of the media. The same painter, a different material each time.
                     </figcaption>
                 </figure>
             </div>
