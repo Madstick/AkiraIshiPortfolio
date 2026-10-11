@@ -8,8 +8,22 @@ import { HttpError } from './util.js';
 
 const STRIPE_API = 'https://api.stripe.com/v1';
 
+// 'test', 'live' or null (no key). Only the start of the key is read, never shown.
+export function stripeMode(env) {
+  const key = String(env.STRIPE_SECRET_KEY || '');
+  if (!key) return null;
+  if (/^(sk|rk)_live_/.test(key)) return 'live';
+  if (/^(sk|rk)_test_/.test(key)) return 'test';
+  return 'unknown';
+}
+
+// A live key takes real money: it is refused until STRIPE_ALLOW_LIVE="true", so a key pasted by mistake
+// (or the test key replaced too early) cannot sell anything.
 export function stripeConfigured(env) {
-  return Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET);
+  if (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET) return false;
+  const mode = stripeMode(env);
+  if (mode === 'test') return true;
+  return mode === 'live' && String(env.STRIPE_ALLOW_LIVE) === 'true';
 }
 
 // Stripe takes form bodies with bracketed keys: line_items[0][quantity]=1

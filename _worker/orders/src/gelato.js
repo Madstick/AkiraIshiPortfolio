@@ -6,7 +6,7 @@
 //
 // Docs: https://dashboard.gelato.com/docs/
 
-import { HttpError } from './util.js';
+import { HttpError, asArray } from './util.js';
 
 export const GELATO_ECOMMERCE = 'https://ecommerce.gelatoapis.com/v1';
 export const GELATO_ORDERS = 'https://order.gelatoapis.com/v4';
@@ -88,16 +88,59 @@ export function createOrder(env, body) {
 
 const CATALOG_TTL = 60 * 60 * 6;
 const PAGE = 100;
-const MAX_PAGES = 5;
+const MAX_PAGES = 10;
+
+// Every catalogue Gelato has (posters, framed posters, canvas...), to find the one to put in GELATO_TEMPLATES
+export async function listCatalogs(env) {
+  const res = await gelato(env, '/catalogs', { base: GELATO_PRODUCTS });
+  const list = Array.isArray(res) ? res : (res && (res.catalogs || res.items || res.data)) || res;
+  const items = asArray(list).map((c) => ({
+    catalogUid: c && (c.catalogUid || c.uid || c.id || c.catalogId),
+    title: c && (c.title || c.name),
+  }));
+  // Not the shape the documentation shows: hand back what came, to read the names off it
+  if (!items.length || items.every((i) => !i.catalogUid)) {
+    let raw = '';
+    try { raw = JSON.stringify(res); } catch { raw = String(res); }
+    return { unexpected: raw.slice(0, 3000) };
+  }
+  return items;
+}
 
 // What a catalogue's attributes are called, and what their values are called
 export async function getCatalog(env, catalogUid) {
   const key = `gelato:catalog:${catalogUid}`;
   const cached = await env.TOKENS.get(key, 'json');
-  if (cached) return cached;
-  const catalog = await gelato(env, `/catalogs/${encodeURIComponent(catalogUid)}`, { base: GELATO_PRODUCTS });
+  if (cached) return normaliseCatalog(cached);
+  const raw = await gelato(env, `/catalogs/${encodeURIComponent(catalogUid)}`, { base: GELATO_PRODUCTS });
+  const catalog = normaliseCatalog(raw);
   await env.TOKENS.put(key, JSON.stringify(catalog), { expirationTtl: CATALOG_TTL });
   return catalog;
+}
+
+// Attributes and their values as lists of { productAttributeUid, title, values: [{ productAttributeValueUid, title }] },
+// whether Gelato sent lists or objects keyed by uid
+export function normaliseCatalog(raw) {
+  const named = (value, uidKey) => {
+    const entries = Array.isArray(value) ? value.map((v) => [undefined, v]) : Object.entries(value || {});
+    return entries
+      .filter(([, v]) => v && typeof v === 'object')
+      .map(([k, v]) => ({ ...v, [uidKey]: v[uidKey] || k, title: v.title || v[uidKey] || k }));
+  };
+  const attributes = named(raw && raw.productAttributes, 'productAttributeUid').map((a) => ({
+    ...a,
+    values: named(a.values, 'productAttributeValueUid'),
+  }));
+  return { ...(raw || {}), productAttributes: attributes };
+}
+
+// The filters a configured product searches with: its own, plus "live products only" when the catalogue has
+// that attribute (retired products are the bulk of some catalogues and are never offered)
+export function catalogFilters(catalog, def) {
+  const filters = { ...((def && def.filters) || {}) };
+  const hasStatus = asArray(catalog && catalog.productAttributes).some((a) => a.productAttributeUid === 'ProductStatus');
+  if (hasStatus && !filters.ProductStatus) filters.ProductStatus = ['activated'];
+  return filters;
 }
 
 // The products of a catalogue that match the filters, as many as five pages of a hundred
@@ -114,7 +157,7 @@ export async function searchCatalog(env, catalogUid, filters = {}) {
       body,
       base: GELATO_PRODUCTS,
     });
-    const batch = (res && res.products) || [];
+    const batch = asArray(res && res.products);
     products.push(...batch);
     if (batch.length < PAGE) break;
   }

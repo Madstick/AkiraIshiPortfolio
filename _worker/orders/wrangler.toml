@@ -7,7 +7,7 @@ compatibility_date = "2025-09-01"
 # then paste the id it prints below.
 [[kv_namespaces]]
 binding = "TOKENS"
-id = "REPLACE_WITH_THE_KV_NAMESPACE_ID"
+id = "93358769e470414c9bc3804f609b2fb7"
 
 [vars]
 # --- where the site lives -----------------------------------------------------
@@ -18,7 +18,7 @@ ALLOWED_ORIGINS = "https://akiraishi.com,https://www.akiraishi.com"
 # --- the switch -----------------------------------------------------------------
 # Stripe payment on this site, then Gelato prints and ships. Keep "false" until everything below is
 # filled in and tested.
-DIRECT_ENABLED = "false"
+DIRECT_ENABLED = "true"
 
 # --- Gelato (printed and framed) -----------------------------------------------------
 # What visitors can print on. Each entry is one of two kinds:
@@ -29,7 +29,7 @@ DIRECT_ENABLED = "false"
 #     "filters" narrows it (attribute names and values are listed by /admin/discover); "maxOptions" caps the list.
 #       "framed": {"catalogUid": "framed-posters", "label": "Framed print", "filters": {}, "maxOptions": 30}
 #   GELATO_TEMPLATES = '{"poster":{"templateId":"..."},"framed":{"catalogUid":"framed-posters","label":"Framed print"}}'
-GELATO_TEMPLATES = ""
+GELATO_TEMPLATES = '{"poster":{"catalogUid":"posters","label":"Poster","filters":{"UnifiedPaperType":["200-gsm-80lb-uncoated","250-gsm-100lb-uncoated-offwhite-archival"]}},"fine-art":{"catalogUid":"fine-art","label":"Fine art print"},"framed":{"catalogUid":"framed-posters","label":"Framed poster","filters":{"FrameColor":["black","white","natural-wood","dark-wood"],"UnifiedPaperType":["200-gsm-80lb-uncoated"]}},"fine-art-framed":{"catalogUid":"fine-art-framed-poster","label":"Framed fine art print","filters":{"FrameColor":["black","white","natural-wood","dark-wood"]}},"mounted-framed":{"catalogUid":"mounted-framed-posters","label":"Framed poster with mat","filters":{"FrameColor":["black","white","natural-wood","dark-wood"],"UnifiedPaperType":["200-gsm-80lb-uncoated"]}},"mounted-fine-art":{"catalogUid":"mounted-fine-art","label":"Mounted fine art print","filters":{"FrameColor":["black","white","natural-wood","dark-wood"]}},"canvas":{"catalogUid":"canvas","label":"Canvas"},"framed-canvas":{"catalogUid":"framed-canvas","label":"Framed canvas"},"acrylic":{"catalogUid":"acrylic","label":"Acrylic print"},"metal":{"catalogUid":"metallic","label":"Metal print"},"wood":{"catalogUid":"wood-prints","label":"Wood print"},"hanging":{"catalogUid":"hanging-posters","label":"Poster with hanger","filters":{"UnifiedPaperType":["200-gsm-80lb-uncoated","250-gsm-100lb-uncoated-offwhite-archival"]}}}'
 
 # --- the prices and the delivery -----------------------------------------------------------
 CURRENCY = "EUR"

@@ -4,7 +4,8 @@
 // Gelato prints, frames and ships it.
 //
 //   GET  /api/config          public: what can be ordered, whether ordering is switched on
-//   GET  /api/direct/options  public: sizes, frames and prices for a painting and a country
+//   GET  /api/direct/options  public: sizes, frames and papers a painting can have, for a country
+//   GET  /api/direct/price    public: the price of the one the visitor chose
 //   POST /api/checkout        public: the studio sends a painting, a Stripe payment page comes back
 //   POST /stripe/webhook      Stripe tells us a payment went through
 //   POST /render/done         the GitHub job has painted a print file (signed with RENDER_SECRET)
@@ -14,14 +15,14 @@
 // Pictures go straight through. Only a few counters, order records and (if GitHub is not set up)
 // the print files live in KV.
 
-import { HttpError } from './util.js';
-import { getCatalog, getTemplate, gelatoProducts, searchCatalog } from './gelato.js';
-import { directCountries, directOptions, finishRender, handleStripeEvent, startCheckout } from './direct.js';
+import { HttpError, asArray } from './util.js';
+import { catalogFilters, getCatalog, getTemplate, gelatoProducts, listCatalogs, searchCatalog } from './gelato.js';
+import { directCountries, directOptions, directPrice, finishRender, handleStripeEvent, startCheckout } from './direct.js';
 import { checkRenderSignature, maxRenderPx, renderCap, renderEnabled } from './render.js';
 import { minDpi, ratioKeyFor } from './formats.js';
-import { describeProducts, fileKey, parseMeta, readImage } from './listing.js';
+import { QUIET, describeProducts, fileKey, parseMeta, printAreaMm, readImage } from './listing.js';
 import { readStagedFile, stageFile } from './store.js';
-import { stripeConfigured, verifyWebhook } from './stripe.js';
+import { stripeConfigured, stripeMode, verifyWebhook } from './stripe.js';
 
 export default {
   async fetch(request, env) {
@@ -48,6 +49,9 @@ export default {
             break;
           case 'GET /api/direct/options':
             response = await handleDirectOptions(url, env);
+            break;
+          case 'GET /api/direct/price':
+            response = await handleDirectPrice(url, env);
             break;
           case 'POST /api/checkout':
             response = await handleCheckout(request, env, url);
@@ -238,6 +242,21 @@ async function handleDirectOptions(url, env) {
   return json(options, 200, { 'cache-control': 'public, max-age=300' });
 }
 
+async function handleDirectPrice(url, env) {
+  if (!catalogue(env).length) throw new HttpError(503, 'ordering_closed');
+  const width = Number(url.searchParams.get('w'));
+  const height = Number(url.searchParams.get('h'));
+  const country = String(url.searchParams.get('country') || '').toUpperCase();
+  const productId = String(url.searchParams.get('product') || '');
+  const variant = String(url.searchParams.get('variant') || '');
+  if (!(width > 0 && height > 0) || !ratioKeyFor(width, height)) throw new HttpError(422, 'unknown_format');
+  pickProduct(env, productId);
+
+  const size = renderEnabled(env) ? renderCap(env, { width, height }) : { width, height };
+  const out = await directPrice(env, { product: productId, variant, ...size, country });
+  return json(out, 200, { 'cache-control': 'public, max-age=300' });
+}
+
 async function handleCheckout(request, env, url) {
   if (!catalogue(env).length) throw new HttpError(503, 'ordering_closed');
   const { ip, meta, bytes, image } = await readOrder(request, env);
@@ -287,51 +306,75 @@ async function handleFile(env, key, ext) {
    What the Gelato templates and catalogues hold, to write wrangler.toml from.
    ============================================ */
 
-async function discoverGelato(env) {
+const peek = (v, n = 500) => {
+  try {
+    return JSON.stringify(v).slice(0, n);
+  } catch {
+    return String(v).slice(0, n);
+  }
+};
+
+async function discoverGelato(env, only) {
   const out = {};
   for (const [id, def] of Object.entries(gelatoProducts(env))) {
+    if (only && only !== 'all' && only !== id) continue;
+    // what Gelato sent, kept for the error line if something is not as expected
+    const seen = {};
     try {
       if (def.catalogUid) {
-        const [catalog, products] = await Promise.all([
-          getCatalog(env, def.catalogUid),
-          searchCatalog(env, def.catalogUid, def.filters || {}),
-        ]);
-        const flat = products.filter((p) => p.dimensions && p.dimensions.Width && p.dimensions.Height);
+        const catalog = await getCatalog(env, def.catalogUid);
+        seen.catalog = peek({ ...catalog, productAttributes: asArray(catalog.productAttributes).slice(0, 2) });
+        const products = asArray(await searchCatalog(env, def.catalogUid, catalogFilters(catalog, def)));
+        seen.firstProduct = peek(products[0]);
+        seen.productCount = products.length;
+        const flat = products.filter((p) => p && printAreaMm(p));
         const names = describeProducts(catalog, flat.slice(0, 200));
         out[id] = {
           catalogUid: def.catalogUid,
           title: catalog.title,
-          // the attributes a "filters" entry can use, and the values each can take
-          attributes: (catalog.productAttributes || []).map((a) => ({
-            uid: a.productAttributeUid,
-            title: a.title,
-            values: (a.values || []).map((v) => v.productAttributeValueUid),
-          })),
+          // the choices a visitor is given, and the values each can take (the first few): the ones that do not vary,
+          // and the technical ones, are left out. A "filters" entry can use any attribute name shown here.
+          attributes: asArray(catalog.productAttributes)
+            .map((a) => ({ uid: a.productAttributeUid, values: asArray(a.values).map((v) => v.productAttributeValueUid) }))
+            .filter((a) => a.values.length > 1 && !QUIET.has(a.uid))
+            .map((a) => ({ uid: a.uid, values: a.values.slice(0, 10), count: a.values.length })),
           products: products.length,
-          sample: flat.slice(0, 8).map((p) => ({
+          withSize: flat.length,
+          // the sizes there are, in millimetres, smallest first
+          sizes_mm: [...new Set(flat
+            .map((p) => printAreaMm(p))
+            .map(([w, h]) => `${Math.round(Math.min(w, h))} x ${Math.round(Math.max(w, h))}`))]
+            .sort((a, b) => parseInt(a, 10) * parseInt(a.split(' x ')[1], 10) - parseInt(b, 10) * parseInt(b.split(' x ')[1], 10))
+            .slice(0, 24),
+          sample: flat.slice(0, 3).map((p) => ({
             productUid: p.productUid,
-            attributes: p.attributes,
-            size_mm: `${p.dimensions.Width.value} x ${p.dimensions.Height.value}`,
+            size_mm: printAreaMm(p).map((n) => Math.round(n * 10) / 10).join(' x '),
             label: (names.get(p.productUid) || {}).title,
           })),
         };
+        // products that came with no size are not offered: say so rather than leave an empty list
+        if (products.length && !flat.length) out[id].note = 'no product has dimensions.Width and dimensions.Height';
         continue;
       }
       const t = await getTemplate(env, def.templateId);
       out[id] = {
         templateId: def.templateId,
         title: t.title,
-        variants: (t.variants || []).map((v) => ({
+        variants: asArray(t.variants).map((v) => ({
           id: v.id,
           title: v.title,
           productUid: v.productUid,
           options: v.variantOptions,
           // the Worker reads these as millimetres: check they look like it
-          printAreas: (v.imagePlaceholders || []).map((a) => `${a.name} ${a.width} x ${a.height}`),
+          printAreas: asArray(v.imagePlaceholders).map((a) => `${a.name} ${a.width} x ${a.height}`),
         })),
       };
     } catch (e) {
-      out[id] = { error: e.detail || e.code };
+      out[id] = {
+        error: e.detail || e.code || String((e && e.message) || e),
+        at: String((e && e.stack) || '').split('\n').slice(1, 4).map((l) => l.trim()),
+        seen,
+      };
     }
   }
   return out;
@@ -340,9 +383,32 @@ async function discoverGelato(env) {
 async function handleDiscover(request, url, env) {
   requireAdmin(request, url, env);
   const out = {};
-  if (env.GELATO_API_KEY) out.gelato = await discoverGelato(env);
+  if (env.GELATO_API_KEY) {
+    // every catalogue Gelato has (cards, clothes, mugs...) only when asked for with ?all=1: the name of one to
+    // add goes in GELATO_TEMPLATES as "catalogUid"
+    if (url.searchParams.get('all') === '1') {
+      try {
+        out.catalogs = await listCatalogs(env);
+      } catch (e) {
+        out.catalogs = { error: e.detail || e.code || String((e && e.message) || e) };
+      }
+    }
+    // One product per call (?product=framed): a Worker may only make so many calls, and each catalogue is read
+    // page by page. ?product=all tries them all in one go, which only works once they are cached.
+    const only = url.searchParams.get('product');
+    if (only) {
+      out.gelato = await discoverGelato(env, only);
+    } else {
+      out.products = Object.entries(gelatoProducts(env)).map(([id, def]) => ({
+        id, label: def.label || id, catalogUid: def.catalogUid || null, templateId: def.templateId || null,
+        look: `?product=${id}`,
+      }));
+    }
+  }
   out.direct = {
     stripe: stripeConfigured(env),
+    // test: orders are tests. live: refused until STRIPE_ALLOW_LIVE is "true". null: no key.
+    stripeMode: stripeMode(env),
     backendRender: renderEnabled(env),
     countries: directCountries(env),
   };

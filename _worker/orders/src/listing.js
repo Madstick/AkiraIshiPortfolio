@@ -3,7 +3,7 @@
 // Everything that arrives from the browser is untrusted: it is checked against an
 // allow-list and trimmed before it is used.
 
-import { HttpError } from './util.js';
+import { HttpError, asArray } from './util.js';
 import { minDpi, pixelsForMm, ratioKeyFor } from './formats.js';
 
 // The studio's own URL settings (ST in still-life-code.html) and the shapes they take
@@ -139,6 +139,58 @@ export function fittingVariants(env, template, image) {
   return out;
 }
 
+/* ---------- the size of the picture, as opposed to the size of the object ---------- */
+
+const ISO = {
+  a0: [841, 1189], a1: [594, 841], a2: [420, 594], a3: [297, 420], a4: [210, 297], a5: [148, 210], a6: [105, 148],
+  b1: [707, 1000], b2: [500, 707], xl: [280, 430], '5r': [130, 180],
+};
+
+// The formats a catalogue names its prints by, best first. Frame sizes and hanger sizes are not on this list:
+// they describe the object around the picture.
+const FORMAT_KEYS = [
+  'UnifiedPaperFormat', 'UnifiedCanvasFormat', 'UnifiedAcrylicFormat', 'UnifiedMetallicFormat', 'UnifiedWoodFormat',
+  'PaperFormat', 'CanvasFormat', 'AcrylicFormat', 'MetallicFormat', 'WoodFormat',
+];
+
+// "200x250-mm-8x10-inch", "a4-8x12-inch", "XL-280x430-mm", "A3" ... as [width, height] in millimetres
+export function parseFormat(value) {
+  const v = String(value || '').toLowerCase();
+  let m = v.match(/(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)-mm/);
+  if (m) return [Number(m[1]), Number(m[2])];
+  for (const token of v.split('-')) if (ISO[token]) return ISO[token];
+  m = v.match(/(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)-inch/);
+  if (m) return [Math.round(Number(m[1]) * 254) / 10, Math.round(Number(m[2]) * 254) / 10];
+  return null;
+}
+
+// What the file is printed at: the product's format, turned the way the product is, or its own dimensions
+export function printAreaMm(product) {
+  const a = product.attributes || {};
+  for (const key of FORMAT_KEYS) {
+    const size = a[key] && parseFormat(a[key]);
+    if (!size) continue;
+    const [lo, hi] = [Math.min(...size), Math.max(...size)];
+    if (a.Orientation === 'hor') return [hi, lo];
+    if (a.Orientation === 'ver') return [lo, hi];
+    return size;
+  }
+  const d = product.dimensions || {};
+  const w = Number(d.Width && d.Width.value);
+  const h = Number(d.Height && d.Height.value);
+  return w > 0 && h > 0 ? [w, h] : null;
+}
+
+// A readable name for a format value that the catalogue gave no title to
+function prettyFormat(value) {
+  const size = parseFormat(value);
+  if (!size) return value;
+  const cm = (n) => (Math.abs(n / 10 - Math.round(n / 10)) < 0.06 ? String(Math.round(n / 10)) : (n / 10).toFixed(1));
+  const inch = String(value).toLowerCase().match(/(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)-inch/);
+  const tail = inch ? ` / ${inch[1]} \u00d7 ${inch[2]} in` : '';
+  return `${cm(Math.min(...size))} \u00d7 ${cm(Math.max(...size))} cm${tail}`;
+}
+
 /* ---------- Gelato catalogue: products picked straight from what Gelato makes ---------- */
 
 // Flat products of a catalogue that a painting can fill, for a country. Their size is the product's
@@ -152,10 +204,9 @@ export function fittingProducts(env, products, image, country) {
     const a = p.attributes || {};
     if (a.ProductStatus && a.ProductStatus !== 'activated') return false;
     if (country && Array.isArray(p.supportedCountries) && p.supportedCountries.length && !p.supportedCountries.includes(country)) return false;
-    const d = p.dimensions || {};
-    return Number(d.Width && d.Width.value) > 0 && Number(d.Height && d.Height.value) > 0;
+    return Boolean(printAreaMm(p));
   });
-  const size = (p) => [Number(p.dimensions.Width.value), Number(p.dimensions.Height.value)];
+  const size = (p) => printAreaMm(p);
 
   const sameShape = live.filter((p) => {
     const [w, h] = size(p);
@@ -172,33 +223,94 @@ export function fittingProducts(env, products, image, country) {
   return out.sort((a, b) => size(a)[0] * size(a)[1] - size(b)[0] * size(b)[1]);
 }
 
-// Readable names for products: only the attributes that differ between them, in the catalogue's own words
+// What a visitor calls an attribute, whatever Gelato's catalogue calls it
+const FRIENDLY = {
+  FrameColor: 'Frame colour', FrameMaterial: 'Frame material', FrameProperties: 'Frame profile', GlassType: 'Glass',
+  UnifiedPaperFormat: 'Size', PaperFormat: 'Size', UnifiedFrameSize: 'Size', FrameSize: 'Size',
+  UnifiedCanvasFormat: 'Size', CanvasFormat: 'Size', UnifiedAcrylicFormat: 'Size', AcrylicFormat: 'Size',
+  UnifiedMetallicFormat: 'Size', MetallicFormat: 'Size', UnifiedWoodFormat: 'Size', WoodFormat: 'Size',
+  UnifiedPaperType: 'Paper', PaperType: 'Paper',
+  CanvasThicknessType: 'Canvas frame', CanvasFrame: 'Depth', WoodThickness: 'Thickness', AcrylicProperties: 'Thickness',
+  MetallicProperties: 'Finish', MetallicGrainDirection: 'Grain',
+  WallHangerColor: 'Hanger colour', WallHangerSize: 'Hanger size',
+};
+
+// Attributes that are the same for every visitor's purposes: not a choice to put in front of them
+export const QUIET = new Set([
+  'ProductStatus', 'Orientation', 'Variable', 'ProductModel', 'State', 'ColorType', 'FulfillmentService',
+  'SpotFinishingType', 'ProtectionType', 'ShapeEdgeType', 'CoatingType', 'FrameProperties',
+  'WallHangerProperties', 'WallHangerMaterial', 'WallHangerSize', 'AcrylicProperties', 'AcrylicEdge', 'MetallicEdge', 'WoodMaterial',
+  'CanvasMaterial',
+]);
+
+// Readable names for products: only the attributes that differ between them, in the catalogue's own words.
+// Two attributes that always change together (a format and its "unified" twin) are shown once, size first.
 export function describeProducts(catalog, products) {
   const attr = {};
   const value = {};
-  for (const a of (catalog && catalog.productAttributes) || []) {
+  for (const a of asArray(catalog && catalog.productAttributes)) {
     attr[a.productAttributeUid] = a.title;
-    for (const v of a.values || []) value[`${a.productAttributeUid}:${v.productAttributeValueUid}`] = v.title;
+    for (const v of asArray(a.values)) value[`${a.productAttributeUid}:${v.productAttributeValueUid}`] = v.title;
   }
 
-  const quiet = new Set(['ProductStatus', 'Orientation', 'Variable']);
   const seen = {};
   for (const p of products) {
     for (const [k, v] of Object.entries(p.attributes || {})) (seen[k] = seen[k] || new Set()).add(v);
   }
-  const varying = Object.keys(seen).filter((k) => !quiet.has(k) && seen[k].size > 1);
-  const mentionsSize = varying.some((k) => /format|size/i.test(k));
+  let varying = Object.keys(seen).filter((k) => !QUIET.has(k) && seen[k].size > 1);
+
+  // one attribute per partition of the products
+  const groups = new Map();
+  for (const k of varying) {
+    // the same partition whatever the values are called: each product gets the rank of its value's first appearance
+    const rank = new Map();
+    const sig = products.map((p) => {
+      const v = (p.attributes || {})[k];
+      if (!rank.has(v)) rank.set(v, rank.size);
+      return rank.get(v);
+    }).join(',');
+    const kept = groups.get(sig);
+    // of two that change together, the one that says the most: a "unified" format, then a "properties" attribute
+    const score = (u) => (FORMAT_KEYS.indexOf(u) === 0 ? 5 : FORMAT_KEYS.indexOf(u) > -1 && /^Unified/.test(u) ? 4
+      : /^Unified/.test(u) ? 3 : /Properties$/.test(u) ? 2 : 1);
+    if (!kept || score(k) > score(kept)) groups.set(sig, k);
+  }
+  const keep = new Set(groups.values());
+  varying = varying.filter((k) => keep.has(k));
+
+  // size first, then the rest in the catalogue's order
+  const isSize = (k) => FRIENDLY[k] === 'Size' || /format|size/i.test(k);
+  varying.sort((x, y) => Number(isSize(y)) - Number(isSize(x)));
+
+  const used = new Set();
+  const nameOf = (k) => {
+    let name = FRIENDLY[k] || (attr[k] && attr[k] !== k ? attr[k] : k);
+    while (used.has(name)) name += ' 2';
+    used.add(name);
+    return name;
+  };
+  const names = Object.fromEntries(varying.map((k) => [k, nameOf(k)]));
+  const mentionsSize = varying.some(isSize);
 
   const out = new Map();
   for (const p of products) {
-    const parts = varying.map((k) => value[`${k}:${p.attributes[k]}`] || p.attributes[k]).filter(Boolean);
-    const w = Math.round(p.dimensions.Width.value);
-    const h = Math.round(p.dimensions.Height.value);
-    if (!mentionsSize || !parts.length) parts.unshift(`${w} \u00d7 ${h} mm`);
-    out.set(p.productUid, {
-      title: parts.join(' \u00b7 '),
-      options: varying.map((k) => ({ name: attr[k] || k, value: value[`${k}:${p.attributes[k]}`] || p.attributes[k] })),
-    });
+    const opts = varying.map((k) => {
+      const raw = p.attributes[k];
+      let title = value[`${k}:${raw}`];
+      // a size the catalogue gave no readable title to: write it out
+      const withUnits = /\d+x\d+-(mm|inch)/i.test(String(raw));
+      if (withUnits && (!title || title === raw)) title = prettyFormat(raw);
+      return { name: names[k], value: title || raw };
+    }).filter((o) => o.value);
+    const area = printAreaMm(p) || [0, 0];
+    const w = Math.round(area[0]);
+    const h = Math.round(area[1]);
+    const parts = opts.map((o) => o.value);
+    if (!mentionsSize || !parts.length) {
+      parts.unshift(`${w} \u00d7 ${h} mm`);
+      opts.unshift({ name: 'Size', value: `${w} \u00d7 ${h} mm` });
+    }
+    out.set(p.productUid, { title: parts.join(' \u00b7 '), options: opts });
   }
   return out;
 }

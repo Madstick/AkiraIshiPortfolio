@@ -11,13 +11,13 @@
 // Gelato bills you, not the customer, so the payment has to be collected somewhere: here, Stripe.
 
 import { HttpError, randomToken } from './util.js';
-import { createOrder, getCatalog, getTemplate, gelatoProducts, productCost, searchCatalog } from './gelato.js';
-import { describeProducts, fileKey, fittingProducts, fittingVariants } from './listing.js';
+import { catalogFilters, createOrder, getCatalog, getTemplate, gelatoProducts, productCost, searchCatalog } from './gelato.js';
+import { describeProducts, fileKey, fittingProducts, fittingVariants, printAreaMm } from './listing.js';
 import { dispatchRender, plannedFile, renderPxFor, studioUrl } from './render.js';
 import { createCheckoutSession, shippingOf } from './stripe.js';
 
 const ORDER_TTL = 60 * 60 * 24 * 45;
-const MAX_VARIANTS = 40; // one price lookup each, and a Worker may only make so many calls
+const MAX_VARIANTS = 300; // options listed; a price is only looked up for the one chosen
 
 export const DEFAULT_COUNTRIES = ['FR', 'BE', 'DE', 'ES', 'IT', 'NL', 'PT', 'AT', 'IE', 'LU', 'GB', 'US', 'CA', 'AU'];
 
@@ -54,20 +54,25 @@ function productDef(env, product) {
 // a template (sizes and frames you built in Gelato) or a catalogue (what Gelato makes, filtered)
 async function choices(env, def, image, country) {
   if (def.catalogUid) {
-    const [catalog, products] = await Promise.all([
-      getCatalog(env, def.catalogUid),
-      searchCatalog(env, def.catalogUid, def.filters || {}),
-    ]);
+    const catalog = await getCatalog(env, def.catalogUid);
+    const filters = catalogFilters(catalog, def);
+    const products = await searchCatalog(env, def.catalogUid, filters);
     const cap = Math.min(Number(def.maxOptions) || MAX_VARIANTS, MAX_VARIANTS);
     const fit = fittingProducts(env, products, image, country).slice(0, cap);
     const names = describeProducts(catalog, fit);
+    const seen = new Set();
     return fit.map((p) => ({
       id: p.productUid,
       productUid: p.productUid,
       title: names.get(p.productUid).title,
       variantOptions: names.get(p.productUid).options,
-      mm: [Number(p.dimensions.Width.value), Number(p.dimensions.Height.value)],
-    }));
+      mm: printAreaMm(p),
+    })).filter((v) => {
+      const sig = JSON.stringify(v.variantOptions);
+      if (seen.has(sig)) return false;
+      seen.add(sig);
+      return true;
+    });
   }
 
   const template = await getTemplate(env, def.templateId);
@@ -88,14 +93,32 @@ export async function directOptions(env, { product, width, height, country }) {
   const variants = await choices(env, def, { width, height }, country);
   const currency = String(env.CURRENCY || 'EUR').toUpperCase();
 
-  const priced = await Promise.all(variants.map(async (v) => ({
-    id: v.id,
-    label: v.title,
-    options: v.variantOptions,
-    price: retail(env, await productCost(env, v.productUid, country, currency)),
-  })));
+  // No prices here: with a frame in four colours and a dozen sizes there are hundreds, and a visitor
+  // looks at one. The price of the chosen one comes from directPrice.
+  return {
+    currency,
+    shipping: shippingPrice(env, country),
+    variants: variants.map((v) => ({
+      id: v.id,
+      label: v.title,
+      options: v.variantOptions,
+      // width and height of the print, for the preview
+      size_mm: (v.mm || []).slice(0, 2).map((n) => Math.round(Number(n) * 10) / 10),
+    })),
+  };
+}
 
-  return { currency, shipping: shippingPrice(env, country), variants: priced };
+export async function directPrice(env, { product, variant, width, height, country }) {
+  if (!directCountries(env).includes(country)) throw new HttpError(422, 'country_not_served');
+  const def = productDef(env, product);
+  const found = (await choices(env, def, { width, height }, country)).find((v) => v.id === variant);
+  if (!found) throw new HttpError(422, 'variant_not_available');
+  const currency = String(env.CURRENCY || 'EUR').toUpperCase();
+  return {
+    currency,
+    shipping: shippingPrice(env, country),
+    price: retail(env, await productCost(env, found.productUid, country, currency)),
+  };
 }
 
 /* ---------- 3. the payment page ---------- */

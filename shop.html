@@ -365,6 +365,11 @@
 
                         <!-- Only shown once the order Worker is configured (see ORDER_API in shop.js) -->
                         <div class="atelier-buy" id="atelier-buy" hidden>
+                            <figure class="atelier-mockup" id="atelier-mockup-box" hidden>
+                                <canvas id="atelier-mockup" width="640" height="480" role="img"
+                                        aria-label="Preview of your print" data-i18n-aria-label="shop.preview-title"></canvas>
+                                <figcaption id="atelier-mockup-caption"></figcaption>
+                            </figure>
                             <label class="atelier-field" id="atelier-product-field" for="atelier-product">
                                 <span data-i18n="shop.what-do-you-want">What would you like?</span>
                                 <select id="atelier-product"></select>
@@ -373,10 +378,8 @@
                                 <span data-i18n="shop.delivery-country">Deliver to</span>
                                 <select id="atelier-country"></select>
                             </label>
-                            <label class="atelier-field" for="atelier-variant">
-                                <span data-i18n="shop.size-and-frame">Size and frame</span>
-                                <select id="atelier-variant" disabled></select>
-                            </label>
+                            <!-- one list per choice (size, frame colour, paper...), filled from what the painting can have -->
+                            <div id="atelier-variant-fields"></div>
                             <p class="atelier-price" id="atelier-price" aria-live="polite"></p>
                             <div class="atelier-captcha" id="atelier-captcha"></div>
 

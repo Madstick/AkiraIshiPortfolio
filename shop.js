@@ -87,7 +87,7 @@
 
     // The Worker's address, e.g. 'https://still-life-code-orders.<you>.workers.dev'.
     // Empty hides the order controls.
-    const ORDER_API = '';
+    const ORDER_API = 'https://still-life-code-orders.leakiraishi.workers.dev';
 
     const GENERATOR = 'still-life-code.html';
 
@@ -120,7 +120,10 @@
     const productSel = $('atelier-product');
     const soonEl = $('atelier-soon');
     const countrySel = $('atelier-country');
-    const variantSel = $('atelier-variant');
+    const variantBox = $('atelier-variant-fields');
+    const mockupBox = $('atelier-mockup-box');
+    const mockup = $('atelier-mockup');
+    const mockupCaption = $('atelier-mockup-caption');
     const priceEl = $('atelier-price');
     const captchaEl = $('atelier-captcha');
     const statusEl = $('atelier-status');
@@ -137,7 +140,8 @@
     let captchaToken = '';
     let captchaWidget = null;
     let lastStatus = null;
-    let direct = null;       // sizes and prices for the direct route: { key, data }
+    let direct = null;       // what the painting can be printed on: { key, data, prices, picks }
+    let chosen = '';         // the id of the product the visitor's choices come to
     let printJob = null;     // the print file being painted: { key, frame, blob, progress }
 
     /* ---- the frame ---- */
@@ -359,12 +363,16 @@
     }
 
     function showPrice() {
-        const v = direct && direct.data && variantSel.value
-            ? direct.data.variants.filter((x) => x.id === variantSel.value)[0]
-            : null;
-        priceEl.textContent = v ? t('shop.price-direct',
-            '{price} + {shipping} delivery. Made to order; payment by Stripe.')
-            .replace('{price}', money(v.price)).replace('{shipping}', money(direct.data.shipping)) : '';
+        const info = direct && chosen && direct.prices ? direct.prices[chosen] : null;
+        if (!chosen) {
+            priceEl.textContent = '';
+        } else if (!info) {
+            priceEl.textContent = t('shop.price-loading', 'Looking up the price…');
+        } else {
+            priceEl.textContent = t('shop.price-direct',
+                '{price} + {shipping} delivery. Made to order; payment by Stripe.')
+                .replace('{price}', money(info.price)).replace('{shipping}', money(info.shipping));
+        }
     }
 
     // Sizes and frames the painting can fill, with what they cost, for a country
@@ -376,9 +384,9 @@
         // offered: the sizes the print file (not the studio's screen-size canvas) can fill
         const key = [p.id, size.w, size.h, countrySel.value].join('|');
         if (direct && direct.key === key) return;
-        direct = { key: key, data: null };
-        variantSel.disabled = true;
-        variantSel.textContent = '';
+        direct = { key: key, data: null, prices: {}, picks: {} };
+        chosen = '';
+        variantBox.textContent = '';
         showPrice();
 
         const q = new URLSearchParams({
@@ -395,22 +403,286 @@
                 }
                 say(null);
                 direct.data = res.d;
-                fill(variantSel, res.d.variants.map((v) => ({ value: v.id, text: v.label + ' — ' + money(v.price) })), variantSel.value);
-                variantSel.disabled = !res.d.variants.length;
-                showPrice();
+                buildVariantFields();
             })
             .catch(() => { if (direct && direct.key === key) direct = null; });
     }
 
+    /* ---- the preview ---- */
+
+    // What a frame colour called by Gelato looks like
+    function frameShade(text) {
+        const x = String(text || '').toLowerCase();
+        if (/black/.test(x)) return { base: '#17130f', light: '#3a332b' };
+        if (/white/.test(x)) return { base: '#f5f3ec', light: '#ffffff' };
+        if (/dark/.test(x)) return { base: '#3d2a1c', light: '#5c4230' };
+        if (/natural|wood|oak|light/.test(x)) return { base: '#c19a66', light: '#dcb887' };
+        if (/gold/.test(x)) return { base: '#bf9b30', light: '#e6c85b' };
+        if (/silver|alumin/.test(x)) return { base: '#b9bcc0', light: '#e3e5e8' };
+        if (/copper/.test(x)) return { base: '#b06a3b', light: '#d89464' };
+        return { base: '#2a241f', light: '#4a4038' };
+    }
+
+    function roundedSize(mm) {
+        const cm = mm / 10;
+        return Math.abs(cm - Math.round(cm)) < 0.15 ? String(Math.round(cm)) : cm.toFixed(1);
+    }
+
+    // The painting inside what it is printed on, on a wall; the picture is the one just painted
+    function drawMockup() {
+        const variant = direct && direct.data && chosen
+            ? direct.data.variants.filter((v) => v.id === chosen)[0]
+            : null;
+        const source = canvasOf();
+        const product = current();
+        if (!variant || !source || !source.width || !product || !(variant.size_mm && variant.size_mm[0] > 0)) {
+            mockupBox.hidden = true;
+            return;
+        }
+        mockupBox.hidden = false;
+
+        const kind = product.id;
+        const colourOpt = (variant.options || []).filter((o) => /colou?r/i.test(o.name))[0];
+        const matted = /mount|mat\b|passe|mat-/i.test(kind + ' ' + (variant.options || []).map((o) => o.name + ' ' + o.value).join(' '));
+        const framed = /framed|frame|mounted/.test(kind) || Boolean(colourOpt);
+        const isCanvas = /canvas/.test(kind);
+        const isAcrylic = /acrylic/.test(kind);
+        const isMetal = /metal/.test(kind);
+        const isWood = /^wood/.test(kind);
+        const hanger = /hanging|hanger/.test(kind);
+        const shade = frameShade(colourOpt ? colourOpt.value : '');
+
+        const W = mockup.width;
+        const H = mockup.height;
+        const g = mockup.getContext('2d');
+
+        // wall and floor
+        const wall = g.createLinearGradient(0, 0, 0, H);
+        wall.addColorStop(0, '#efeadf');
+        wall.addColorStop(1, '#e2dccf');
+        g.fillStyle = wall;
+        g.fillRect(0, 0, W, H);
+        g.fillStyle = '#c9bfae';
+        g.fillRect(0, H * 0.9, W, H * 0.1);
+        g.fillStyle = 'rgba(0,0,0,0.08)';
+        g.fillRect(0, H * 0.9 - 3, W, 3);
+
+        // the print, fitted: as large as the wall allows
+        const mmW = variant.size_mm[0];
+        const mmH = variant.size_mm[1];
+        const room = { w: W * 0.62, h: H * 0.62 };
+        const k = Math.min(room.w / mmW, room.h / mmH);
+        let w = mmW * k;
+        let h = mmH * k;
+        const frameW = framed ? Math.max(5, Math.min(w, h) * 0.055) : 0;
+        const matW = framed && matted ? Math.max(8, Math.min(w, h) * 0.12) : 0;
+        const depth = isCanvas ? Math.max(6, Math.min(w, h) * 0.035) : (isAcrylic || isMetal || isWood ? 5 : 0);
+
+        const totalW = w + 2 * (frameW + matW);
+        const totalH = h + 2 * (frameW + matW);
+        const x = (W - totalW) / 2;
+        const y = Math.max(H * 0.06 + (hanger ? 10 : 0), (H * 0.9 - totalH) / 2 - H * 0.04);
+
+        // shadow on the wall
+        g.save();
+        g.shadowColor = 'rgba(40,30,20,0.35)';
+        g.shadowBlur = 22;
+        g.shadowOffsetX = 6;
+        g.shadowOffsetY = 12;
+        g.fillStyle = '#fff';
+        g.fillRect(x, y, totalW, totalH);
+        g.restore();
+
+        if (hanger) {
+            g.fillStyle = '#6b4f33';
+            g.fillRect(x - 4, y - 9, totalW + 8, 9);
+            g.fillRect(x - 4, y + totalH, totalW + 8, 9);
+            g.strokeStyle = 'rgba(60,45,30,0.6)';
+            g.lineWidth = 1.5;
+            g.beginPath();
+            g.moveTo(x + totalW * 0.2, y - 9);
+            g.lineTo(x + totalW / 2, y - 34);
+            g.lineTo(x + totalW * 0.8, y - 9);
+            g.stroke();
+        }
+
+        // the side of a canvas, a slab of acrylic, metal or wood
+        if (depth) {
+            g.fillStyle = isCanvas ? '#e9e2d3' : isWood ? '#a9814f' : '#cfd6dc';
+            g.fillRect(x + totalW, y + 3, depth, totalH);
+            g.fillStyle = isCanvas ? '#d8d0bf' : isWood ? '#8a6738' : '#b4bcc4';
+            g.fillRect(x + 3, y + totalH, totalW, depth);
+        }
+
+        // the frame
+        if (framed && frameW) {
+            const f = g.createLinearGradient(x, y, x + totalW, y + totalH);
+            f.addColorStop(0, shade.light);
+            f.addColorStop(0.5, shade.base);
+            f.addColorStop(1, shade.base);
+            g.fillStyle = f;
+            g.fillRect(x, y, totalW, totalH);
+            g.strokeStyle = 'rgba(0,0,0,0.25)';
+            g.lineWidth = 1;
+            g.strokeRect(x + frameW, y + frameW, totalW - 2 * frameW, totalH - 2 * frameW);
+        }
+
+        // the mat, then the painting
+        const ix = x + frameW;
+        const iy = y + frameW;
+        if (matW) {
+            g.fillStyle = '#f7f5ef';
+            g.fillRect(ix, iy, totalW - 2 * frameW, totalH - 2 * frameW);
+            g.strokeStyle = 'rgba(0,0,0,0.18)';
+            g.strokeRect(ix + matW - 1, iy + matW - 1, w + 2, h + 2);
+        }
+        const px = ix + matW;
+        const py = iy + matW;
+        g.drawImage(source, px, py, w, h);
+
+        // light on the surface
+        if (isAcrylic || isMetal) {
+            const shine = g.createLinearGradient(px, py, px + w, py + h);
+            shine.addColorStop(0, 'rgba(255,255,255,0.28)');
+            shine.addColorStop(0.35, 'rgba(255,255,255,0.04)');
+            shine.addColorStop(0.5, 'rgba(255,255,255,0.0)');
+            shine.addColorStop(0.7, 'rgba(255,255,255,0.14)');
+            shine.addColorStop(1, 'rgba(255,255,255,0.02)');
+            g.fillStyle = shine;
+            g.fillRect(px, py, w, h);
+        } else if (framed) {
+            // glass over a framed print
+            const glass = g.createLinearGradient(px, py, px + w * 0.8, py + h * 0.8);
+            glass.addColorStop(0, 'rgba(255,255,255,0.16)');
+            glass.addColorStop(0.4, 'rgba(255,255,255,0)');
+            g.fillStyle = glass;
+            g.fillRect(px, py, w, h);
+        } else if (isCanvas) {
+            g.fillStyle = 'rgba(255,255,255,0.05)';
+            g.fillRect(px, py, w, h);
+        }
+        g.strokeStyle = 'rgba(0,0,0,0.2)';
+        g.lineWidth = 1;
+        g.strokeRect(px + 0.5, py + 0.5, w - 1, h - 1);
+
+        // the size, as on a shop drawing
+        const dy = y + totalH + depth + 20;
+        g.strokeStyle = '#7a6a54';
+        g.fillStyle = '#7a6a54';
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(x, dy);
+        g.lineTo(x + totalW, dy);
+        g.moveTo(x, dy - 5);
+        g.lineTo(x, dy + 5);
+        g.moveTo(x + totalW, dy - 5);
+        g.lineTo(x + totalW, dy + 5);
+        g.stroke();
+        g.font = '15px Georgia, serif';
+        g.textAlign = 'center';
+        g.fillText(roundedSize(mmW) + ' \u00d7 ' + roundedSize(mmH) + ' cm', W / 2, dy + 19);
+
+        mockupCaption.textContent = (variant.options || []).map((o) => o.value).join(' \u00b7 ');
+    }
+
+    // The name of a choice, in the visitor's language when there is one
+    function optionName(name) {
+        return t('shop.opt-' + String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-'), name);
+    }
+
+    // A product that has no such choice (a print with no frame, among framed ones) answers "none"
+    const NONE = '\u0000none';
+    const valueOrNone = (variant, name) => {
+        const o = (variant.options || []).filter((x) => x.name === name)[0];
+        return o ? o.value : NONE;
+    };
+
+    // One list per choice (size, frame colour, paper...). Each list offers only what goes with the choices
+    // above it, so the visitor can never end on a combination that does not exist.
+    function buildVariantFields() {
+        variantBox.textContent = '';
+        chosen = '';
+        const list = direct && direct.data ? direct.data.variants : [];
+        if (!list.length) { showPrice(); return; }
+
+        const names = [];
+        list.forEach((v) => (v.options || []).forEach((o) => { if (names.indexOf(o.name) < 0) names.push(o.name); }));
+
+        names.forEach((name) => {
+            const label = document.createElement('label');
+            label.className = 'atelier-field';
+            const span = document.createElement('span');
+            span.textContent = optionName(name);
+            const sel = document.createElement('select');
+            sel.dataset.name = name;
+            sel.addEventListener('change', () => { direct.picks[name] = sel.value; cascade(); });
+            label.appendChild(span);
+            label.appendChild(sel);
+            variantBox.appendChild(label);
+        });
+        cascade();
+    }
+
+    function cascade() {
+        const list = direct.data.variants;
+        let pool = list;
+        variantBox.querySelectorAll('select').forEach((sel) => {
+            const name = sel.dataset.name;
+            const values = [];
+            pool.forEach((v) => {
+                const x = valueOrNone(v, name);
+                if (values.indexOf(x) < 0) values.push(x);
+            });
+            fill(sel, values.map((x) => ({ value: x, text: x === NONE ? t('shop.opt-none', 'None') : x })), direct.picks[name]);
+            direct.picks[name] = sel.value;
+            pool = pool.filter((v) => valueOrNone(v, name) === sel.value);
+        });
+        chosen = pool.length ? pool[0].id : '';
+        showPrice();
+        loadPrice();
+        drawMockup();
+    }
+
+    // Only the price of the one chosen is asked for: with frames in four colours and a dozen sizes there are many
+    function loadPrice() {
+        const d = direct;
+        const id = chosen;
+        const size = printSize();
+        const p = current();
+        if (!d || !id || !size || !p || d.prices[id]) return;
+        const q = new URLSearchParams({
+            product: p.id, variant: id, w: size.w, h: size.h, country: countrySel.value
+        });
+        fetch(ORDER_API + '/api/direct/price?' + q)
+            .then((r) => r.json().then((j) => ({ ok: r.ok, d: j })))
+            .then((res) => {
+                if (direct !== d) return;
+                if (res.ok) {
+                    d.prices[id] = res.d;
+                } else {
+                    const k = REFUSALS[res.d.error] || 'shop.status-error';
+                    say(k, REFUSAL_TEXT[k] || GENERIC_ERROR);
+                }
+                showPrice();
+            })
+            .catch(() => { /* the price line stays on "looking up"; choosing again asks again */ });
+    }
+
+    // The studio rewrites its label many times while it paints: the preview is redrawn when the painting is done
+    let mockupShown = '';
     function refreshChoice() {
         labelOrder();
         showPrice();
         loadDirect();
+        const state = chosen + '|' + finished() + '|' + reference;
+        if (state !== mockupShown) {
+            mockupShown = state;
+            drawMockup();
+        }
     }
 
     productSel.addEventListener('change', () => { say(null); refreshChoice(); });
     countrySel.addEventListener('change', refreshChoice);
-    variantSel.addEventListener('change', showPrice);
 
     /* ---- the human check ---- */
 
@@ -548,7 +820,7 @@
             say('shop.status-paint-first', 'Let the painting finish first, then order.');
             return;
         }
-        if (!variantSel.value) {
+        if (!chosen) {
             say('shop.status-variant', 'Choose a size and a frame first.');
             return;
         }
@@ -601,7 +873,7 @@
                 params: params,
                 product: product.id,
                 title: (doc.getElementById('title').textContent || '').trim(),
-                variant: variantSel.value,
+                variant: chosen,
                 country: countrySel.value
             };
 
@@ -644,9 +916,7 @@
         if (config) {
             fillProducts();
             fillCountries();
-            if (direct && direct.data) {
-                fill(variantSel, direct.data.variants.map((v) => ({ value: v.id, text: v.label + ' — ' + money(v.price) })), variantSel.value);
-            }
+            if (direct && direct.data) buildVariantFields();
             renderFineprint();
             refreshChoice();
         }

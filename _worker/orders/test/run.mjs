@@ -95,11 +95,24 @@ globalThis.fetch = async (input, init = {}) => {
     assert.equal(init.headers['x-api-key'], 'gelato-key');
     return ok(TEMPLATE);
   }
-  if (url === 'https://product.gelatoapis.com/v3/catalogs/framed-posters') return ok(CATALOG);
+  // globalThis.__objects: Gelato sending its lists as objects keyed by id instead of arrays
+  const keyed = (list, key) => Object.fromEntries(list.map((x) => [x[key], x]));
+  if (url === 'https://product.gelatoapis.com/v3/catalogs') return ok([{ catalogUid: 'posters', title: 'Posters' }, { catalogUid: 'framed-posters', title: 'Framed posters' }]);
+  if (url === 'https://product.gelatoapis.com/v3/catalogs/framed-posters') {
+    if (!globalThis.__objects) return ok(CATALOG);
+    return ok({
+      ...CATALOG,
+      productAttributes: Object.fromEntries(CATALOG.productAttributes.map((a) => [a.productAttributeUid, {
+        title: a.title,
+        values: Object.fromEntries(a.values.map((v) => [v.productAttributeValueUid, { title: v.title }])),
+      }])),
+    });
+  }
   if (url === 'https://product.gelatoapis.com/v3/catalogs/framed-posters/products:search') {
     assert.equal(init.headers['x-api-key'], 'gelato-key');
     const { limit, offset } = JSON.parse(init.body);
-    return ok({ products: CATALOG_PRODUCTS.slice(offset, offset + limit) });
+    const page = CATALOG_PRODUCTS.slice(offset, offset + limit);
+    return ok({ products: globalThis.__objects ? keyed(page, 'productUid') : page });
   }
   if (url.startsWith('https://product.gelatoapis.com/v3/products/')) {
     const uid = decodeURIComponent(url.split('/products/')[1].split('/')[0]);
@@ -198,6 +211,32 @@ await test('ordering is off until it is switched on and Stripe and Gelato are se
   }
 });
 
+await test('discover without a product lists what is configured and makes no call to Gelato', async () => {
+  const env = makeEnv({ GELATO_TEMPLATES: JSON.stringify({
+    poster: { templateId: 'tpl-poster', label: 'Art Print' },
+    framed: { catalogUid: 'framed-posters', label: 'Framed print' },
+  }) });
+  calls.length = 0;
+  const body = await getJson(env, '/admin/discover', { 'x-admin-key': 'secret-admin' });
+  assert.deepEqual(body.products.map((p) => [p.id, p.look]), [['poster', '?product=poster'], ['framed', '?product=framed']]);
+  assert.equal(body.gelato, undefined);
+  assert.equal(calls.length, 0);
+  assert.equal(body.direct.stripeMode, 'test');
+});
+
+await test('a live Stripe key is refused until it is allowed on purpose', async () => {
+  const live = makeEnv({ STRIPE_SECRET_KEY: 'sk_live_abc' });
+  assert.equal((await getJson(live, '/api/config')).enabled, false);
+  assert.equal((await checkout(live)).error, 'ordering_closed');
+  const body = await getJson(live, '/admin/discover', { 'x-admin-key': 'secret-admin' });
+  assert.equal(body.direct.stripeMode, 'live');
+  assert.equal(body.direct.stripe, false);
+  const allowed = makeEnv({ STRIPE_SECRET_KEY: 'sk_live_abc', STRIPE_ALLOW_LIVE: 'true' });
+  assert.equal((await getJson(allowed, '/api/config')).enabled, true);
+  // anything that is not a Stripe key at all is not used either
+  assert.equal((await getJson(makeEnv({ STRIPE_SECRET_KEY: 'whatever' }), '/api/config')).enabled, false);
+});
+
 await test('nothing of Etsy is left: those routes do not exist', async () => {
   const env = makeEnv();
   for (const [method, path] of [['GET', '/auth/login'], ['GET', '/auth/callback'], ['POST', '/api/listings'], ['GET', '/api/products/prod-12345678']]) {
@@ -207,7 +246,8 @@ await test('nothing of Etsy is left: those routes do not exist', async () => {
 
 await test('discover needs the admin key and shows what the template holds', async () => {
   const env = makeEnv();
-  const body = await getJson(env, '/admin/discover', { 'x-admin-key': 'secret-admin' });
+  const body = await getJson(env, '/admin/discover?product=poster', { 'x-admin-key': 'secret-admin' });
+  assert.equal(body.products, undefined);
   assert.equal(body.gelato.poster.variants.length, 6);
   assert.equal(body.gelato.poster.variants[0].printAreas[0], 'ImageFront 210 x 297');
   assert.equal(body.direct.stripe, true);
@@ -216,14 +256,22 @@ await test('discover needs the admin key and shows what the template holds', asy
 
 /* ---------- sizes and prices ---------- */
 
-await test('options price every variant that fits, from Gelato cost x markup', async () => {
+await test('options list every variant that fits; the price of the chosen one is Gelato cost x markup', async () => {
   const env = makeEnv();
   const res = await getJson(env, '/api/direct/options?product=poster&w=1754&h=2480&country=FR', { origin: ORIGIN });
   assert.equal(res.currency, 'EUR');
   assert.equal(res.shipping, 6);
   // 1754 x 2480 (A format, portrait): A4, A3 and the framed A4 fit; A1 needs more pixels, the landscape and 3:4 are other shapes
-  assert.deepEqual(res.variants.map((v) => [v.id, v.price]), [['v-a4', 16], ['v-a3', 24], ['v-a4-black', 50]]);
+  assert.deepEqual(res.variants.map((v) => v.id), ['v-a4', 'v-a3', 'v-a4-black']);
+  assert.equal(res.variants[0].price, undefined); // no price per option: one is looked up for the one chosen
+  assert.deepEqual(res.variants[0].size_mm, [210, 297]); // the print's size, for the preview
   assert.equal(res.variants[2].options[1].value, 'Black');
+  const price = async (variant) => getJson(env, `/api/direct/price?product=poster&variant=${variant}&w=1754&h=2480&country=FR`);
+  assert.deepEqual(await price('v-a4'), { currency: 'EUR', shipping: 6, price: 16 });
+  assert.equal((await price('v-a3')).price, 24);
+  assert.equal((await price('v-a4-black')).price, 50);
+  assert.equal((await price('v-a1')).error, 'variant_not_available');
+  assert.equal((await getJson(env, '/api/direct/price?product=poster&variant=v-a4&w=1754&h=2480&country=KP')).error, 'country_not_served');
   assert.equal((await getJson(env, '/api/direct/options?product=poster&w=1754&h=2480&country=KP')).error, 'country_not_served');
   assert.equal((await getJson(env, '/api/direct/options?product=nope&w=1754&h=2480&country=FR')).error, 'unknown_product');
 });
@@ -463,16 +511,86 @@ await test('catalogue options are the live products of the right shape, in the c
   const env = withCatalogue();
   const fr = await getJson(env, '/api/direct/options?product=framed&w=1754&h=2480&country=FR');
   // A1 is too big for the pixels, the landscape one has another shape, the archived and DE-only ones are out
-  assert.deepEqual(fr.variants.map((v) => [v.id, v.label, v.price]), [
-    ['fp_a4_black', 'A4 · Black', 60],
-    ['fp_a4_white', 'A4 · White', 60],
-    ['fp_a3_black', 'A3 · Black', 80],
+  assert.deepEqual(fr.variants.map((v) => [v.id, v.label]), [
+    ['fp_a4_black', 'A4 · Black'],
+    ['fp_a4_white', 'A4 · White'],
+    ['fp_a3_black', 'A3 · Black'],
   ]);
-  assert.deepEqual(fr.variants[0].options, [{ name: 'Paper Format', value: 'A4' }, { name: 'Frame colour', value: 'Black' }]);
+  // named for the visitor, size first
+  assert.deepEqual(fr.variants[0].options, [{ name: 'Size', value: 'A4' }, { name: 'Frame colour', value: 'Black' }]);
+  const price = await getJson(env, '/api/direct/price?product=framed&variant=fp_a3_black&w=1754&h=2480&country=FR');
+  assert.equal(price.price, 80);
 
   const de = await getJson(env, '/api/direct/options?product=framed&w=1754&h=2480&country=DE');
   assert.ok(de.variants.some((v) => v.id === 'fp_a4_wood_de' && v.label === 'A4 · Natural wood'));
   assert.equal((await getJson(env, '/api/direct/options?product=framed&w=1280&h=1920&country=FR')).error, 'no_size_for_format');
+});
+
+await test('a catalogue whose lists arrive as objects keyed by id reads the same', async () => {
+  globalThis.__objects = true;
+  try {
+    const env = withCatalogue();
+    const fr = await getJson(env, '/api/direct/options?product=framed&w=1754&h=2480&country=FR');
+    assert.deepEqual(fr.variants.map((v) => [v.id, v.label]), [
+      ['fp_a4_black', 'A4 · Black'], ['fp_a4_white', 'A4 · White'], ['fp_a3_black', 'A3 · Black'],
+    ]);
+    const body = await getJson(env, '/admin/discover?product=framed', { 'x-admin-key': 'secret-admin' });
+    assert.equal(body.gelato.framed.products, 7);
+    assert.deepEqual(body.gelato.framed.attributes.map((a) => a.uid), ['PaperFormat', 'FrameColor']);
+  } finally {
+    globalThis.__objects = false;
+  }
+});
+
+await test('attributes that always change together are shown once, and technical ones are not a choice', async () => {
+  const { describeProducts } = await import('../src/listing.js');
+  const catalog = { productAttributes: [
+    { productAttributeUid: 'PaperFormat', title: 'PaperFormat', values: [{ productAttributeValueUid: 'A4', title: 'A4' }, { productAttributeValueUid: 'A3', title: 'A3' }] },
+    { productAttributeUid: 'UnifiedPaperFormat', title: 'UnifiedPaperFormat', values: [{ productAttributeValueUid: 'a4-8x12', title: '21 x 30 cm / 8 x 12 in' }, { productAttributeValueUid: 'a3-12x16', title: '30 x 42 cm / 12 x 16 in' }] },
+    { productAttributeUid: 'FrameColor', title: 'FrameColor', values: [{ productAttributeValueUid: 'black', title: 'Black' }, { productAttributeValueUid: 'white', title: 'White' }] },
+  ] };
+  const mk = (uid, fmt, unified, color, model) => ({
+    productUid: uid,
+    attributes: { PaperFormat: fmt, UnifiedPaperFormat: unified, FrameColor: color, ProductModel: model },
+    dimensions: { Width: { value: 210 }, Height: { value: 297 } },
+  });
+  const names = describeProducts(catalog, [
+    mk('p1', 'A4', 'a4-8x12', 'black', 'one'), mk('p2', 'A4', 'a4-8x12', 'white', 'two'),
+    mk('p3', 'A3', 'a3-12x16', 'black', 'one'), mk('p4', 'A3', 'a3-12x16', 'white', 'two'),
+  ]);
+  assert.equal(names.get('p1').title, '21 x 30 cm / 8 x 12 in · Black');
+  assert.deepEqual(names.get('p4').options, [{ name: 'Size', value: '30 x 42 cm / 12 x 16 in' }, { name: 'Frame colour', value: 'White' }]);
+});
+
+await test('the print area is read from the format, not from the size of the frame or the hanger', async () => {
+  const { printAreaMm, fittingProducts, describeProducts, parseFormat } = await import('../src/listing.js');
+  assert.deepEqual(parseFormat('200x250-mm-8x10-inch'), [200, 250]);
+  assert.deepEqual(parseFormat('a4-8x12-inch'), [210, 297]);
+  assert.deepEqual(parseFormat('XL-280x430-mm'), [280, 430]);
+  assert.deepEqual(parseFormat('8x10-inch'), [203.2, 254]);
+  assert.equal(parseFormat('flat_product'), null);
+
+  // a framed canvas: the object is bigger than the picture, and turned to landscape
+  const canvas = { productUid: 'fc', attributes: { UnifiedCanvasFormat: '200x250-mm-8x10-inch', Orientation: 'hor', ProductStatus: 'activated' },
+    dimensions: { Width: { value: 302 }, Height: { value: 252 } } };
+  assert.deepEqual(printAreaMm(canvas), [250, 200]);
+  // a poster with a hanger: 1010 wide for a 700 x 1000 print
+  const hanger = { productUid: 'hp', attributes: { UnifiedPaperFormat: '700x1000-mm-28x40-inch', Orientation: 'ver', ProductStatus: 'activated' },
+    dimensions: { Width: { value: 733.2 }, Height: { value: 1010 } } };
+  assert.deepEqual(printAreaMm(hanger), [700, 1000]);
+  // so a 4:5 painting fits the canvas (20 x 25) and not the hanger poster (7:10)
+  const env = { MIN_DPI: '100' };
+  const painting = { width: 1600, height: 2000 };
+  // the landscape one is another shape than a portrait painting
+  assert.throws(() => fittingProducts(env, [canvas], painting, null), (e) => e.code === 'no_size_for_format');
+  assert.equal(fittingProducts(env, [{ ...canvas, attributes: { ...canvas.attributes, Orientation: 'ver' } }], painting, null).length, 1);
+  assert.throws(() => fittingProducts(env, [hanger], painting, null), (e) => e.code === 'no_size_for_format');
+  // a size with no readable title is written out
+  const names = describeProducts({ productAttributes: [] }, [
+    { productUid: 'a', attributes: { UnifiedPaperFormat: '200x250-mm-8x10-inch', FrameColor: 'black' }, dimensions: { Width: { value: 200 }, Height: { value: 250 } } },
+    { productUid: 'b', attributes: { UnifiedPaperFormat: '300x400-mm-12x16-inch', FrameColor: 'white' }, dimensions: { Width: { value: 300 }, Height: { value: 400 } } },
+  ]);
+  assert.equal(names.get('a').options[0].value, '20 × 25 cm / 8 × 10 in');
 });
 
 await test('a catalogue product is paid for and sent to Gelato like any other', async () => {
@@ -494,9 +612,13 @@ await test('a catalogue product is paid for and sent to Gelato like any other', 
 });
 
 await test('discover shows a catalogue\'s attributes and a sample, to write the filters from', async () => {
-  const body = await getJson(withCatalogue(), '/admin/discover', { 'x-admin-key': 'secret-admin' });
+  const body = await getJson(withCatalogue(), '/admin/discover?product=framed', { 'x-admin-key': 'secret-admin' });
+  // the full list of Gelato's catalogues only on request
+  assert.equal(body.catalogs, undefined);
+  const all = await getJson(withCatalogue(), '/admin/discover?all=1&product=framed', { 'x-admin-key': 'secret-admin' });
+  assert.deepEqual(all.catalogs.map((c) => c.catalogUid), ['posters', 'framed-posters']);
   assert.equal(body.gelato.framed.products, 7);
-  assert.deepEqual(body.gelato.framed.attributes.map((a) => a.uid), ['Orientation', 'PaperFormat', 'FrameColor']);
+  assert.deepEqual(body.gelato.framed.attributes.map((a) => a.uid), ['PaperFormat', 'FrameColor']);
   assert.equal(body.gelato.framed.sample[0].productUid, 'fp_a4_black');
   assert.equal(body.gelato.framed.sample[0].size_mm, '210 x 297');
 });

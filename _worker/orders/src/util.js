@@ -19,3 +19,10 @@ function base64url(bytes) {
 export function randomToken(byteLength = 32) {
   return base64url(crypto.getRandomValues(new Uint8Array(byteLength)));
 }
+
+// A list as an outside service sent it: an array stays one, an object keyed by id becomes its values
+export function asArray(value) {
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === 'object') return Object.values(value);
+  return [];
+}

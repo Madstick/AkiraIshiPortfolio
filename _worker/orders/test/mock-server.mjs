@@ -53,7 +53,10 @@ const env = {
   ADMIN_KEY: 'mock',
   CURRENCY: 'EUR',
   GELATO_API_KEY: 'mock',
-  GELATO_TEMPLATES: JSON.stringify({ poster: { templateId: 'tpl-poster', label: 'Art Print' } }),
+  GELATO_TEMPLATES: JSON.stringify({
+    poster: { templateId: 'tpl-poster', label: 'Art Print' },
+    framed: { catalogUid: 'framed-posters', label: 'Framed poster' },
+  }),
   STRIPE_SECRET_KEY: 'mock',
   STRIPE_WEBHOOK_SECRET: 'mock',
   DIRECT_MARKUP: '2.2',
@@ -78,6 +81,26 @@ globalThis.fetch = async (input, init = {}) => {
   const say = (text) => console.log(`  [pretend] ${text}`);
 
   if (url.includes('ecommerce.gelatoapis.com') && url.includes('/templates/')) return reply(TEMPLATE);
+  if (url === 'https://product.gelatoapis.com/v3/catalogs/framed-posters') {
+    return reply({ catalogUid: 'framed-posters', productAttributes: {
+      FrameColor: { title: 'Frame colour', values: { black: { title: 'Black' }, white: { title: 'White' }, 'natural-wood': { title: 'Natural wood' }, 'dark-wood': { title: 'Dark wood' } } },
+      PaperFormat: { values: { A4: { title: 'A4' }, A3: { title: 'A3' }, A2: { title: 'A2' } } },
+    } });
+  }
+  if (url === 'https://product.gelatoapis.com/v3/catalogs/framed-posters/products:search') {
+    const sizes = { A4: [210, 297], A3: [297, 420], A2: [420, 594], '8x10': [203, 254], '12x15': [305, 381], '16x20': [406, 508], '24x30': [610, 762] };
+    const out = [];
+    for (const [fmt, [w, h]] of Object.entries(sizes)) {
+      for (const color of ['black', 'white', 'natural-wood', 'dark-wood']) {
+        for (const [W, H, o] of [[w, h, 'ver'], [h, w, 'hor']]) {
+          out.push({ productUid: `frame_${fmt}_${color}_${o}`, supportedCountries: ['FR', 'DE', 'US'],
+            attributes: { FrameColor: color, PaperFormat: fmt, Orientation: o, ProductStatus: 'activated' },
+            dimensions: { Width: { value: W }, Height: { value: H } } });
+        }
+      }
+    }
+    return reply({ products: out });
+  }
   if (url.includes('product.gelatoapis.com')) {
     const uid = decodeURIComponent(url.split('/products/')[1].split('/')[0]);
     return reply([{ productUid: uid, country: 'FR', quantity: 1, price: uid.startsWith('framed') ? 24 : 11, currency: 'EUR' }]);
