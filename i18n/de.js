@@ -140,6 +140,7 @@ ui: {
 "shop.product-hanging": "Poster mit Aufhängeleiste",
 "shop.opt-none": "Keiner",
 "shop.preview-title": "Vorschau Ihres Drucks",
+"shop.orders-unreachable": "Der Bestellservice ist im Moment nicht erreichbar. Laden Sie die Seite neu oder erlauben Sie diese Seite in Ihrem Werbeblocker.",
 "shop.the-artist": "Der Künstler",
 "shop.about-akira-ishi": "Über Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi ist ein französischer Künstler, der mit Code arbeitet. Seine Arbeit sucht Einfachheit mit Tiefe: minimale Formen für komplexe Gedanken, entstanden in einem geduldigen, schrittweisen und sehr persönlichen Prozess.",

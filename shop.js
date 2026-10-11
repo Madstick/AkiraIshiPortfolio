@@ -722,11 +722,21 @@
             'Pay securely on this site; the print is made to order and shipped to you.');
     }
 
+    // The order service could not be reached (an ad blocker, a network): say so, instead of "opens soon"
+    function unreachable() {
+        soonEl.removeAttribute('data-i18n');
+        soonEl.textContent = t('shop.orders-unreachable',
+            'The order service cannot be reached right now. Reload the page, or allow this site in your ad blocker.');
+    }
+
     if (ORDER_API) {
         fetch(ORDER_API + '/api/config')
             .then((r) => (r.ok ? r.json() : null))
-            .then((cfg) => { if (cfg && cfg.enabled) goLive(cfg); })
-            .catch(() => { /* Worker unreachable: the fallback stays */ });
+            .then((cfg) => {
+                if (!cfg) { unreachable(); return; }
+                if (cfg.enabled) goLive(cfg);
+            })
+            .catch(unreachable);
     }
 
     /* ---- placing the order ---- */

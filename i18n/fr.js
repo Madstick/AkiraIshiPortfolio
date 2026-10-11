@@ -140,6 +140,7 @@ ui: {
 "shop.product-hanging": "Affiche avec barre d’accroche",
 "shop.opt-none": "Aucun",
 "shop.preview-title": "Aperçu de votre tirage",
+"shop.orders-unreachable": "Le service de commande est injoignable pour le moment. Rechargez la page, ou autorisez ce site dans votre bloqueur de publicités.",
 "shop.the-artist": "L'artiste",
 "shop.about-akira-ishi": "À propos d'Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi est un artiste français qui travaille avec le code. Son travail cherche la simplicité avec de la profondeur : des formes minimales pour dire des idées complexes, au fil d'un processus patient, itératif et très personnel.",

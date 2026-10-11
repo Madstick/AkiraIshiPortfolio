@@ -140,6 +140,7 @@ ui: {
 "shop.product-hanging": "ハンガー付きポスター",
 "shop.opt-none": "なし",
 "shop.preview-title": "プリントのプレビュー",
+"shop.orders-unreachable": "注文サービスに接続できません。ページを再読み込みするか、広告ブロッカーでこのサイトを許可してください。",
 "shop.the-artist": "アーティスト",
 "shop.about-akira-ishi": "Akira Ishi について",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi はコードで制作するフランスのアーティストです。目指しているのは「シンプルなのに奥がある」こと。最小限のかたちで複雑な考えを語るために、根気よく、何度も手を入れながら、ごく個人的なやり方で制作しています。",

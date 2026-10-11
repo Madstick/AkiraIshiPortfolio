@@ -140,6 +140,7 @@ ui: {
 "shop.product-hanging": "Póster con barra para colgar",
 "shop.opt-none": "Ninguno",
 "shop.preview-title": "Vista previa de tu lámina",
+"shop.orders-unreachable": "No se puede acceder al servicio de pedidos ahora mismo. Recarga la página o permite este sitio en tu bloqueador de anuncios.",
 "shop.the-artist": "El artista",
 "shop.about-akira-ishi": "Sobre Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi es un artista francés que trabaja con código. Su obra busca la sencillez con fondo: formas mínimas para decir ideas complejas, a través de un proceso paciente, iterativo y muy personal.",
