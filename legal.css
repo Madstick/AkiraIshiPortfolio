@@ -1,0 +1,111 @@
+/* Legal notice, terms of sale and privacy: legal.html (French) and legal-en.html (English).
+   Loaded after shop.css, which gives the colours, the header and the footer. */
+
+.legal-main {
+  padding: 3rem 0 4rem;
+}
+
+.legal-doc {
+  width: min(46rem, 100% - 3rem);
+  margin: 0 auto;
+}
+
+.legal-doc h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+}
+
+.legal-doc h2 {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 500;
+  margin: 2.6rem 0 0.8rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--paper-edge);
+}
+
+.legal-doc h3 {
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 1.6rem 0 0.4rem;
+  color: var(--ink-soft);
+}
+
+.legal-doc p,
+.legal-doc li {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.legal-doc p {
+  margin-bottom: 0.8rem;
+}
+
+.legal-doc ul,
+.legal-doc ol {
+  margin: 0 0 0.9rem 1.4rem;
+}
+
+.legal-doc li {
+  margin-bottom: 0.3rem;
+}
+
+.legal-meta {
+  color: var(--ink-faint);
+  font-size: 0.95rem;
+}
+
+.legal-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  margin: 1rem 0 1.4rem;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+}
+
+.legal-note {
+  margin: 1.2rem 0;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--gold);
+  background: var(--paper-warm);
+  font-size: 1rem;
+}
+
+.legal-doc dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) 1fr;
+  gap: 0.35rem 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.legal-doc dt {
+  color: var(--ink-faint);
+}
+
+.legal-doc dd {
+  margin: 0;
+}
+
+/* Details only the owner can give: they stand out until they are filled in */
+.todo {
+  background: #fff1a8;
+  color: var(--ink);
+  padding: 0 0.25em;
+}
+
+@media (max-width: 560px) {
+  .legal-doc dl {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .legal-doc dt {
+    margin-top: 0.5rem;
+  }
+}

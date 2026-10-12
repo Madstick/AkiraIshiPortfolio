@@ -78,6 +78,8 @@ export default {
       const body = { error: err instanceof HttpError ? err.code : 'server_error' };
       // The other services' own error text is for the owner's logs, not for visitors
       if (err instanceof HttpError && status < 500 && err.detail !== undefined) body.detail = err.detail;
+      // ...except while testing (Stripe test key): then the reason is sent along, to be read in the browser's network tab
+      else if (err instanceof HttpError && err.detail !== undefined && stripeMode(env) === 'test') body.detail = err.detail;
       return json(body, status, cors);
     }
   },

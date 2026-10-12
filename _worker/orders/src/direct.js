@@ -148,6 +148,20 @@ export async function startCheckout(env, { meta, image, fileUrl }) {
     mode: 'payment',
     client_reference_id: orderId,
     metadata: { order_id: orderId },
+    // Stripe's Managed Payments (Stripe as seller of record) is on by default on new accounts and refuses
+    // shipping parameters; a framed print has to be delivered, so it is off for this session
+    managed_payments: { enabled: false },
+    // Shown above the pay button: what the visitor accepts, and that a print made to order is not returnable
+    custom_text: {
+      submit: {
+        message: `Made to order from the painting you chose: no right of withdrawal (French Consumer Code, art. L221-28 3\u00b0). ` +
+          `By paying you accept the [terms of sale](${site}/legal-en.html#terms). ` +
+          `Fabriqu\u00e9 \u00e0 la demande : pas de droit de r\u00e9tractation (art. L221-28 3\u00b0 du Code de la consommation). ` +
+          `En payant, vous acceptez les [conditions g\u00e9n\u00e9rales de vente](${site}/legal.html#cgv).`,
+      },
+    },
+    // One price in euros: Stripe shows the visitor their own currency, at its exchange rate, on its payment page
+    adaptive_pricing: { enabled: true },
     success_url: `${site}/shop.html?order=thanks#atelier`,
     cancel_url: `${site}/shop.html#atelier`,
     phone_number_collection: { enabled: true },

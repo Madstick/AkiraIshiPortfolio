@@ -36,9 +36,12 @@ CURRENCY = "EUR"
 # YOUR price for a print, before printing and delivery, in each currency. What a visitor pays is this, plus
 # Gelato's printing and materials, plus Gelato's delivery to their country: both are Gelato's own figures for that
 # product and country, passed on as they are (see the README, "How the price is made").
-ARTIST_PRICE_JSON = '{"EUR":34.99,"USD":34.99,"GBP":29.99}'
+# One price in euros for everyone: Stripe's adaptive pricing shows the visitor their own currency at the payment
+# page. To price per currency instead, add "USD" and "GBP" here and list their countries below, and set
+# adaptive_pricing to false in src/direct.js.
+ARTIST_PRICE_JSON = '{"EUR":32.99}'
 # Which currency each country pays in
-DIRECT_CURRENCIES_JSON = '{"EUR":["FR","BE","DE","ES","IT","NL","PT","AT","IE","LU"],"USD":["US","CA","AU"],"GBP":["GB"]}'
+DIRECT_CURRENCIES_JSON = '{"EUR":["FR","BE","DE","ES","IT","NL","PT","AT","IE","LU","GB","US","CA","AU"]}'
 # Only used if Gelato's quote cannot be had: a flat delivery price per country, and the price is marked as an estimate
 DIRECT_SHIPPING_JSON = '{"FR": 6, "default": 12}'
 # Where you deliver. Latin-alphabet countries only: Gelato wants CN, JP, KR and RU addresses in local script.

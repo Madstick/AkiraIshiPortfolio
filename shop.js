@@ -190,7 +190,9 @@
         reference = seed
             ? location.origin + location.pathname.replace(/[^/]*$/, '') + GENERATOR + query
             : '';
-        refEl.textContent = reference || '—';
+        refEl.textContent = reference || '\u2014';
+        if (reference) refEl.setAttribute('href', reference);
+        else refEl.removeAttribute('href');
 
         newBtn.disabled = fullBtn.disabled = !seed;
         // another painting: the print file of the last one is no use any more
@@ -397,6 +399,15 @@
         note.textContent = t('shop.price-note',
             'Printing and delivery are Gelato\u2019s own prices for this product and this country, passed on without any addition. Local taxes, if any, are shown at payment.');
         priceEl.appendChild(note);
+
+        // One price in euros: Stripe's payment page can show it in the visitor's own currency
+        if (info.currency === 'EUR') {
+            const fx = document.createElement('p');
+            fx.className = 'price-note';
+            fx.textContent = t('shop.price-currency-note',
+                'Prices are in euros. On the payment page they may be shown in your own currency, at Stripe\u2019s exchange rate.');
+            priceEl.appendChild(fx);
+        }
     }
 
     // Sizes and frames the painting can fill, with what they cost, for a country
@@ -943,8 +954,18 @@
 
     orderBtn.addEventListener('click', order);
 
+    // The legal pages exist in French (which prevails) and English
+    function legalLinks() {
+        const page = lang() === 'fr' ? 'legal.html' : 'legal-en.html';
+        const terms = $('atelier-legal-link');
+        if (terms) terms.setAttribute('href', page + '#' + (lang() === 'fr' ? 'cgv' : 'terms'));
+        document.querySelectorAll('.legal-footer-link').forEach((a) => a.setAttribute('href', page));
+    }
+    legalLinks();
+
     /* The panel writes its own text, so it has to be redrawn on a language change */
     document.addEventListener('akira:langchange', () => {
+        legalLinks();
         if (frame) refresh();
         renderStatus();
         if (config) {

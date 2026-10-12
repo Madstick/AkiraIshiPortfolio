@@ -35,7 +35,7 @@ payment page and the Worker never sees card details. When Stripe says "paid", th
 - A **Stripe** account, with its secret key (start with the test key, `sk_test_...`) as `STRIPE_SECRET_KEY`, and a
   **webhook** pointing to `https://<your-worker>.workers.dev/stripe/webhook`, listening to `checkout.session.completed`
   (and `checkout.session.async_payment_succeeded`). Its signing secret is `STRIPE_WEBHOOK_SECRET`.
-- Your **price** for a print, per currency (`ARTIST_PRICE_JSON`, by default 34.99 EUR, 34.99 USD, 29.99 GBP). Printing
+- Your **price** for a print, per currency (`ARTIST_PRICE_JSON`, 32.99 EUR for every country). Printing
   and delivery come on top, at Gelato's own prices: see "How the price is made".
 - Somewhere for the print file to live on the web while Gelato makes the print. Preferred: a **public GitHub repo** that
   holds only these files (for example `Madstick/still-life-prints`) and a **fine-grained token** with Contents
@@ -53,12 +53,14 @@ A visitor sees the price in four lines, and pays exactly their sum:
 
 | Line | Where it comes from |
 |---|---|
-| **The painting (artist's price)** | yours: `ARTIST_PRICE_JSON`, one figure per currency (EUR 34.99, USD 34.99, GBP 29.99 by default) |
+| **The painting (artist's price)** | yours: `ARTIST_PRICE_JSON`, one figure per currency (EUR 32.99, for every country) |
 | **Printing and materials** | Gelato's price for that product (size, paper, frame...) delivered to that country |
 | **Delivery** | Gelato's cheapest standard delivery method to that country |
 | **Total** | the three added up, in the currency of the country |
 
-The country decides the currency (`DIRECT_CURRENCIES_JSON`: euro countries pay in EUR, US/CA/AU in USD, GB in GBP).
+The country decides the currency (`DIRECT_CURRENCIES_JSON`). At the moment every country is priced in EUR, and Stripe's
+adaptive pricing (`adaptive_pricing` in `src/direct.js`) shows the visitor their own currency, at Stripe's exchange rate,
+on its payment page. To price a currency yourself instead, add it to both JSON settings and turn adaptive pricing off.
 Nothing is added on top of Gelato's figures: the only margin you have is the artist's price, so if you want more per
 print, raise that figure.
 

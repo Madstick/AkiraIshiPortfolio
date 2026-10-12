@@ -347,6 +347,7 @@
                     </div>
 
                     <aside class="atelier-panel">
+                      <div class="atelier-info">
                         <h3 data-i18n="shop.your-painting">Your painting</h3>
                         <p class="atelier-title" id="atelier-title" data-i18n="shop.nothing-painted-yet">Nothing painted yet</p>
                         <p class="atelier-meta" id="atelier-meta" data-i18n="shop.open-the-atelier-and-click-the">
@@ -355,13 +356,19 @@
 
                         <div class="atelier-ref">
                             <span class="atelier-ref-label" data-i18n="shop.reference">Reference</span>
-                            <code class="atelier-ref-value" id="atelier-ref">&mdash;</code>
+                            <a class="atelier-ref-value" id="atelier-ref" target="_blank" rel="noopener">&mdash;</a>
+                            <p class="atelier-ref-hint" data-i18n="shop.reference-hint">
+                                Keep this link if you want to get the same result again: it reopens this exact painting in the studio.
+                            </p>
                         </div>
 
                         <div class="atelier-actions">
                             <button type="button" class="btn btn-ghost" id="atelier-new" disabled data-i18n="shop.new-painting">New painting</button>
                             <button type="button" class="btn btn-ghost" id="atelier-full" disabled data-i18n="shop.full-screen">Full screen</button>
                         </div>
+                      </div>
+
+                      <div class="atelier-order-col">
 
                         <!-- Only shown once the order Worker is configured (see ORDER_API in shop.js) -->
                         <div class="atelier-buy" id="atelier-buy" hidden>
@@ -388,6 +395,10 @@
                             <p class="atelier-fineprint" id="atelier-fineprint" data-i18n="shop.api-fineprint">
                                 Pay securely on this site; the print is made to order and shipped to you.
                             </p>
+                            <p class="atelier-fineprint atelier-legal">
+                                <span data-i18n="shop.legal-withdrawal">Each print is made to order from the painting you chose: the 14-day right of withdrawal does not apply (Consumer Code, art. L221-28, 3&deg;).</span>
+                                <a href="legal-en.html#terms" id="atelier-legal-link" data-i18n="shop.legal-link">Terms of sale, legal notice and privacy</a>
+                            </p>
                         </div>
 
                         <p class="atelier-fineprint" id="atelier-soon" data-i18n="shop.orders-soon">
@@ -402,6 +413,7 @@
                             </svg>
                             <span data-i18n="shop.partner-note">In partnership with Gelato for worldwide print production and delivery.</span>
                         </p>
+                      </div>
                     </aside>
                 </div>
 
@@ -569,6 +581,7 @@
                 <a href="#shops" data-i18n="shop.shops">Shops</a>
                 <a href="#atelier" data-i18n="shop.atelier">Atelier</a>
                 <a href="mailto:leakiraishi@gmail.com" data-i18n="shop.contact">Contact</a>
+                <a href="legal-en.html" class="legal-footer-link" data-i18n="shop.legal">Legal &amp; terms</a>
             </nav>
         </div>
     </footer>
