@@ -729,4 +729,20 @@ await test('CORS only answers listed origins', async () => {
   assert.equal(pre.status, 204);
 });
 
+await test('the seller details come only from the secret, only for this site', async () => {
+  const body = { name: 'A B', siret: '123', address: '1 rue X', phone: '01', phoneIntl: '+33 1', tel: '+331', secret: 'no' };
+  const env = makeEnv({ LEGAL_JSON: JSON.stringify(body) });
+  const ok = await worker.fetch(new Request('https://w.example/api/legal', { headers: { origin: ORIGIN } }), env);
+  assert.equal(ok.status, 200);
+  const got = await ok.json();
+  assert.equal(got.name, 'A B');
+  assert.equal(got.secret, undefined);
+  assert.match(ok.headers.get('x-robots-tag'), /noindex/);
+  // no Origin (an address bar, a crawler) or another site: refused
+  assert.equal((await worker.fetch(new Request('https://w.example/api/legal'), env)).status, 403);
+  assert.equal((await worker.fetch(new Request('https://w.example/api/legal', { headers: { origin: 'https://evil.example' } }), env)).status, 403);
+  // not configured
+  assert.equal((await worker.fetch(new Request('https://w.example/api/legal', { headers: { origin: ORIGIN } }), makeEnv())).status, 404);
+});
+
 console.log(`\n${passed} passed${process.exitCode ? ', some FAILED' : ''}`);

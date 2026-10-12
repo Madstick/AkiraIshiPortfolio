@@ -47,6 +47,9 @@ export default {
           case 'GET /api/config':
             response = handleConfig(env);
             break;
+          case 'GET /api/legal':
+            response = handleLegal(request, env);
+            break;
           case 'GET /api/direct/options':
             response = await handleDirectOptions(url, env);
             break;
@@ -237,6 +240,23 @@ async function readOrder(request, env) {
 /* ============================================
    sizes, then payment, then Gelato
    ============================================ */
+
+// The seller's name, SIRET, address and phone for the legal notice. They live in the LEGAL_JSON secret, not in the
+// public repository or the page's HTML: the page asks for them, and only from this site (a page, not a crawler).
+function handleLegal(request, env) {
+  requireOrigin(request, env);
+  let data = null;
+  try {
+    data = env.LEGAL_JSON ? JSON.parse(env.LEGAL_JSON) : null;
+  } catch {
+    data = null;
+  }
+  if (!data || typeof data !== 'object') throw new HttpError(404, 'not_configured');
+  const keys = ['name', 'siret', 'address', 'phone', 'phoneIntl', 'tel'];
+  const out = {};
+  for (const k of keys) if (typeof data[k] === 'string') out[k] = data[k].slice(0, 200);
+  return json(out, 200, { 'cache-control': 'private, no-store', 'x-robots-tag': 'noindex, nofollow, noarchive' });
+}
 
 async function handleDirectOptions(url, env) {
   if (!catalogue(env).length) throw new HttpError(503, 'ordering_closed');

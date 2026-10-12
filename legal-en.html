@@ -6,8 +6,9 @@
     <title>Legal notice, terms of sale and privacy | Akira Ishi</title>
     <meta name="description" content="Legal notice, terms of sale and privacy policy of Akira Ishi's Still Life Code print shop.">
     <meta name="author" content="Akira Ishi">
-    <!-- Remove once the highlighted fields are filled in -->
-    <meta name="robots" content="noindex">
+    <!-- Not indexed by search engines: the page carries the seller's postal address. Remove this line to allow indexing. -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="theme-color" content="#faf5e8">
     <link rel="icon" type="image/x-icon" href="images/desktop-icons/reliquary/internet_a.ico">
     <link rel="canonical" href="https://akiraishi.com/legal-en.html">
@@ -33,7 +34,7 @@
     <main class="legal-main">
         <article class="legal-doc">
             <h1>Legal notice, terms of sale and privacy</h1>
-            <p class="legal-meta">Version of <mark class="todo">[TO COMPLETE: date]</mark>. This is a translation: the <a href="legal.html">French version</a> prevails.</p>
+            <p class="legal-meta">Version of 12 October 2026. This is a translation: the <a href="legal.html">French version</a> prevails.</p>
 
             <nav class="legal-switch" aria-label="Contents">
                 <a href="#imprint">Legal notice</a>
@@ -47,17 +48,17 @@
             <h3>Publisher and seller</h3>
             <dl>
                 <dt>Name</dt>
-                <dd><mark class="todo">[TO COMPLETE: first and last name]</mark>, artist-author, working under the artist name <strong>Akira Ishi</strong></dd>
+                <dd><span data-legal="name">&hellip;</span>, artist-author, working under the artist name <strong>Akira Ishi</strong></dd>
                 <dt>Status</dt>
                 <dd>Artist-author, sole trader, micro-BNC tax regime (France)</dd>
                 <dt>SIRET</dt>
-                <dd><mark class="todo">[TO COMPLETE: SIRET number]</mark></dd>
+                <dd><span data-legal="siret">&hellip;</span></dd>
                 <dt>Address</dt>
-                <dd><mark class="todo">[TO COMPLETE: postal address]</mark></dd>
+                <dd><span data-legal="address">&hellip;</span></dd>
                 <dt>Email</dt>
                 <dd><a href="mailto:leakiraishi@gmail.com">leakiraishi@gmail.com</a></dd>
                 <dt>Phone</dt>
-                <dd><mark class="todo">[TO COMPLETE: phone number]</mark></dd>
+                <dd><a data-legal="phoneIntl" href="#">&hellip;</a></dd>
                 <dt>VAT</dt>
                 <dd>VAT not applicable, article 293 B of the French General Tax Code. Prices shown are therefore net of VAT.</dd>
                 <dt>Publication director</dt>
@@ -148,8 +149,10 @@
 
             <h3>2.8 Mediation</h3>
             <p>
-                If a dispute with the seller is not resolved, a consumer customer may use the consumer mediator free of charge:
-                <mark class="todo">[TO COMPLETE: name, website and postal address of the chosen consumer mediator]</mark>.
+                If a dispute is not resolved amicably, the customer may refer it free of charge to the consumer mediator competent for the
+                seller: <strong>Société Médiation Professionnelle</strong>, which can be contacted through its website
+                (<a href="https://www.mediateur-consommation-smp.fr/" rel="noopener">mediateur-consommation-smp.fr</a>)
+                or by post at: Alteritae, 5 rue Salvaing, 12000 Rodez, France.
             </p>
 
             <h3>2.9 Governing law</h3>
@@ -225,5 +228,6 @@
         </div>
     </footer>
 
+    <script src="legal.js" defer></script>
 </body>
 </html>

@@ -6,8 +6,9 @@
     <title>Mentions légales, CGV et confidentialité | Akira Ishi</title>
     <meta name="description" content="Mentions légales, conditions générales de vente et politique de confidentialité de la boutique Still Life Code d'Akira Ishi.">
     <meta name="author" content="Akira Ishi">
-    <!-- À retirer une fois les champs surlignés complétés -->
-    <meta name="robots" content="noindex">
+    <!-- Non indexée par les moteurs de recherche : la page porte l'adresse postale du vendeur. Retirer cette ligne pour l'indexer. -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="theme-color" content="#faf5e8">
     <link rel="icon" type="image/x-icon" href="images/desktop-icons/reliquary/internet_a.ico">
     <link rel="canonical" href="https://akiraishi.com/legal.html">
@@ -33,7 +34,7 @@
     <main class="legal-main">
         <article class="legal-doc">
             <h1>Mentions légales, conditions de vente et confidentialité</h1>
-            <p class="legal-meta">Version du <mark class="todo">[À COMPLÉTER : date]</mark>. Le français fait foi. <a href="legal-en.html">English version</a>.</p>
+            <p class="legal-meta">Version du 12 octobre 2026. Le français fait foi. <a href="legal-en.html">English version</a>.</p>
 
             <nav class="legal-switch" aria-label="Sommaire">
                 <a href="#mentions">Mentions légales</a>
@@ -47,17 +48,17 @@
             <h3>Éditeur du site et vendeur</h3>
             <dl>
                 <dt>Nom</dt>
-                <dd><mark class="todo">[À COMPLÉTER : prénom et nom]</mark>, artiste-auteur, exerçant sous le nom d&rsquo;artiste <strong>Akira Ishi</strong></dd>
+                <dd><span data-legal="name">&hellip;</span>, artiste-auteur, exerçant sous le nom d&rsquo;artiste <strong>Akira Ishi</strong></dd>
                 <dt>Statut</dt>
                 <dd>Artiste-auteur, entrepreneur individuel, régime fiscal micro-BNC</dd>
                 <dt>SIRET</dt>
-                <dd><mark class="todo">[À COMPLÉTER : numéro SIRET]</mark></dd>
+                <dd><span data-legal="siret">&hellip;</span></dd>
                 <dt>Adresse</dt>
-                <dd><mark class="todo">[À COMPLÉTER : adresse postale]</mark></dd>
+                <dd><span data-legal="address">&hellip;</span></dd>
                 <dt>Courriel</dt>
                 <dd><a href="mailto:leakiraishi@gmail.com">leakiraishi@gmail.com</a></dd>
                 <dt>Téléphone</dt>
-                <dd><mark class="todo">[À COMPLÉTER : numéro de téléphone]</mark></dd>
+                <dd><a data-legal="phone" href="#">&hellip;</a></dd>
                 <dt>TVA</dt>
                 <dd>TVA non applicable, art. 293 B du Code général des impôts. Les prix affichés sont donc nets de TVA.</dd>
                 <dt>Directeur de la publication</dt>
@@ -151,8 +152,10 @@
 
             <h3>2.8 Médiation</h3>
             <p>
-                En cas de litige non résolu avec le vendeur, le client consommateur peut recourir gratuitement au médiateur de la consommation :
-                <mark class="todo">[À COMPLÉTER : nom, site internet et adresse du médiateur de la consommation choisi]</mark>.
+                En cas de litige non résolu de manière amiable, le client peut saisir gratuitement le médiateur de la consommation compétent
+                pour le vendeur : <strong>Société Médiation Professionnelle</strong>, qui peut être saisi via son site internet
+                (<a href="https://www.mediateur-consommation-smp.fr/" rel="noopener">mediateur-consommation-smp.fr</a>)
+                ou par voie postale à l&rsquo;adresse suivante : Alteritae, 5 rue Salvaing, 12000 Rodez.
             </p>
 
             <h3>2.9 Droit applicable</h3>
@@ -230,5 +233,6 @@
         </div>
     </footer>
 
+    <script src="legal.js" defer></script>
 </body>
 </html>
