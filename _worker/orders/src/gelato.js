@@ -79,6 +79,11 @@ export async function productCost(env, productUid, country, currency) {
   return Number(one.price);
 }
 
+// What Gelato would charge for an order: the product, and each way of shipping it
+export function quoteOrder(env, body) {
+  return gelato(env, '/orders:quote', { method: 'POST', body, base: GELATO_ORDERS });
+}
+
 // Sends a paid order to Gelato for printing, framing and shipping
 export function createOrder(env, body) {
   return gelato(env, '/orders', { method: 'POST', body, base: GELATO_ORDERS });

@@ -1,7 +1,8 @@
 // Buying a print on this site.
 //
 //   1. the visitor picks a size and frame (variants of a Gelato template) and a country
-//   2. the Worker prices it from what Gelato charges you, plus your markup and shipping
+//   2. the Worker prices it: your price for the painting, plus Gelato's printing, plus Gelato's delivery
+//      (pricing.js), each shown to the visitor as its own line
 //   3. Stripe Checkout takes the payment and the delivery address
 //   4. Stripe tells the Worker it was paid; the Worker sends the order to Gelato, which
 //      prints, frames and ships it
@@ -11,9 +12,10 @@
 // Gelato bills you, not the customer, so the payment has to be collected somewhere: here, Stripe.
 
 import { HttpError, randomToken } from './util.js';
-import { catalogFilters, createOrder, getCatalog, getTemplate, gelatoProducts, productCost, searchCatalog } from './gelato.js';
+import { catalogFilters, createOrder, getCatalog, getTemplate, gelatoProducts, searchCatalog } from './gelato.js';
 import { describeProducts, fileKey, fittingProducts, fittingVariants, printAreaMm } from './listing.js';
 import { dispatchRender, plannedFile, renderPxFor, studioUrl } from './render.js';
+import { currencyFor, priceOf } from './pricing.js';
 import { createCheckoutSession, shippingOf } from './stripe.js';
 
 const ORDER_TTL = 60 * 60 * 24 * 45;
@@ -26,22 +28,6 @@ export function directCountries(env) {
   return list.length ? list : DEFAULT_COUNTRIES;
 }
 
-function markup(env) {
-  const n = Number(env.DIRECT_MARKUP);
-  return n >= 1 ? n : 2;
-}
-
-// DIRECT_SHIPPING_JSON = {"FR": 6, "DE": 8, "US": 14, "default": 12}
-export function shippingPrice(env, country) {
-  let table = {};
-  try {
-    table = env.DIRECT_SHIPPING_JSON ? JSON.parse(env.DIRECT_SHIPPING_JSON) : {};
-  } catch { /* fall through to the default */ }
-  const n = Number(table[country] ?? table.default ?? 9);
-  return n >= 0 ? n : 9;
-}
-
-const retail = (env, cost) => Math.ceil(cost * markup(env));
 const cents = (amount) => Math.round(amount * 100);
 
 function productDef(env, product) {
@@ -91,13 +77,12 @@ export async function directOptions(env, { product, width, height, country }) {
   if (!directCountries(env).includes(country)) throw new HttpError(422, 'country_not_served');
   const def = productDef(env, product);
   const variants = await choices(env, def, { width, height }, country);
-  const currency = String(env.CURRENCY || 'EUR').toUpperCase();
+  const currency = currencyFor(env, country);
 
   // No prices here: with a frame in four colours and a dozen sizes there are hundreds, and a visitor
   // looks at one. The price of the chosen one comes from directPrice.
   return {
     currency,
-    shipping: shippingPrice(env, country),
     variants: variants.map((v) => ({
       id: v.id,
       label: v.title,
@@ -113,12 +98,7 @@ export async function directPrice(env, { product, variant, width, height, countr
   const def = productDef(env, product);
   const found = (await choices(env, def, { width, height }, country)).find((v) => v.id === variant);
   if (!found) throw new HttpError(422, 'variant_not_available');
-  const currency = String(env.CURRENCY || 'EUR').toUpperCase();
-  return {
-    currency,
-    shipping: shippingPrice(env, country),
-    price: retail(env, await productCost(env, found.productUid, country, currency)),
-  };
+  return priceOf(env, found.productUid, country);
 }
 
 /* ---------- 3. the payment page ---------- */
@@ -132,10 +112,9 @@ export async function startCheckout(env, { meta, image, fileUrl }) {
   const variant = (await choices(env, def, image, country)).find((v) => v.id === meta.variant);
   if (!variant) throw new HttpError(422, 'variant_not_available');
 
-  const currency = String(env.CURRENCY || 'EUR').toUpperCase();
   // The price is worked out here, never taken from the browser
-  const price = retail(env, await productCost(env, variant.productUid, country, currency));
-  const shipping = shippingPrice(env, country);
+  const cost = await priceOf(env, variant.productUid, country);
+  const currency = cost.currency;
 
   const orderId = randomToken(12);
   // No file yet (backend render): the size this print needs at the print resolution, and where the job will put it
@@ -157,14 +136,13 @@ export async function startCheckout(env, { meta, image, fileUrl }) {
     title: meta.title,
     country,
     currency,
-    price,
-    shipping,
+    price: cost.total,
+    breakdown: cost,
     createdAt: new Date().toISOString(),
     sent: null,
   }), { expirationTtl: ORDER_TTL });
 
   const site = env.SITE_URL.replace(/\/$/, '');
-  const name = `${meta.title} (${def.label || meta.product}, ${variant.title})`.slice(0, 250);
 
   const session = await createCheckoutSession(env, {
     mode: 'payment',
@@ -178,23 +156,36 @@ export async function startCheckout(env, { meta, image, fileUrl }) {
       shipping_rate_data: {
         type: 'fixed_amount',
         display_name: 'Delivery',
-        fixed_amount: { amount: cents(shipping), currency: currency.toLowerCase() },
+        fixed_amount: { amount: cents(cost.shipping), currency: currency.toLowerCase() },
       },
     }],
-    line_items: [{
-      quantity: 1,
-      price_data: {
-        currency: currency.toLowerCase(),
-        unit_amount: cents(price),
-        product_data: {
-          name,
-          description: 'Made to order and shipped from a print partner near you. One-of-a-kind painting by Still Life Code.',
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: currency.toLowerCase(),
+          unit_amount: cents(cost.artist),
+          product_data: {
+            name: `${meta.title} \u2014 the painting`.slice(0, 250),
+            description: "Your one-of-a-kind still life by Still Life Code, signed Akira Ishi (the artist's price).",
+          },
         },
       },
-    }],
+      {
+        quantity: 1,
+        price_data: {
+          currency: currency.toLowerCase(),
+          unit_amount: cents(cost.printing),
+          product_data: {
+            name: `${def.label || meta.product}, ${variant.title}`.slice(0, 250),
+            description: 'Printing and materials, made to order. In partnership with Gelato for worldwide print production and delivery.',
+          },
+        },
+      },
+    ],
   });
 
-  return { url: session.url, order_id: orderId, price, shipping, currency };
+  return { url: session.url, order_id: orderId, ...cost };
 }
 
 /* ---------- 4. paid: send it to Gelato ---------- */

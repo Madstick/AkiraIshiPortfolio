@@ -33,8 +33,13 @@ GELATO_TEMPLATES = '{"poster":{"catalogUid":"posters","label":"Poster","filters"
 
 # --- the prices and the delivery -----------------------------------------------------------
 CURRENCY = "EUR"
-# What you charge = Gelato's price for the product x this. Shipping is charged on top, per country.
-DIRECT_MARKUP = "2"
+# YOUR price for a print, before printing and delivery, in each currency. What a visitor pays is this, plus
+# Gelato's printing and materials, plus Gelato's delivery to their country: both are Gelato's own figures for that
+# product and country, passed on as they are (see the README, "How the price is made").
+ARTIST_PRICE_JSON = '{"EUR":34.99,"USD":34.99,"GBP":29.99}'
+# Which currency each country pays in
+DIRECT_CURRENCIES_JSON = '{"EUR":["FR","BE","DE","ES","IT","NL","PT","AT","IE","LU"],"USD":["US","CA","AU"],"GBP":["GB"]}'
+# Only used if Gelato's quote cannot be had: a flat delivery price per country, and the price is marked as an estimate
 DIRECT_SHIPPING_JSON = '{"FR": 6, "default": 12}'
 # Where you deliver. Latin-alphabet countries only: Gelato wants CN, JP, KR and RU addresses in local script.
 DIRECT_COUNTRIES = "FR,BE,DE,ES,IT,NL,PT,AT,IE,LU,GB,US,CA,AU"
@@ -68,8 +73,8 @@ MAX_RENDER_PX = "7016"
 MIN_DPI = "300"
 
 # --- abuse limits ----------------------------------------------------------------------------
-MAX_PER_IP_PER_DAY = "3"
-MAX_PER_DAY = "20"
+MAX_PER_IP_PER_DAY = "10"
+MAX_PER_DAY = "100"
 MAX_IMAGE_MB = "25"            # KV keeps at most 25 MB a file; a 300 dpi A3 JPEG is about 8-12 MB
 
 # Cloudflare Turnstile (free). Site key is public; the secret goes in with `wrangler secret put`.

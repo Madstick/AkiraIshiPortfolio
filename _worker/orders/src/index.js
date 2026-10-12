@@ -199,11 +199,19 @@ async function spend(env, key, limit) {
   return true;
 }
 
+// Looks at the day's allowance and, if there is some left, hands back a function that uses one up: an order that
+// fails validation, or that Stripe refuses, costs the visitor nothing.
 async function limits(env, ip) {
-  const perIp = Number(env.MAX_PER_IP_PER_DAY) || 3;
-  const perDay = Number(env.MAX_PER_DAY) || 20;
-  if (!(await spend(env, `rl:ip:${await sha(ip)}:${today()}`, perIp))) throw new HttpError(429, 'too_many_from_you');
-  if (!(await spend(env, `rl:all:${today()}`, perDay))) throw new HttpError(429, 'too_many_today');
+  const perIp = Number(env.MAX_PER_IP_PER_DAY) || 10;
+  const perDay = Number(env.MAX_PER_DAY) || 100;
+  const ipKey = `rl:ip:${await sha(ip)}:${today()}`;
+  const allKey = `rl:all:${today()}`;
+  if ((Number(await env.TOKENS.get(ipKey)) || 0) >= perIp) throw new HttpError(429, 'too_many_from_you');
+  if ((Number(await env.TOKENS.get(allKey)) || 0) >= perDay) throw new HttpError(429, 'too_many_today');
+  return async () => {
+    await spend(env, ipKey, perIp);
+    await spend(env, allKey, perDay);
+  };
 }
 
 // Reads the form an order arrives in: meta, the painting, a human check
@@ -261,12 +269,17 @@ async function handleCheckout(request, env, url) {
   if (!catalogue(env).length) throw new HttpError(503, 'ordering_closed');
   const { ip, meta, bytes, image } = await readOrder(request, env);
   pickProduct(env, meta.product);
-  await limits(env, ip);
+  const used = await limits(env, ip);
 
   // With the backend render the picture sent is only the studio's: it gives the shape, and the file comes later
-  if (renderEnabled(env)) return json(await startCheckout(env, { meta, image: renderCap(env, image), fileUrl: null }), 201);
+  if (renderEnabled(env)) {
+    const started = await startCheckout(env, { meta, image: renderCap(env, image), fileUrl: null });
+    await used();
+    return json(started, 201);
+  }
   const fileUrl = await stageFile(env, await fileKey(meta, image), bytes, url.origin, image.ext);
   const out = await startCheckout(env, { meta, image, fileUrl });
+  await used();
   return json(out, 201);
 }
 

@@ -316,13 +316,13 @@
 
     const current = () => (config ? config.products.find((p) => p.id === productSel.value) : null);
 
-    function money(amount) {
+    // An amount in its own currency, to the cent: these are prices, not round numbers
+    function money(amount, currency) {
+        const code = currency || config.currency;
         try {
-            return new Intl.NumberFormat(lang(), {
-                style: 'currency', currency: config.currency, maximumFractionDigits: 0
-            }).format(amount);
+            return new Intl.NumberFormat(lang(), { style: 'currency', currency: code }).format(amount);
         } catch (e) {
-            return amount + ' ' + config.currency;
+            return Number(amount).toFixed(2) + ' ' + code;
         }
     }
 
@@ -362,17 +362,41 @@
         orderBtn.textContent = t('shop.order-direct', 'Pay securely and order');
     }
 
+    // The price as it is made: the painting (yours), the printing, the delivery, and the total
     function showPrice() {
+        priceEl.textContent = '';
         const info = direct && chosen && direct.prices ? direct.prices[chosen] : null;
-        if (!chosen) {
-            priceEl.textContent = '';
-        } else if (!info) {
-            priceEl.textContent = t('shop.price-loading', 'Looking up the price…');
-        } else {
-            priceEl.textContent = t('shop.price-direct',
-                '{price} + {shipping} delivery. Made to order; payment by Stripe.')
-                .replace('{price}', money(info.price)).replace('{shipping}', money(info.shipping));
+        if (!chosen) return;
+        if (!info) {
+            priceEl.textContent = t('shop.price-loading', 'Looking up the price\u2026');
+            return;
         }
+
+        const rows = document.createElement('dl');
+        rows.className = 'price-rows';
+        const add = (label, amount, cls) => {
+            const row = document.createElement('div');
+            row.className = 'price-row' + (cls ? ' ' + cls : '');
+            const dt = document.createElement('dt');
+            dt.textContent = label;
+            const dd = document.createElement('dd');
+            dd.textContent = money(amount, info.currency);
+            row.appendChild(dt);
+            row.appendChild(dd);
+            rows.appendChild(row);
+        };
+        add(t('shop.price-artist', 'The painting (artist\u2019s price)'), info.artist);
+        add(t('shop.price-printing', 'Printing and materials'), info.printing);
+        add(t('shop.price-delivery', 'Delivery') +
+            (info.shippingEstimated ? ' (' + t('shop.price-estimated', 'estimate') + ')' : ''), info.shipping);
+        add(t('shop.price-total', 'Total'), info.total, 'total');
+        priceEl.appendChild(rows);
+
+        const note = document.createElement('p');
+        note.className = 'price-note';
+        note.textContent = t('shop.price-note',
+            'Printing and delivery are Gelato\u2019s own prices for this product and this country, passed on without any addition. Local taxes, if any, are shown at payment.');
+        priceEl.appendChild(note);
     }
 
     // Sizes and frames the painting can fill, with what they cost, for a country

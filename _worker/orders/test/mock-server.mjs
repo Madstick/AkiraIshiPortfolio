@@ -59,7 +59,7 @@ const env = {
   }),
   STRIPE_SECRET_KEY: 'mock',
   STRIPE_WEBHOOK_SECRET: 'mock',
-  DIRECT_MARKUP: '2.2',
+  ARTIST_PRICE_JSON: '{"EUR":34.99,"USD":34.99,"GBP":29.99}',
   DIRECT_SHIPPING_JSON: '{"FR": 6, "default": 12}',
   MIN_DPI: process.env.MIN_DPI || '150',
   MAX_PER_IP_PER_DAY: '50',
@@ -104,6 +104,20 @@ globalThis.fetch = async (input, init = {}) => {
   if (url.includes('product.gelatoapis.com')) {
     const uid = decodeURIComponent(url.split('/products/')[1].split('/')[0]);
     return reply([{ productUid: uid, country: 'FR', quantity: 1, price: uid.startsWith('framed') ? 24 : 11, currency: 'EUR' }]);
+  }
+  if (url === 'https://order.gelatoapis.com/v4/orders:quote') {
+    const b = JSON.parse(init.body);
+    const framed = b.products[0].productUid.startsWith('frame');
+    const cur = b.currency;
+    say(`GELATO quote for ${b.products[0].productUid} to ${b.recipient.country}`);
+    return reply({ quotes: [{
+      id: 'mock-quote',
+      products: [{ itemReferenceId: '1', productUid: b.products[0].productUid, quantity: 1, price: framed ? 24 : 11, currency: cur }],
+      shipmentMethods: [
+        { name: 'Express', type: 'express', price: 19.5, currency: cur },
+        { name: 'Standard', type: 'normal', price: b.recipient.country === 'FR' ? 5.9 : 11.2, currency: cur },
+      ],
+    }] });
   }
   if (url === 'https://order.gelatoapis.com/v4/orders') {
     const b = JSON.parse(init.body);

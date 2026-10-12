@@ -118,6 +118,20 @@ globalThis.fetch = async (input, init = {}) => {
     const uid = decodeURIComponent(url.split('/products/')[1].split('/')[0]);
     return ok([{ productUid: uid, country: 'FR', quantity: 5, price: 1, currency: 'EUR' }, { productUid: uid, country: 'FR', quantity: 1, price: COST[uid] || 10, currency: 'EUR' }]);
   }
+  if (url === 'https://order.gelatoapis.com/v4/orders:quote' && method === 'POST') {
+    if (globalThis.__quoteFails) return ok({ message: 'no quote' }, 400);
+    const b = JSON.parse(init.body);
+    const ship = { FR: 5.5, DE: 6.5, US: 12, GB: 7.25 }[b.recipient.country] ?? 9;
+    const uid = b.products[0].productUid;
+    return ok({ orderReferenceId: 'quote', quotes: [{
+      id: 'q',
+      products: [{ itemReferenceId: '1', productUid: uid, quantity: 1, price: COST[uid] || 10, currency: b.currency }],
+      shipmentMethods: [
+        { shipmentMethodUid: 'express', type: 'express', price: ship * 3, currency: b.currency },
+        { shipmentMethodUid: 'normal', type: 'normal', price: ship, currency: b.currency },
+      ],
+    }] });
+  }
   if (url === 'https://order.gelatoapis.com/v4/orders' && method === 'POST') return ok({ id: 'gelato-order-1', fulfillmentStatus: 'created' });
 
   // ---- Stripe
@@ -142,7 +156,6 @@ function makeEnv(extra = {}) {
     GELATO_TEMPLATES: JSON.stringify({ poster: { templateId: 'tpl-poster', label: 'Art Print' } }),
     STRIPE_SECRET_KEY: 'sk_test_x',
     STRIPE_WEBHOOK_SECRET: 'whsec_test',
-    DIRECT_MARKUP: '2',
     DIRECT_SHIPPING_JSON: '{"FR": 6, "default": 12}',
     MIN_DPI: '150',
     MAX_PER_IP_PER_DAY: '3',
@@ -256,20 +269,20 @@ await test('discover needs the admin key and shows what the template holds', asy
 
 /* ---------- sizes and prices ---------- */
 
-await test('options list every variant that fits; the price of the chosen one is Gelato cost x markup', async () => {
+await test('options list every variant that fits; the price of the chosen one is made of three lines', async () => {
   const env = makeEnv();
   const res = await getJson(env, '/api/direct/options?product=poster&w=1754&h=2480&country=FR', { origin: ORIGIN });
   assert.equal(res.currency, 'EUR');
-  assert.equal(res.shipping, 6);
   // 1754 x 2480 (A format, portrait): A4, A3 and the framed A4 fit; A1 needs more pixels, the landscape and 3:4 are other shapes
   assert.deepEqual(res.variants.map((v) => v.id), ['v-a4', 'v-a3', 'v-a4-black']);
   assert.equal(res.variants[0].price, undefined); // no price per option: one is looked up for the one chosen
   assert.deepEqual(res.variants[0].size_mm, [210, 297]); // the print's size, for the preview
   assert.equal(res.variants[2].options[1].value, 'Black');
   const price = async (variant) => getJson(env, `/api/direct/price?product=poster&variant=${variant}&w=1754&h=2480&country=FR`);
-  assert.deepEqual(await price('v-a4'), { currency: 'EUR', shipping: 6, price: 16 });
-  assert.equal((await price('v-a3')).price, 24);
-  assert.equal((await price('v-a4-black')).price, 50);
+  // the artist's price, Gelato's printing, Gelato's delivery: nothing added
+  assert.deepEqual(await price('v-a4'), { currency: 'EUR', artist: 34.99, printing: 8, shipping: 5.5, total: 48.49, shippingEstimated: false });
+  assert.equal((await price('v-a3')).total, 52.49);
+  assert.equal((await price('v-a4-black')).total, 65.49);
   assert.equal((await price('v-a1')).error, 'variant_not_available');
   assert.equal((await getJson(env, '/api/direct/price?product=poster&variant=v-a4&w=1754&h=2480&country=KP')).error, 'country_not_served');
   assert.equal((await getJson(env, '/api/direct/options?product=poster&w=1754&h=2480&country=KP')).error, 'country_not_served');
@@ -296,6 +309,44 @@ await test('a format that no size has is told apart from a painting that is too 
   assert.equal((await getJson(env, '/api/direct/options?product=poster&w=1280&h=1920&country=FR')).error, 'no_size_for_format');
 });
 
+await test('the artist price is 34.99 in Europe, 34.99 in the US and 29.99 in the UK, plus the figures Gelato gives', async () => {
+  const env = makeEnv();
+  const price = (country) => getJson(env, `/api/direct/price?product=poster&variant=v-a4&w=1754&h=2480&country=${country}`);
+  const de = await price('DE');
+  assert.deepEqual([de.currency, de.artist, de.printing, de.shipping, de.total], ['EUR', 34.99, 8, 6.5, 49.49]);
+  const us = await price('US');
+  assert.deepEqual([us.currency, us.artist, us.printing, us.shipping, us.total], ['USD', 34.99, 8, 12, 54.99]);
+  const gb = await price('GB');
+  assert.deepEqual([gb.currency, gb.artist, gb.printing, gb.shipping, gb.total], ['GBP', 29.99, 8, 7.25, 45.24]);
+  // each country's options come in its own currency
+  assert.equal((await getJson(env, '/api/direct/options?product=poster&w=1754&h=2480&country=GB')).currency, 'GBP');
+  // your prices are yours to set
+  const mine = makeEnv({ ARTIST_PRICE_JSON: '{"EUR":40,"USD":45,"GBP":35}' });
+  assert.equal((await getJson(mine, '/api/direct/price?product=poster&variant=v-a4&w=1754&h=2480&country=FR')).artist, 40);
+});
+
+await test('without a quote from Gelato the price is an estimate, and says so', async () => {
+  globalThis.__quoteFails = true;
+  try {
+    const env = makeEnv();
+    const p = await getJson(env, '/api/direct/price?product=poster&variant=v-a4&w=1754&h=2480&country=FR');
+    // printing from Gelato's price list, delivery from the flat table
+    assert.deepEqual([p.artist, p.printing, p.shipping, p.total, p.shippingEstimated], [34.99, 8, 6, 48.99, true]);
+  } finally {
+    globalThis.__quoteFails = false;
+  }
+});
+
+await test('a refused order does not use up the daily allowance', async () => {
+  const env = makeEnv({ MAX_PER_IP_PER_DAY: '2' });
+  // three mistakes (no variant): none of them is counted
+  for (let i = 0; i < 3; i++) assert.equal((await checkout(env, { extra: { country: 'FR' } })).error, 'bad_variant');
+  // so two real orders still go through, and the third is the one that is refused
+  assert.equal((await worker.fetch(order({ seed: 'allow1' }), env)).status, 201);
+  assert.equal((await worker.fetch(order({ seed: 'allow2' }), env)).status, 201);
+  assert.equal((await checkout(env, { seed: 'allow3' })).error, 'too_many_from_you');
+});
+
 /* ---------- the payment page ---------- */
 
 await test('checkout prices the order itself and opens a Stripe page for that country only', async () => {
@@ -306,19 +357,22 @@ await test('checkout prices the order itself and opens a Stripe page for that co
   assert.equal(res.status, 201);
   const body = await res.json();
   assert.equal(body.url, 'https://checkout.stripe.com/c/pay/cs_test_1');
-  assert.equal(body.price, 50);
-  assert.equal(body.shipping, 6);
+  assert.equal(body.total, 65.49);
+  assert.deepEqual([body.artist, body.printing, body.shipping], [34.99, 25, 5.5]);
 
   const stripe = calls.find((c) => c.url === 'https://api.stripe.com/v1/checkout/sessions');
   assert.equal(stripe.init.headers.authorization, 'Bearer sk_test_x');
   const f = new URLSearchParams(stripe.init.body);
   assert.equal(f.get('mode'), 'payment');
-  assert.equal(f.get('line_items[0][price_data][unit_amount]'), '5000');
+  // three lines on the payment page: the painting, the printing, the delivery
+  assert.equal(f.get('line_items[0][price_data][unit_amount]'), '3499');
+  assert.equal(f.get('line_items[1][price_data][unit_amount]'), '2500');
   assert.equal(f.get('line_items[0][price_data][currency]'), 'eur');
-  assert.equal(f.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '600');
+  assert.equal(f.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '550');
+  assert.match(f.get('line_items[1][price_data][product_data][description]'), /In partnership with Gelato/);
   assert.equal(f.get('shipping_address_collection[allowed_countries][0]'), 'FR');
   assert.equal(f.get('client_reference_id'), body.order_id);
-  assert.match(f.get('line_items[0][price_data][product_data][name]'), /A4 - Black frame/);
+  assert.match(f.get('line_items[1][price_data][product_data][name]'), /A4 - Black frame/);
   const record = JSON.parse(env.TOKENS.map.get(`order:${body.order_id}`));
   assert.equal(record.productUid, 'framed_a4_black');
   assert.equal(record.sent, null);
@@ -519,7 +573,7 @@ await test('catalogue options are the live products of the right shape, in the c
   // named for the visitor, size first
   assert.deepEqual(fr.variants[0].options, [{ name: 'Size', value: 'A4' }, { name: 'Frame colour', value: 'Black' }]);
   const price = await getJson(env, '/api/direct/price?product=framed&variant=fp_a3_black&w=1754&h=2480&country=FR');
-  assert.equal(price.price, 80);
+  assert.equal(price.total, 80.49);
 
   const de = await getJson(env, '/api/direct/options?product=framed&w=1754&h=2480&country=DE');
   assert.ok(de.variants.some((v) => v.id === 'fp_a4_wood_de' && v.label === 'A4 · Natural wood'));
@@ -596,7 +650,7 @@ await test('the print area is read from the format, not from the size of the fra
 await test('a catalogue product is paid for and sent to Gelato like any other', async () => {
   const env = withCatalogue();
   const res = await checkout(env, { product: 'framed', extra: { variant: 'fp_a3_black', country: 'FR' } });
-  assert.equal(res.price, 80);
+  assert.equal(res.total, 80.49);
   const record = JSON.parse(env.TOKENS.map.get(`order:${res.order_id}`));
   assert.equal(record.productUid, 'fp_a3_black');
 

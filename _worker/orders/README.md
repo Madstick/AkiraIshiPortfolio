@@ -35,8 +35,8 @@ payment page and the Worker never sees card details. When Stripe says "paid", th
 - A **Stripe** account, with its secret key (start with the test key, `sk_test_...`) as `STRIPE_SECRET_KEY`, and a
   **webhook** pointing to `https://<your-worker>.workers.dev/stripe/webhook`, listening to `checkout.session.completed`
   (and `checkout.session.async_payment_succeeded`). Its signing secret is `STRIPE_WEBHOOK_SECRET`.
-- Your **prices**: what you charge is Gelato's price for the product multiplied by `DIRECT_MARKUP`, plus a flat
-  delivery fee per country (`DIRECT_SHIPPING_JSON`). Check a few against Gelato's own costs in its dashboard.
+- Your **price** for a print, per currency (`ARTIST_PRICE_JSON`, by default 34.99 EUR, 34.99 USD, 29.99 GBP). Printing
+  and delivery come on top, at Gelato's own prices: see "How the price is made".
 - Somewhere for the print file to live on the web while Gelato makes the print. Preferred: a **public GitHub repo** that
   holds only these files (for example `Madstick/still-life-prints`) and a **fine-grained token** with Contents
   read/write on that one repo (`GITHUB_REPO`, secret `GITHUB_TOKEN`). Without it the Worker keeps the files in KV and
@@ -47,6 +47,32 @@ payment page and the Worker never sees card details. When Stripe says "paid", th
   specific rules in the EU), a privacy notice, and customer service. Gelato reprints damaged or misprinted items;
   refunds to the customer are yours to give.
 
+## How the price is made
+
+A visitor sees the price in four lines, and pays exactly their sum:
+
+| Line | Where it comes from |
+|---|---|
+| **The painting (artist's price)** | yours: `ARTIST_PRICE_JSON`, one figure per currency (EUR 34.99, USD 34.99, GBP 29.99 by default) |
+| **Printing and materials** | Gelato's price for that product (size, paper, frame...) delivered to that country |
+| **Delivery** | Gelato's cheapest standard delivery method to that country |
+| **Total** | the three added up, in the currency of the country |
+
+The country decides the currency (`DIRECT_CURRENCIES_JSON`: euro countries pay in EUR, US/CA/AU in USD, GB in GBP).
+Nothing is added on top of Gelato's figures: the only margin you have is the artist's price, so if you want more per
+print, raise that figure.
+
+Printing and delivery are asked of Gelato's quote service (`/v4/orders:quote`) with a sample address in the country,
+because the real address is only known at payment. They are cached six hours. If Gelato cannot quote, the product
+price is read from Gelato's price list and the delivery from `DIRECT_SHIPPING_JSON`, and the line is shown as
+"(estimate)". At payment, Stripe gets the same lines: the painting, "Printing and materials", and the delivery as the
+shipping option, so the receipt matches what was shown.
+
+Not handled: VAT / sales tax (see "What you need"), and any packaging or handling fee Gelato might bill you on top of
+the quote: compare the first real receipts to your Gelato invoices.
+
+The page also says "In partnership with Gelato for worldwide print production and delivery." (`shop.partner-note`).
+
 ## Letting visitors choose their own products
 
 Two ways to say what can be printed on, and you can mix them in `GELATO_TEMPLATES`:
@@ -55,7 +81,7 @@ Two ways to say what can be printed on, and you can mix them in `GELATO_TEMPLATE
 |---|---|---|
 | You write | `{"templateId": "..."}` | `{"catalogUid": "framed-posters", "filters": {...}}` |
 | The menu | exactly the sizes and frames you built in Gelato | every product of that Gelato catalogue that fits the painting |
-| Prices | Gelato's cost × markup | Gelato's cost × markup |
+| Prices | your price + Gelato's printing + Gelato's delivery | your price + Gelato's printing + Gelato's delivery |
 | Setup work | build the template by hand | none: the Worker reads the catalogue |
 
 With a catalogue, the visitor's list is built live: the Worker asks Gelato for the catalogue's products (cached for six
