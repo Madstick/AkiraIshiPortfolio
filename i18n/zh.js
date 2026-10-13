@@ -129,7 +129,6 @@ ui: {
 "shop.product-fine-art": "艺术微喷海报",
 "shop.product-framed": "优质哑光纸实木框海报",
 "shop.product-fine-art-framed": "艺术微喷带框海报",
-"shop.product-hanging": "优质哑光纸海报（带挂杆）",
 "shop.opt-none": "无",
 "shop.preview-title": "版画预览",
 "shop.orders-unreachable": "暂时无法连接订购服务。请刷新页面，或在广告拦截器中允许本站。",

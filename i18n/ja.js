@@ -129,7 +129,6 @@ ui: {
 "shop.product-fine-art": "ファインアートポスター",
 "shop.product-framed": "プレミアムマット紙ポスター（木製フレーム）",
 "shop.product-fine-art-framed": "額装ファインアートポスター",
-"shop.product-hanging": "プレミアムマット紙ポスター（ハンガー付き）",
 "shop.opt-none": "なし",
 "shop.preview-title": "プリントのプレビュー",
 "shop.orders-unreachable": "注文サービスに接続できません。ページを再読み込みするか、広告ブロッカーでこのサイトを許可してください。",

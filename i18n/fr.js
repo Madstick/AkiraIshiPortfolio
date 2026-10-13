@@ -129,7 +129,6 @@ ui: {
 "shop.product-fine-art": "Affiche Fine Art",
 "shop.product-framed": "Affiche papier mat premium, cadre en bois",
 "shop.product-fine-art-framed": "Affiche Fine Art encadrée",
-"shop.product-hanging": "Affiche papier mat premium avec barre d’accroche",
 "shop.opt-none": "Aucun",
 "shop.preview-title": "Aperçu de votre tirage",
 "shop.orders-unreachable": "Le service de commande est injoignable pour le moment. Rechargez la page, ou autorisez ce site dans votre bloqueur de publicités.",

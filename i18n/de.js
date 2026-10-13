@@ -129,7 +129,6 @@ ui: {
 "shop.product-fine-art": "Fine-Art-Poster",
 "shop.product-framed": "Poster auf Premium-Mattpapier mit Holzrahmen",
 "shop.product-fine-art-framed": "Fine-Art-Poster mit Rahmen",
-"shop.product-hanging": "Poster auf Premium-Mattpapier mit Posterleiste",
 "shop.opt-none": "Keiner",
 "shop.preview-title": "Vorschau Ihres Drucks",
 "shop.orders-unreachable": "Der Bestellservice ist im Moment nicht erreichbar. Laden Sie die Seite neu oder erlauben Sie diese Seite in Ihrem Werbeblocker.",

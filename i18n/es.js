@@ -129,7 +129,6 @@ ui: {
 "shop.product-fine-art": "Póster Fine Art",
 "shop.product-framed": "Póster en papel mate premium con marco de madera",
 "shop.product-fine-art-framed": "Póster Fine Art enmarcado",
-"shop.product-hanging": "Póster en papel mate premium con barra para colgar",
 "shop.opt-none": "Ninguno",
 "shop.preview-title": "Vista previa de tu lámina",
 "shop.orders-unreachable": "No se puede acceder al servicio de pedidos ahora mismo. Recarga la página o permite este sitio en tu bloqueador de anuncios.",
