@@ -3397,7 +3397,7 @@ function save(){ if(SITE||SAVING) return; const base=`still-life-code-${SEED}${S
     btn.textContent="Saving at 300 dpi…"; if(s) status("saving the 300 dpi file · "+s); },700); }
 function toggleLabel(){ labelOn=!labelOn; $("label").classList.toggle("hidden",!labelOn); }
 $("studioBtn").onclick=()=>$("studio").classList.toggle("closed");
-if(innerWidth>=1100) $("studio").classList.remove("closed");
+if(innerWidth>=1100||(document.body.classList.contains("embedded")&&innerWidth>=640)) $("studio").classList.remove("closed");   // on the shop page, the menu is open from the start
 for(const b of $("st-manner").children) b.onclick=()=>{ ST.style=b.dataset.v; go(SEED); };
 for(const b of $("st-busy").children) b.onclick=()=>{ ST.busy=b.dataset.v; go(SEED); };
 for(const r of [...$("st-things").children,...$("st-finish").children,...$("st-silk").children]) for(const b of r.querySelectorAll("button")) b.onclick=()=>{ ST[r.dataset.k]=b.dataset.v; go(SEED); };

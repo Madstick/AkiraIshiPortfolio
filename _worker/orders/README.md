@@ -35,7 +35,7 @@ payment page and the Worker never sees card details. When Stripe says "paid", th
 - A **Stripe** account, with its secret key (start with the test key, `sk_test_...`) as `STRIPE_SECRET_KEY`, and a
   **webhook** pointing to `https://<your-worker>.workers.dev/stripe/webhook`, listening to `checkout.session.completed`
   (and `checkout.session.async_payment_succeeded`). Its signing secret is `STRIPE_WEBHOOK_SECRET`.
-- Your **price** for a print, per currency (`ARTIST_PRICE_JSON`, 32.99 EUR for every country). Printing
+- Your **price** for a print, per currency (`ARTIST_PRICE_JSON`, 29.99 EUR for every country). Printing
   and delivery come on top, at Gelato's own prices: see "How the price is made".
 - Somewhere for the print file to live on the web while Gelato makes the print. Preferred: a **public GitHub repo** that
   holds only these files (for example `Madstick/still-life-prints`) and a **fine-grained token** with Contents
@@ -53,7 +53,7 @@ A visitor sees the price in four lines, and pays exactly their sum:
 
 | Line | Where it comes from |
 |---|---|
-| **The painting (artist's price)** | yours: `ARTIST_PRICE_JSON`, one figure per currency (EUR 32.99, for every country) |
+| **The painting (artist's price)** | yours: `ARTIST_PRICE_JSON`, one figure per currency (EUR 29.99, for every country) |
 | **Printing and materials** | Gelato's price for that product (size, paper, frame...) delivered to that country |
 | **Delivery** | Gelato's cheapest standard delivery method to that country |
 | **Total** | the three added up, in the currency of the country |
@@ -91,6 +91,12 @@ hours), keeps the ones that are active, deliver to the visitor's country, have t
 that its pixels can fill, then names each by the attributes that differ between them ("A3 · Black frame"). So a
 catalogue of framed posters becomes a size-and-frame menu with nothing built by hand; add a catalogue of canvases or
 metal prints as another entry and visitors get that too.
+
+**A short fixed list of sizes.** With `ALLOWED_SIZES_JSON` (see `wrangler.toml`) only those sizes are on sale, whatever
+the painting's shape, named as in the list and prefixed "Horizontal" or "Vertical" like the painting. The shop cuts the
+painting to the shape of the size chosen (from the top and the left, so the signature's corner stays), shows that cut in
+the preview, and sends the cut picture; the Worker then accepts any ordinary portrait shape and counts only the pixels
+left. Remove the setting to go back to offering every size that fits the painting's own shape.
 
 To narrow a catalogue (one paper, one frame family), open `/admin/discover`: for each catalogue it lists the attributes and
 their values, and a sample of products. Put the ones you want in `filters`, for example

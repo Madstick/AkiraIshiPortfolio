@@ -3,6 +3,8 @@
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import worker from '../src/index.js';
+import { fittingProducts, unifySizes } from '../src/listing.js';
+import { allowedSizes, formatOk } from '../src/formats.js';
 
 /* ---------- fakes ---------- */
 
@@ -743,6 +745,63 @@ await test('the seller details come only from the secret, only for this site', a
   assert.equal((await worker.fetch(new Request('https://w.example/api/legal', { headers: { origin: 'https://evil.example' } }), env)).status, 403);
   // not configured
   assert.equal((await worker.fetch(new Request('https://w.example/api/legal', { headers: { origin: ORIGIN } }), makeEnv())).status, 404);
+});
+
+await test('the same size under metric-first and inch-first ids is one choice, named once', async () => {
+  const mk = (uid, mm, size) => ({ productUid: uid, mm, title: `${size} · Black`, options: [{ name: 'Size', value: size }, { name: 'Frame', value: 'Black' }] });
+  const items = [
+    mk('framed_200x250-mm-8x10-inch_black', [250, 200], '20x25cm / 8x10"'),
+    mk('framed_8x10-inch-200x250-mm_black', [250, 200], '8x10" / 20x25cm'),
+    mk('canvas_product_cf_8x10-inch_black', [254, 203.2], '8x10 inches'),
+    mk('framed_270x350-mm-11x14-inch_black', [350, 270], '27x35cm / 11x14"'),
+  ];
+  const out = unifySizes(items);
+  const sizes = new Set(out.map((o) => o.options[0].value));
+  assert.equal(sizes.size, 2);
+  assert.ok([...sizes].includes('20 × 25 cm / 8 × 10 in'));
+  assert.equal(new Set(out.slice(0, 3).map((o) => o.title)).size, 1);
+  assert.equal(unifySizes(items, { inchFirst: true })[0].options[0].value, '8 × 10 in / 20 × 25 cm');
+  // a size with one spelling keeps the catalogue's own word
+  assert.equal(unifySizes([mk('p_a4', [297, 210], 'A4')])[0].options[0].value, 'A4');
+});
+
+await test('a fixed list of sizes: only those, turned like the painting, whatever its shape', async () => {
+  const sizes = [
+    { label: '13x18 cm / 5x7″', mm: [130, 180] }, { label: '20x25 cm / 8x10″', mm: [200, 250] },
+    { label: '21x29.7 cm / 8x12″', mm: [210, 297] }, { label: 'A3 (29.7 x 42 cm)', mm: [297, 420] },
+  ];
+  const env = { MIN_DPI: '200', ALLOWED_SIZES_JSON: JSON.stringify(sizes) };
+  assert.equal(allowedSizes({}), null);
+  assert.equal(allowedSizes(env).length, 4);
+  // a shape the studio does not paint is taken only when there is a list
+  assert.equal(formatOk({}, 2000, 1700), false);
+  assert.equal(formatOk(env, 2000, 1700), true);
+  assert.equal(formatOk(env, 4000, 1000), false);
+
+  const product = (uid, w, h, orient) => ({ productUid: uid, attributes: { Orientation: orient, ProductStatus: 'activated' }, dimensions: { Width: { value: w }, Height: { value: h } } });
+  const catalogue = [
+    product('p13', 180, 130, 'hor'), product('p13v', 130, 180, 'ver'), product('p20', 250, 200, 'hor'),
+    product('pa4', 297, 210, 'hor'), product('pa3', 420, 297, 'hor'), product('p30', 450, 300, 'hor'), product('p50', 700, 500, 'hor'),
+  ];
+  // a 4:5 painting of 4961 x 3969: all four listed sizes, none that is not on the list, none turned the other way
+  const list = fittingProducts(env, catalogue, { width: 4961, height: 3969 }, 'FR', { crop: true }).map((p) => p.productUid);
+  assert.deepEqual(list, ['p13', 'p20', 'pa4', 'pa3']);
+  // a vertical painting gets the vertical products
+  const tall = fittingProducts(env, catalogue, { width: 3969, height: 4961 }, 'FR', { crop: true }).map((p) => p.productUid);
+  assert.deepEqual(tall, ['p13v']);
+  // too few pixels for A3 at 200 dpi (needs 3307): a 2000 px painting is cut off from it, and from A4 too
+  const small = fittingProducts(env, catalogue, { width: 2000, height: 1600 }, 'FR', { crop: true }).map((p) => p.productUid);
+  assert.deepEqual(small, ['p13', 'p20']);
+  // without crop (the picture sent is already cut to the size), the shape counts again
+  const exact = fittingProducts(env, catalogue, { width: 3508, height: 2480 }, 'FR').map((p) => p.productUid);
+  assert.deepEqual(exact, ['p13', 'pa4', 'pa3']);   // 13x18 is within 4% of the A shape
+  // names come from the list, with the way the painting lies
+  const named = unifySizes([
+    { productUid: 'x_130x180-mm-5x7-inch', mm: [180, 130], title: 'a', options: [{ name: 'Size', value: '13x18cm / 5x7"' }] },
+    { productUid: 'x_297x420-mm', mm: [420, 297], title: 'b', options: [{ name: 'Size', value: 'A3' }] },
+    { productUid: 'x_450x300-mm', mm: [450, 300], title: 'c', options: [{ name: 'Size', value: '30x45cm' }] },
+  ], { allowed: allowedSizes(env), orientation: 'Horizontal' });
+  assert.deepEqual(named.map((n) => n.options[0].value), ['Horizontal - 13x18 cm / 5x7″', 'Horizontal - A3 (29.7 x 42 cm)']);
 });
 
 console.log(`\n${passed} passed${process.exitCode ? ', some FAILED' : ''}`);

@@ -4,7 +4,7 @@
 // allow-list and trimmed before it is used.
 
 import { HttpError, asArray } from './util.js';
-import { minDpi, pixelsForMm, ratioKeyFor } from './formats.js';
+import { allowedSizes, formatOk, minDpi, pixelsForMm, ratioKeyFor } from './formats.js';
 
 // The studio's own URL settings (ST in still-life-code.html) and the shapes they take
 const PARAM_KEYS = [
@@ -73,11 +73,11 @@ export function parseMeta(raw) {
 /* ---------- the pictures ---------- */
 
 // The print file: a PNG, or (for the large 300 dpi files, which would be tens of megabytes as PNG) a JPEG
-export function readImage(bytes, maxBytes) {
+export function readImage(bytes, maxBytes, env = {}) {
   if (bytes.byteLength > maxBytes) throw new HttpError(413, 'image_too_large');
   const size = pngSize(bytes) || jpegSize(bytes);
   if (!size) throw new HttpError(415, 'not_an_image');
-  if (!ratioKeyFor(size.width, size.height)) throw new HttpError(422, 'unknown_format');
+  if (!formatOk(env, size.width, size.height)) throw new HttpError(422, 'unknown_format');
   return size;
 }
 
@@ -195,18 +195,46 @@ function prettyFormat(value) {
 
 // Flat products of a catalogue that a painting can fill, for a country. Their size is the product's
 // own width and height (millimetres), which is what the file is scaled to.
-export function fittingProducts(env, products, image, country) {
+//
+// With a fixed list of sizes (ALLOWED_SIZES_JSON) only those sizes are offered, turned the way the painting is. With
+// `crop`, the painting's own shape does not matter: it is cut to the size, so only the pixels left are counted.
+export function fittingProducts(env, products, image, country, { crop = false } = {}) {
   const dpi = minDpi(env);
   const aspect = image.width / image.height;
   const side = Math.min(image.width, image.height);
+  const sizes = allowedSizes(env);
+  const landscape = image.width >= image.height;
 
   const live = (products || []).filter((p) => {
     const a = p.attributes || {};
     if (a.ProductStatus && a.ProductStatus !== 'activated') return false;
     if (country && Array.isArray(p.supportedCountries) && p.supportedCountries.length && !p.supportedCountries.includes(country)) return false;
-    return Boolean(printAreaMm(p));
+    const area = printAreaMm(p);
+    if (!area) return false;
+    if (sizes) {
+      const [w, h] = area;
+      if ((w >= h) !== landscape) return false;
+      const s = Math.min(w, h);
+      const l = Math.max(w, h);
+      if (!sizes.some((a2) => near(a2.mm[0], s) && near(a2.mm[1], l))) return false;
+    }
+    return true;
   });
   const size = (p) => printAreaMm(p);
+
+  if (sizes && crop) {
+    if (!live.length) throw new HttpError(422, 'no_size_for_format', { format: ratioKeyFor(image.width, image.height) });
+    const long = Math.max(image.width, image.height);
+    const fits = live.filter((p) => {
+      const [w, h] = size(p);
+      const rho = Math.min(w, h) / Math.max(w, h);
+      // the short side that is left once the painting is cut to the size's shape
+      const left = rho >= side / long ? side : long * rho;
+      return left >= pixelsForMm(Math.min(w, h), dpi) * 0.95;
+    });
+    if (!fits.length) throw new HttpError(422, 'image_too_small', { dpi, pixels: side });
+    return fits.sort((a, b) => size(a)[0] * size(a)[1] - size(b)[0] * size(b)[1]);
+  }
 
   const sameShape = live.filter((p) => {
     const [w, h] = size(p);
@@ -313,6 +341,80 @@ export function describeProducts(catalog, products) {
     out.set(p.productUid, { title: parts.join(' \u00b7 '), options: opts });
   }
   return out;
+}
+
+/* ---------- one name for each size ---------- */
+
+// Gelato lists the same print under several product ids (metric-first, inch-first, an older family...), each with
+// its own spelling of the size. This gives every physical size one name -- "20 x 25 cm / 8 x 10 in" -- so those
+// products show up as one choice. Sizes within 4% of each other are the same size. `items` are
+// { productUid, mm: [w, h], options, title }; they are returned with the Size option rewritten, in the order given.
+const MM_TOKEN = /(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)-mm/i;
+const IN_TOKEN = /(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)-inch/i;
+const near = (a, b) => Math.abs(a - b) <= 0.04 * Math.max(a, b);
+const fmtNum = (n) => (Math.abs(n - Math.round(n)) < 0.06 ? String(Math.round(n)) : n.toFixed(1));
+
+export function unifySizes(items, { inchFirst = false, allowed = null, orientation = '' } = {}) {
+  const clusters = [];
+  const clusterOf = new Map();
+  for (const it of items) {
+    const mm = (it.mm || []).map(Number).filter((n) => n > 0);
+    if (mm.length < 2) continue;
+    const short = Math.min(mm[0], mm[1]);
+    const long = Math.max(mm[0], mm[1]);
+    let c = clusters.find((k) => near(k.short, short) && near(k.long, long));
+    if (!c) {
+      c = { short, long, metric: null, inch: null, names: new Set() };
+      clusters.push(c);
+    }
+    const own = (it.options || []).find((o) => /size|format/i.test(o.name));
+    if (own) c.names.add(own.value);
+    const m = MM_TOKEN.exec(it.productUid);
+    const i = IN_TOKEN.exec(it.productUid);
+    if (m && !c.metric) c.metric = [Number(m[1]), Number(m[2])].sort((a, b) => a - b).map((n) => n / 10);
+    if (i && !c.inch) c.inch = [Number(i[1]), Number(i[2])].sort((a, b) => a - b);
+    clusterOf.set(it, c);
+  }
+
+  const label = (c) => {
+    let cm = c.metric;
+    let inch = c.inch;
+    // a unit the product ids did not give: derived only when it comes out as a round number
+    if (!cm) {
+      const d = (inch || [c.short / 25.4, c.long / 25.4]).map((n) => n * 2.54);
+      if (inch || d.every((n) => Math.abs(n - Math.round(n)) < 0.15)) cm = d.map((n) => Math.round(n));
+      else cm = [c.short / 10, c.long / 10];
+    }
+    if (!inch) {
+      const d = [c.short / 25.4, c.long / 25.4];
+      if (d.every((n) => Math.abs(n - Math.round(n)) < 0.25)) inch = d.map((n) => Math.round(n));
+    }
+    const a = `${fmtNum(cm[0])} × ${fmtNum(cm[1])} cm`;
+    if (!inch) return a;
+    const b = `${fmtNum(inch[0])} × ${fmtNum(inch[1])} in`;
+    return inchFirst ? `${b} / ${a}` : `${a} / ${b}`;
+  };
+  const labels = new Map(clusters.map((c) => [c, label(c)]));
+  // a fixed list gives its own names (and drops every size that is not on it)
+  const listed = new Map();
+  if (allowed) {
+    for (const c of clusters) {
+      const hit = allowed.find((a) => near(a.mm[0], c.short) && near(a.mm[1], c.long));
+      if (hit) listed.set(c, (orientation ? `${orientation} - ` : '') + hit.label);
+    }
+  }
+
+  return items.filter((it) => !allowed || listed.has(clusterOf.get(it))).map((it) => {
+    const c = clusterOf.get(it);
+    if (!c) return it;
+    // a paper size keeps its own name (A4, A3...); every other size gets the one name made above
+    const own = c.names.size === 1 ? [...c.names][0] : '';
+    const text = listed.get(c) || (/^A\d/i.test(own) ? own : labels.get(c));
+    const isSize = (o) => /size|format/i.test(o.name);
+    const rest = it.options.filter((o) => !isSize(o));
+    const options = [{ name: 'Size', value: text }, ...rest];
+    return { ...it, options, title: options.map((o) => o.value).join(' · '), size: [c.short, c.long] };
+  });
 }
 
 /* ---------- keys ---------- */

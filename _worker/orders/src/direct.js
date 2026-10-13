@@ -13,13 +13,15 @@
 
 import { HttpError, randomToken } from './util.js';
 import { catalogFilters, createOrder, getCatalog, getTemplate, gelatoProducts, searchCatalog } from './gelato.js';
-import { describeProducts, fileKey, fittingProducts, fittingVariants, printAreaMm } from './listing.js';
+import { describeProducts, fileKey, fittingProducts, fittingVariants, printAreaMm, unifySizes } from './listing.js';
+import { allowedSizes } from './formats.js';
 import { dispatchRender, plannedFile, renderPxFor, studioUrl } from './render.js';
 import { currencyFor, priceOf } from './pricing.js';
 import { createCheckoutSession, shippingOf } from './stripe.js';
 
 const ORDER_TTL = 60 * 60 * 24 * 45;
 const MAX_VARIANTS = 300; // options listed; a price is only looked up for the one chosen
+const INCH_COUNTRIES = ['US', 'CA'];
 
 export const DEFAULT_COUNTRIES = ['FR', 'BE', 'DE', 'ES', 'IT', 'NL', 'PT', 'AT', 'IE', 'LU', 'GB', 'US', 'CA', 'AU'];
 
@@ -38,27 +40,51 @@ function productDef(env, product) {
 
 // Everything a painting could be printed on for one product, whichever way it is defined:
 // a template (sizes and frames you built in Gelato) or a catalogue (what Gelato makes, filtered)
-async function choices(env, def, image, country) {
+async function choices(env, def, image, country, { crop = false } = {}) {
   if (def.catalogUid) {
     const catalog = await getCatalog(env, def.catalogUid);
     const filters = catalogFilters(catalog, def);
     const products = await searchCatalog(env, def.catalogUid, filters);
     const cap = Math.min(Number(def.maxOptions) || MAX_VARIANTS, MAX_VARIANTS);
-    const fit = fittingProducts(env, products, image, country).slice(0, cap);
+    const fit = fittingProducts(env, products, image, country, { crop });
     const names = describeProducts(catalog, fit);
+
+    // The same print is often listed twice (metric-first and inch-first ids, older families): put the spelling of
+    // the visitor's own country first, give each size one name, and keep the first of each.
+    const inchFirst = INCH_COUNTRIES.includes(country);
+    const unitRank = (uid) => {
+      const mm = uid.search(/\d-mm/i);
+      const inch = uid.search(/\d-inch/i);
+      if (mm < 0 || inch < 0) return 1;
+      return (inchFirst ? inch < mm : mm < inch) ? 0 : 2;
+    };
+    const ordered = fit
+      .map((p, i) => ({ p, i }))
+      .sort((a, b) => unitRank(a.p.productUid) - unitRank(b.p.productUid) || a.i - b.i)
+      .map(({ p }) => ({
+        productUid: p.productUid,
+        mm: printAreaMm(p),
+        title: names.get(p.productUid).title,
+        options: names.get(p.productUid).options,
+      }));
     const seen = new Set();
-    return fit.map((p) => ({
-      id: p.productUid,
-      productUid: p.productUid,
-      title: names.get(p.productUid).title,
-      variantOptions: names.get(p.productUid).options,
-      mm: printAreaMm(p),
-    })).filter((v) => {
-      const sig = JSON.stringify(v.variantOptions);
-      if (seen.has(sig)) return false;
-      seen.add(sig);
-      return true;
-    });
+    return unifySizes(ordered, { inchFirst, allowed: allowedSizes(env), orientation: allowedSizes(env) ? (image.width >= image.height ? 'Horizontal' : 'Vertical') : '' })
+      .filter((v) => {
+        const sig = JSON.stringify(v.options);
+        if (seen.has(sig)) return false;
+        seen.add(sig);
+        return true;
+      })
+      // smallest first
+      .sort((a, b) => ((a.size && a.size[1]) || 0) - ((b.size && b.size[1]) || 0))
+      .slice(0, cap)
+      .map((v) => ({
+        id: v.productUid,
+        productUid: v.productUid,
+        title: v.title,
+        variantOptions: v.options,
+        mm: v.mm,
+      }));
   }
 
   const template = await getTemplate(env, def.templateId);
@@ -76,7 +102,8 @@ async function choices(env, def, image, country) {
 export async function directOptions(env, { product, width, height, country }) {
   if (!directCountries(env).includes(country)) throw new HttpError(422, 'country_not_served');
   const def = productDef(env, product);
-  const variants = await choices(env, def, { width, height }, country);
+  // with a fixed list of sizes the painting is cut to the size chosen, so its own shape is no obstacle
+  const variants = await choices(env, def, { width, height }, country, { crop: Boolean(allowedSizes(env)) });
   const currency = currencyFor(env, country);
 
   // No prices here: with a frame in four colours and a dozen sizes there are hundreds, and a visitor
@@ -96,7 +123,7 @@ export async function directOptions(env, { product, width, height, country }) {
 export async function directPrice(env, { product, variant, width, height, country }) {
   if (!directCountries(env).includes(country)) throw new HttpError(422, 'country_not_served');
   const def = productDef(env, product);
-  const found = (await choices(env, def, { width, height }, country)).find((v) => v.id === variant);
+  const found = (await choices(env, def, { width, height }, country, { crop: Boolean(allowedSizes(env)) })).find((v) => v.id === variant);
   if (!found) throw new HttpError(422, 'variant_not_available');
   return priceOf(env, found.productUid, country);
 }

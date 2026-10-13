@@ -19,7 +19,7 @@ import { HttpError, asArray } from './util.js';
 import { catalogFilters, getCatalog, getTemplate, gelatoProducts, listCatalogs, searchCatalog } from './gelato.js';
 import { directCountries, directOptions, directPrice, finishRender, handleStripeEvent, startCheckout } from './direct.js';
 import { checkRenderSignature, maxRenderPx, renderCap, renderEnabled } from './render.js';
-import { minDpi, ratioKeyFor } from './formats.js';
+import { formatOk, minDpi } from './formats.js';
 import { QUIET, describeProducts, fileKey, parseMeta, printAreaMm, readImage } from './listing.js';
 import { readStagedFile, stageFile } from './store.js';
 import { stripeConfigured, stripeMode, verifyWebhook } from './stripe.js';
@@ -233,7 +233,7 @@ async function readOrder(request, env) {
   if (!file || typeof file === 'string') throw new HttpError(400, 'image_missing');
 
   const bytes = new Uint8Array(await file.arrayBuffer());
-  const image = readImage(bytes, (Number(env.MAX_IMAGE_MB) || 25) * 1024 * 1024);
+  const image = readImage(bytes, (Number(env.MAX_IMAGE_MB) || 25) * 1024 * 1024, env);
   return { ip, meta, bytes, image };
 }
 
@@ -264,7 +264,7 @@ async function handleDirectOptions(url, env) {
   const height = Number(url.searchParams.get('h'));
   const country = String(url.searchParams.get('country') || '').toUpperCase();
   const productId = String(url.searchParams.get('product') || '');
-  if (!(width > 0 && height > 0) || !ratioKeyFor(width, height)) throw new HttpError(422, 'unknown_format');
+  if (!formatOk(env, width, height)) throw new HttpError(422, 'unknown_format');
   pickProduct(env, productId);
 
   const size = renderEnabled(env) ? renderCap(env, { width, height }) : { width, height };
@@ -279,7 +279,7 @@ async function handleDirectPrice(url, env) {
   const country = String(url.searchParams.get('country') || '').toUpperCase();
   const productId = String(url.searchParams.get('product') || '');
   const variant = String(url.searchParams.get('variant') || '');
-  if (!(width > 0 && height > 0) || !ratioKeyFor(width, height)) throw new HttpError(422, 'unknown_format');
+  if (!formatOk(env, width, height)) throw new HttpError(422, 'unknown_format');
   pickProduct(env, productId);
 
   const size = renderEnabled(env) ? renderCap(env, { width, height }) : { width, height };

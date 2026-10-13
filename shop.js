@@ -400,6 +400,17 @@
             'Printing and delivery are Gelato\u2019s own prices for this product and this country, passed on without any addition. Local taxes, if any, are shown at payment.');
         priceEl.appendChild(note);
 
+        // a big print from the A3 file: said, not hidden
+        const dpi = chosenDpi();
+        if (dpi && dpi < 200) {
+            const big = document.createElement('p');
+            big.className = 'price-note';
+            big.textContent = t('shop.dpi-note',
+                'Large format (about {dpi} dpi): made to be seen from a distance of a metre or more.')
+                .replace('{dpi}', String(Math.round(dpi / 5) * 5));
+            priceEl.appendChild(big);
+        }
+
         // One price in euros: Stripe's payment page can show it in the visitor's own currency
         if (info.currency === 'EUR') {
             const fx = document.createElement('p');
@@ -408,6 +419,33 @@
                 'Prices are in euros. On the payment page they may be shown in your own currency, at Stripe\u2019s exchange rate.');
             priceEl.appendChild(fx);
         }
+    }
+
+    // The part of the painting that a size prints: all of it, cut to the shape of the size from the top and the left,
+    // so that the signature's corner stays. [width, height] of the print in millimetres; no size: no cut.
+    function cropFor(srcW, srcH, sizeMm) {
+        const whole = { sx: 0, sy: 0, sw: srcW, sh: srcH };
+        if (!sizeMm || !(sizeMm[0] > 0) || !(sizeMm[1] > 0) || !srcW || !srcH) return whole;
+        const target = sizeMm[0] / sizeMm[1];
+        const aspect = srcW / srcH;
+        if (Math.abs(target - aspect) / aspect < 0.004) return whole;
+        if (target < aspect) {
+            const sw = Math.round(srcH * target);
+            return { sx: srcW - sw, sy: 0, sw: sw, sh: srcH };
+        }
+        const sh = Math.round(srcW / target);
+        return { sx: 0, sy: srcH - sh, sw: srcW, sh: sh };
+    }
+
+    // The resolution the print file gives at the chosen size: its long side over the print's long side
+    function chosenDpi() {
+        const size = printSize();
+        const v = direct && direct.data && direct.data.variants
+            ? direct.data.variants.find((x) => x.id === chosen) : null;
+        if (!size || !v || !v.size_mm || !v.size_mm.length) return 0;
+        const long = Math.max.apply(null, v.size_mm);
+        const cut = cropFor(size.w, size.h, v.size_mm);
+        return long > 0 ? Math.max(cut.sw, cut.sh) / (long / 25.4) : 0;
     }
 
     // Sizes and frames the painting can fill, with what they cost, for a country
@@ -573,7 +611,8 @@
         }
         const px = ix + matW;
         const py = iy + matW;
-        g.drawImage(source, px, py, w, h);
+        const cut = cropFor(source.width, source.height, variant.size_mm);
+        g.drawImage(source, cut.sx, cut.sy, cut.sw, cut.sh, px, py, w, h);
 
         // light on the surface
         if (isAcrylic || isMetal) {
@@ -816,8 +855,8 @@
         printJob = null;
     }
 
-    // The same painting (same seed, same choices) painted again in a hidden frame, at print size; then a JPEG of it
-    // (as a PNG a 300 dpi A3 would weigh 30 MB or more)
+    // The same painting (same seed, same choices) painted again in a hidden frame, at print size. At the moment of
+    // ordering it is cut to the chosen size and made a JPEG (as a PNG a 300 dpi A3 would weigh 30 MB or more).
     function renderPrint() {
         const key = printKey();
         if (printJob && printJob.key === key) return printJob.promise;
@@ -840,11 +879,17 @@
                 if (/^error/i.test(s)) { clearInterval(iv); reject(new Error(s)); return; }
                 if (/^finished/i.test(s)) {
                     clearInterval(iv);
-                    canvasBlob(f.contentDocument.getElementById('c'), 'image/jpeg', 0.95).then((b) => {
-                        job.blob = b;
-                        f.remove();
-                        resolve(b);
-                    }, reject);
+                    // kept whole (the cut depends on the size chosen, and the size can still change), as a plain
+                    // canvas: the painter's own frame, which holds gigabytes while it works, goes at once
+                    const done = f.contentDocument.getElementById('c');
+                    const copy = document.createElement('canvas');
+                    copy.width = done.width;
+                    copy.height = done.height;
+                    copy.getContext('2d').drawImage(done, 0, 0);
+                    f.remove();
+                    job.canvas = copy;
+                    job.blob = true;
+                    resolve(true);
                     return;
                 }
                 if (s && s !== job.progress) { job.progress = s; renderStatus(); }
@@ -852,6 +897,18 @@
         });
         printJob = job;
         return job.promise;
+    }
+
+    // The picture that is sent: the painting (or its print-size copy) cut to the shape of the chosen size
+    function cutBlob(source, type, quality) {
+        const v = direct && direct.data && direct.data.variants
+            ? direct.data.variants.find((x) => x.id === chosen) : null;
+        const cut = cropFor(source.width, source.height, v && v.size_mm);
+        const out = document.createElement('canvas');
+        out.width = cut.sw;
+        out.height = cut.sh;
+        out.getContext('2d').drawImage(source, cut.sx, cut.sy, cut.sw, cut.sh, 0, 0, cut.sw, cut.sh);
+        return canvasBlob(out, type, quality);
     }
 
     async function order(event) {
@@ -924,8 +981,8 @@
 
             const form = new FormData();
             form.set('meta', JSON.stringify(meta));
-            if (later) form.set('image', await canvasBlob(canvas, 'image/png'), 'painting.png');
-            else form.set('image', printJob.blob, 'painting.jpg');
+            if (later) form.set('image', await cutBlob(canvas, 'image/png'), 'painting.png');
+            else form.set('image', await cutBlob(printJob.canvas, 'image/jpeg', 0.95), 'painting.jpg');
             if (captchaToken) form.set('cf-turnstile-response', captchaToken);
 
             const res = await fetch(ORDER_API + '/api/checkout', { method: 'POST', body: form });

@@ -29,7 +29,7 @@ DIRECT_ENABLED = "true"
 #     "filters" narrows it (attribute names and values are listed by /admin/discover); "maxOptions" caps the list.
 #       "framed": {"catalogUid": "framed-posters", "label": "Framed print", "filters": {}, "maxOptions": 30}
 #   GELATO_TEMPLATES = '{"poster":{"templateId":"..."},"framed":{"catalogUid":"framed-posters","label":"Framed print"}}'
-GELATO_TEMPLATES = '{"poster":{"catalogUid":"posters","label":"Premium Matte Paper Poster","filters":{"UnifiedPaperType":["200-gsm-80lb-uncoated"]}},"framed":{"catalogUid":"framed-posters","label":"Premium Matte Paper Wooden Framed Poster","filters":{"FrameColor":["black","white","natural-wood","dark-wood"],"UnifiedPaperType":["200-gsm-80lb-uncoated"]}},"hanging":{"catalogUid":"hanging-posters","label":"Premium Matte Paper Poster with Hanger","filters":{"UnifiedPaperType":["200-gsm-80lb-uncoated"]}},"canvas":{"catalogUid":"canvas","label":"Canvas"},"framed-canvas":{"catalogUid":"framed-canvas","label":"Framed Canvas"},"fine-art":{"catalogUid":"fine-art","label":"Fine Art Poster"},"fine-art-framed":{"catalogUid":"fine-art-framed-poster","label":"Fine Art Framed Poster","filters":{"FrameColor":["black","white","natural-wood","dark-wood"]}}}'
+GELATO_TEMPLATES = '{"poster":{"catalogUid":"posters","label":"Premium Matte Paper Poster","filters":{"UnifiedPaperType":["200-gsm-80lb-uncoated"]}},"framed":{"catalogUid":"framed-posters","label":"Premium Matte Paper Wooden Framed Poster","filters":{"FrameColor":["black","white","natural-wood","dark-wood"],"UnifiedPaperType":["200-gsm-80lb-uncoated"]}},"hanging":{"catalogUid":"hanging-posters","label":"Premium Matte Paper Poster with Hanger","filters":{"UnifiedPaperType":["200-gsm-80lb-uncoated"]}},"fine-art":{"catalogUid":"fine-art","label":"Fine Art Poster"},"fine-art-framed":{"catalogUid":"fine-art-framed-poster","label":"Fine Art Framed Poster","filters":{"FrameColor":["black","white","natural-wood","dark-wood"]}}}'
 
 # --- the prices and the delivery -----------------------------------------------------------
 CURRENCY = "EUR"
@@ -39,7 +39,7 @@ CURRENCY = "EUR"
 # One price in euros for everyone: Stripe's adaptive pricing shows the visitor their own currency at the payment
 # page. To price per currency instead, add "USD" and "GBP" here and list their countries below, and set
 # adaptive_pricing to false in src/direct.js.
-ARTIST_PRICE_JSON = '{"EUR":32.99}'
+ARTIST_PRICE_JSON = '{"EUR":29.99}'
 # Which currency each country pays in
 DIRECT_CURRENCIES_JSON = '{"EUR":["FR","BE","DE","ES","IT","NL","PT","AT","IE","LU","GB","US","CA","AU"]}'
 # Only used if Gelato's quote cannot be had: a flat delivery price per country, and the price is marked as an estimate
@@ -71,9 +71,13 @@ RENDER_DPI = "300"
 MAX_RENDER_PX = "7016"
 
 # --- the product ---------------------------------------------------------------------------
-# Lowest print resolution a painting may be offered at. The atelier paints the print file itself at 300 dpi
-# (see PRINT_DPI in shop.js), so only sizes it can fill at that resolution are offered.
-MIN_DPI = "300"
+# The only sizes on sale. Horizontal or vertical like the painting; the painting is cut to the shape of the size
+# chosen (from the top and the left: the signature's corner stays). Remove the line to offer every size that fits
+# the painting's own shape instead.
+ALLOWED_SIZES_JSON = '[{"label":"13x18 cm / 5x7″","mm":[130,180]},{"label":"15x20 cm / 6x8″","mm":[150,200]},{"label":"20x25 cm / 8x10″","mm":[200,250]},{"label":"21x29.7 cm / 8x12″","mm":[210,297]},{"label":"A3 (29.7 x 42 cm)","mm":[297,420]}]'
+# Lowest print resolution a size may be offered at. The atelier paints the print file at 300 dpi for A3 (see
+# printLongMm in shop.js): a device that can only paint A4 still reaches about 210 dpi on A3.
+MIN_DPI = "200"
 
 # --- abuse limits ----------------------------------------------------------------------------
 MAX_PER_IP_PER_DAY = "10"

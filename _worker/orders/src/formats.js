@@ -42,6 +42,32 @@ export function ratioKeyFor(width, height) {
   return bestGap < 0.012 ? best : null;
 }
 
+// The only sizes on sale, when the shop offers a short fixed list (ALLOWED_SIZES_JSON):
+//   [{"label": "13x18 cm / 5x7\u2033", "mm": [130, 180]}, ...]   (short side, long side)
+// Whatever shape the painting has, it is cut (from the top-left, never from the signature's corner) to the shape
+// of the size chosen. null: no list, every size that fits the painting's own shape is offered.
+export function allowedSizes(env) {
+  try {
+    const list = env.ALLOWED_SIZES_JSON ? JSON.parse(env.ALLOWED_SIZES_JSON) : null;
+    if (!Array.isArray(list)) return null;
+    const ok = list.filter((s) => s && Array.isArray(s.mm) && s.mm.length === 2 && s.mm[0] > 0 && s.mm[1] > 0 && s.label)
+      .map((s) => ({ label: String(s.label), mm: [Math.min(...s.mm), Math.max(...s.mm)] }));
+    return ok.length ? ok : null;
+  } catch {
+    return null;
+  }
+}
+
+// Is this picture one the shop takes? A studio format; or, with a fixed list of sizes, any ordinary portrait shape
+// (the studio's picture is cut to the size's own shape before it is sent)
+export function formatOk(env, width, height) {
+  if (!(width > 0 && height > 0)) return false;
+  if (ratioKeyFor(width, height)) return true;
+  if (!allowedSizes(env)) return false;
+  const r = Math.min(width, height) / Math.max(width, height);
+  return r >= 0.5 && r <= 1;
+}
+
 // Pixels along one side that a length in millimetres needs at the given resolution
 export function pixelsForMm(mm, dpi) {
   return Math.round((mm / 25.4) * dpi);
