@@ -150,6 +150,7 @@ ui: {
 "shop.etsy-desc": "Des tableaux Still Life Code imprimés à la demande sur papier affiche, toile ou papier fine art, avec ou sans cadre.",
 "shop.work-apples": "Nature morte aux pommes",
 "shop.dpi-note": "Grand format (environ {dpi} dpi) : fait pour être vu à un mètre ou plus.",
+"shop.coming-soon": "Bientôt disponible",
 "shop.the-artist": "L'artiste",
 "shop.about-akira-ishi": "À propos d'Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi est un artiste français qui travaille avec le code. Son travail cherche la simplicité avec de la profondeur : des formes minimales pour dire des idées complexes, au fil d'un processus patient, itératif et très personnel.",

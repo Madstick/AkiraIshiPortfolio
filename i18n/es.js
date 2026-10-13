@@ -150,6 +150,7 @@ ui: {
 "shop.etsy-desc": "Cuadros de Still Life Code impresos bajo pedido en papel póster, lienzo o papel fine art, con o sin marco.",
 "shop.work-apples": "Bodegón con manzanas",
 "shop.dpi-note": "Gran formato (unos {dpi} dpi): pensado para verse a un metro o más.",
+"shop.coming-soon": "Próximamente",
 "shop.the-artist": "El artista",
 "shop.about-akira-ishi": "Sobre Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi es un artista francés que trabaja con código. Su obra busca la sencillez con fondo: formas mínimas para decir ideas complejas, a través de un proceso paciente, iterativo y muy personal.",

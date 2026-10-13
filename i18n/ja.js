@@ -150,6 +150,7 @@ ui: {
 "shop.etsy-desc": "Still Life Code の作品を、ポスター用紙・キャンバス・ファインアート紙に受注生産。額あり・なしを選べます。",
 "shop.work-apples": "りんごの静物画",
 "shop.dpi-note": "大判（約 {dpi} dpi）：1m 以上離れてご覧になることを想定しています。",
+"shop.coming-soon": "近日公開",
 "shop.the-artist": "アーティスト",
 "shop.about-akira-ishi": "Akira Ishi について",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi はコードで制作するフランスのアーティストです。目指しているのは「シンプルなのに奥がある」こと。最小限のかたちで複雑な考えを語るために、根気よく、何度も手を入れながら、ごく個人的なやり方で制作しています。",

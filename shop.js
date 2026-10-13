@@ -91,6 +91,11 @@
 
     const GENERATOR = 'still-life-code.html';
 
+    // The order button is closed for now: it reads "Coming soon" and cannot be pressed. Set to true to open it.
+    // To try it out while it is closed (Stripe is in test mode, Gelato takes drafts), open the page with ?orders=test
+    const ORDERS_OPEN = false;
+    const ordersOpen = ORDERS_OPEN || new URLSearchParams(location.search).get('orders') === 'test';
+
     // The print file is painted at this resolution
     const PRINT_DPI = 300;
     // ...up to this long side, in millimetres, by what the device can hold while it paints (a 300 dpi A3 takes about
@@ -361,7 +366,10 @@
     }
 
     function labelOrder() {
-        orderBtn.textContent = t('shop.order-direct', 'Pay securely and order');
+        orderBtn.textContent = ordersOpen
+            ? t('shop.order-direct', 'Pay securely and order')
+            : t('shop.coming-soon', 'Coming soon');
+        orderBtn.disabled = !ordersOpen;
     }
 
     // The price as it is made: the painting (yours), the printing, the delivery, and the total
@@ -914,6 +922,7 @@
     async function order(event) {
         if (!config) return;
         event.preventDefault();
+        if (!ordersOpen) return;
         if (busy) return;
 
         const doc = frameDoc();

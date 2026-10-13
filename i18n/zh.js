@@ -150,6 +150,7 @@ ui: {
 "shop.etsy-desc": "Still Life Code 画作按需印制，可选海报纸、画布或艺术微喷纸，有框或无框。",
 "shop.work-apples": "苹果静物",
 "shop.dpi-note": "大尺寸（约 {dpi} dpi）：适合在一米或更远处观赏。",
+"shop.coming-soon": "即将推出",
 "shop.the-artist": "艺术家",
 "shop.about-akira-ishi": "关于 Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi 是一位用代码创作的法国艺术家。作品追求「简单，但有分量」：用最少的形状说出复杂的想法，过程耐心、反复打磨，也非常私人。",
