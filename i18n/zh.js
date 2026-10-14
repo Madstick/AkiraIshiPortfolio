@@ -151,6 +151,7 @@ ui: {
 "shop.work-apples": "苹果静物",
 "shop.dpi-note": "大尺寸（约 {dpi} dpi）：适合在一米或更远处观赏。",
 "shop.coming-soon": "即将推出",
+"shop.work-vanitas": "骷髅静物",
 "shop.the-artist": "艺术家",
 "shop.about-akira-ishi": "关于 Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi 是一位用代码创作的法国艺术家。作品追求「简单，但有分量」：用最少的形状说出复杂的想法，过程耐心、反复打磨，也非常私人。",

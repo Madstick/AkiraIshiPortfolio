@@ -151,6 +151,7 @@ ui: {
 "shop.work-apples": "Stillleben mit Äpfeln",
 "shop.dpi-note": "Großformat (etwa {dpi} dpi): gedacht für einen Betrachtungsabstand ab einem Meter.",
 "shop.coming-soon": "Demnächst verfügbar",
+"shop.work-vanitas": "Stillleben mit Totenkopf",
 "shop.the-artist": "Der Künstler",
 "shop.about-akira-ishi": "Über Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi ist ein französischer Künstler, der mit Code arbeitet. Seine Arbeit sucht Einfachheit mit Tiefe: minimale Formen für komplexe Gedanken, entstanden in einem geduldigen, schrittweisen und sehr persönlichen Prozess.",
