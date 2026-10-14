@@ -121,6 +121,7 @@
   <div class="things" id="st-finish">
     <div class="trow" data-k="varnish"><span>Varnish</span><button data-v="">Gloss</button><button data-v="aged">Aged</button><button data-v="none">None</button></div>
     <div class="trow six" data-k="ratio"><span>Size</span><button data-v="">Auto</button><button data-v="4x5">4:5</button><button data-v="3x4">3:4</button><button data-v="2x3">2:3</button><button data-v="a" title="A5, A4, A3, A2, A1">A</button><button data-v="1x1">1:1</button></div>
+    <div class="trow two" data-k="shade"><span>Shadows</span><button data-v="" title="the values laid in clear steps">Rough</button><button data-v="blended" title="the steps blended wet into wet, in irregular patches">Blended</button></div>
     <div class="trow" data-k="orient"><span>Turn</span><button data-v="">Auto</button><button data-v="p" title="portrait">▯</button><button data-v="l" title="landscape">▭</button></div>
   </div>
   <div class="step"><b>4</b>Paint</div>
@@ -2067,6 +2068,7 @@ let lastYield=0;
 const YCH=typeof MessageChannel!=="undefined"?new MessageChannel():null, YQ=[]; if(YCH) YCH.port1.onmessage=()=>{ const f=YQ.shift(); if(f) f(); };
 let YN=0; const yieldTask=()=>new Promise(r=>{ if(YCH&&((++YN%4)!==0||(typeof document!=="undefined"&&document.hidden))){ YQ.push(r); YCH.port2.postMessage(0); } else setTimeout(r,0); });
 let lastBlit=0, blitCost=0, PRINTING=false;
+const SHADE=()=>({blended:1,new:1}[new URLSearchParams(URLQ).get("shade")]||0);   // shadows: rough (the values in clear steps, the default) or blended
 const RLF=()=>SC<=1?SC:1/SC;   // divide a relief slope by this
 /* the height field a relief is lit from, hf(i) per pixel. Above the studio size it is softened over 0.4*SC: the edge of
    every stroke is a 1-pixel step at any size, and with the slope multiplied by SC it would stand out SC times too sharp
@@ -2230,11 +2232,12 @@ function handOfPainter(){ if(!HAND_KINDS.has(PSCH.kind)) return; const N=W*H, u=
   TR=warpF(TR); TG=warpF(TG); TB=warpF(TB); SPEC=warpF(SPEC); NXF=warpF(NXF); NYF=warpF(NYF); if(DEPF&&DEPF.length===N) DEPF=warpF(DEPF);
   { const o=new Int16Array(N); for(let y=0;y<H;y++) for(let x=0;x<W;x++){ const i=y*W+x; o[i]=IDF[clamp(Math.round(y+DY[i]),0,H-1)*W+clamp(Math.round(x+DX[i]),0,W-1)]; } IDF=o; }
   // 2-4. values massed, temperature, broken colour
-  const night=LIGHTMODE==="candlelight", nsteps=7, Lm=new Float32Array(N), shiny=shinyIds();
+  const shK=SHADE(), night=LIGHTMODE==="candlelight", nsteps=7, Lm=new Float32Array(N), shiny=shinyIds();
   for(let i=0;i<N;i++) Lm[i]=Math.sqrt(Math.max(0,lum(TR[i],TG[i],TB[i])));
   const Lb=new Float32Array(N); gauss(Lm,Lb,W,H,1.5*SC);
   for(let y=0;y<H;y++) for(let x=0;x<W;x++){ const i=y*W+x, L=Lb[i]; if(L<=0.001) continue;
-    const v=L*nsteps, q=(Math.floor(v)+smooth(0.25,0.75,v-Math.floor(v)))/nsteps, Ln=lerp(L,q,Math.min(0.95,0.45*HANDK)*(PSCH.kind==="water"?smooth(0.2,0.5,L):1)), k=(Ln*Ln)/(L*L);   // a few values, softly joined
+    const dk=smooth(0.62,0.3,L)*shK, jw=0.25*(1-dk), v=L*nsteps, q=(Math.floor(v)+smooth(jw,1-jw,v-Math.floor(v)))/nsteps,
+      Ln=lerp(L,q,Math.min(0.95,0.45*HANDK)*(1-0.6*dk)*(PSCH.kind==="water"?smooth(0.2,0.5,L):1)), k=(Ln*Ln)/(L*L);   // a few values, softly joined; in the shadows fewer steps and wider joins, so the darks turn gradually
     let r=TR[i]*k, g=TG[i]*k, b=TB[i]*k;
     if(!mono){ const t=smooth(0.15,0.75,Ln)-0.5, w=((night?1:-1)*t*0.09+(night?0:0.025))*HANDK;   // lights cool / shadows warm by day; lights warm by candle
       r*=1+w; g*=1+w*0.25; b*=1-w;
@@ -2470,7 +2473,8 @@ async function paintLayer(tok,R,cfg,label){
   for(let i=strokes.length-1;i>0;i--){ const j=Math.floor(rand()*(i+1)); const t=strokes[i];strokes[i]=strokes[j];strokes[j]=t; }
   const sn=[0,0,0];
   for(let k=0;k<strokes.length;k++){ const i=strokes[k]; const [pts,col]=makeStroke(i%W,(i/W)|0,R,cfg);
-    let c=col; if(cfg.snap){ const j=1+rr(-0.06,0.06); snap(col[0]*j,col[1]*j,col[2]*j,sn); const f=PSCH.kind==="silk"&&IDF[i]<3?0.12:PSCH.fid*0.45; /* silk ground: thread dyed to the tone, so soft shading never breaks into bands */ c=[lerp(col[0],sn[0],f),lerp(col[1],sn[1],f),lerp(col[2],sn[2],f)]; }
+    let c=col; if(cfg.snap){ const j=1+rr(-0.06,0.06); snap(col[0]*j,col[1]*j,col[2]*j,sn); const f=PSCH.kind==="silk"&&IDF[i]<3?0.12:PSCH.fid*0.45*(PSCH.kind==="silk"?1:1-SHADE()*(0.6-0.6*smooth(0.3,0.6,BL_[i]))); /* silk ground: thread dyed to the tone, so soft shading never breaks into bands */ c=[lerp(col[0],sn[0],f),lerp(col[1],sn[1],f),lerp(col[2],sn[2],f)]; }
+    if(cfg.jit){ const j=rr(-cfg.jit,cfg.jit), t=rr(-cfg.jit,cfg.jit)*0.6; c=[c[0]*(1+j+t),c[1]*(1+j),c[2]*(1+j-t)]; }   // each brushful mixed a little differently
     const rj=R*rr(0.85,1.1)*(cfg.T===0?1.3:1);
     if(cfg.edges){ cfg.cid=IDF[i]; cfg.clip=Math.max(0.001,BL_[i]); } else cfg.clip=0;
     if(cfg.hatch){ hatchPatch(i,R,c,cfg); } else if(cfg.stitch){ stitchPatch(i,R,c,cfg); } else renderStroke(pts,rj,c[0],c[1],c[2],cfg);
@@ -2518,6 +2522,19 @@ async function paint(tok){
     await paintLayer(tok,R,{T:li===0?0:PSCH.T*(DETAIL&&li>=Ls.length-2?0.8:1), gate:G[li], maxLen:fine?8:(li===0?9:12), minLen:fine?1:2, op:1,
       dry:li===0?0:PSCH.dry*(fine?0.4:1), streak:PSCH.streak, full:li===0, thick:0.22+0.3*PSCH.impasto*(fine?1.2:0.8), pick:0.07, dep:0.22, edges:true, snap:true, guard:true, hatch:false},
       `painting · brush ${li+1} of ${Ls.length}`); }
+  // blending the shadows: where the body colour left the darks as patches of separate values, the painter goes over them
+  // wet into wet, with a soft brush and half-transparent paint taken from the smooth turn of the form
+  if(SHADE()>0){ const shK=SHADE(), Lq=new Float32Array(N); for(let i=0;i<N;i++) Lq[i]=Math.sqrt(lum(TR[i],TG[i],TB[i]));
+    const DM=new Float32Array(N), dmb=new Float32Array(N); for(let i=0;i<N;i++) DM[i]=smooth(0.58,0.3,Lq[i]); gauss(DM,dmb,W,H,4*SC);
+    const sr=new Float32Array(N), sg=new Float32Array(N), sb=new Float32Array(N); gauss(TR,sr,W,H,2.5*SC); gauss(TG,sg,W,H,2.5*SC); gauss(TB,sb,W,H,2.5*SC);
+    // ...and not perfectly: irregular patches where the paint was mixed a little lighter or darker, warmer or cooler,
+    // as a hand mixes it slightly differently each time it goes back to the palette
+    const o1=rr(0,60), o2=rr(0,60);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){ const i=y*W+x, d=dmb[i]; if(d<0.02) continue;
+      const n1=noise2(x*0.010/SC+o1,y*0.010/SC)+0.55*noise2(x*0.034/SC,y*0.034/SC+o1), n2=noise2(x*0.014/SC+o2,y*0.014/SC+3)+0.5*noise2(x*0.05/SC+o2,y*0.05/SC);
+      const pv=smooth(0.12,0.38,n1)-smooth(-0.38,-0.12,n1), pt=smooth(0.15,0.4,n2)-smooth(-0.4,-0.15,n2);   // blobs, not a ripple
+      const k=1+0.09*pv*d, w=0.05*pt*d; sr[i]*=k*(1+w); sg[i]*=k*(1+w*0.2); sb[i]*=k*(1-w); }
+    for(const R of [7*SC,4.2*SC]) await paintLayer(tok,R,{tr:sr,tg:sg,tb:sb,T:PSCH.T*0.45,gate:0,mask:dmb,gridF:0.7,maxLen:14,minLen:3,op:0.42*Math.sqrt(shK),dry:0.15,streak:PSCH.streak*0.7,thick:0.14,pick:0.25,dep:0.15,edges:true,snap:false,guard:true,jit:0.05},"blending the shadows"); }
   // cutting in: the painter goes round every silhouette once more with a small brush, restating whichever side is off,
   // whatever its importance (this is what clears the last tint of an object from the wall beside it)
   { const em=new Float32Array(N), EM=new Float32Array(N); for(let y=0;y<H-1;y++) for(let x=0;x<W-1;x++){ const i=y*W+x; if(IDF[i]!==IDF[i+1]||IDF[i]!==IDF[i+W]) em[i]=KEEP[i]*Math.max(1,SC); }
@@ -2623,9 +2640,7 @@ function paintSignature0(opt){ opt=opt||{}; const u=Math.sqrt(W*H/(1200*960)), c
   const paths=strokes.map(st=>st.length===1?[T(st[0])]:(caps?st.map(T):spline(st.map(T),5)));
   let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; for(const p of paths) for(const [x,y] of p){ x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y); }
   const pw=x1-x0, ph=y1-y0, m=16*u;
-  // always in the bottom-right corner: the right edge within 9% of the width of the margin, the foot within 5% of the
-  // height of the bottom; the position still varies a little from one painting to the next
-  const farR=W-m-pw, ox=rr(Math.max(W*0.6, farR-W*0.09), Math.max(W*0.6, farR))-x0, oy=rr(Math.max(m-y0, H-m-y1-H*0.05), H-m-y1);
+  const ox=rr(W*0.6, Math.max(W*0.6, W-m-pw))-x0, oy=rr(Math.max(H*0.86, m-y0+ph), H-m-y1)+0;
   const OX=ox, OY=Math.min(oy,H-m-y1);
   let lr=0,n=0; for(let y=Math.max(0,Math.floor(OY+y0));y<Math.min(H,OY+y1);y+=2) for(let x=Math.max(0,Math.floor(OX+x0));x<Math.min(W,OX+x1);x+=2){ const i=y*W+x; lr+=lum(CR[i],CG[i],CB[i]); n++; }
   lr/=Math.max(1,n);
@@ -3052,7 +3067,7 @@ function engraveSignature0(INK,pm){ const v=Math.sqrt(SC), kind=wpick({name:3,sc
       for(const [px,py] of [st[0],st[st.length-1]]) if(ch!=="."&&(py<0.02||py>0.98)) segs.push([px+cx-0.09,py,px+cx+0.09,py]); }   // serifs
     cx+=(ENG_W[ch]||0.5)+track; }
   const Wt=(cx-track)*h, padx=h*0.7, pady=h*0.55, bw=Wt+2*padx, bh=h+2*pady, framed=rand()<0.7, dbl=rand()<0.4;
-  const farR=W-pm-bw-h*1.2, x0=Math.round(rr(Math.max(W*0.62,farR-W*0.09),Math.max(W*0.62,farR))), y0=Math.round(H-pm-bh-rr(0.8,2.2)*h);   // bottom-right corner, a little varied
+  const x0=Math.round(rr(W*0.62,Math.max(W*0.62,W-pm-bw-h*1.2))), y0=Math.round(H-pm-bh-rr(0.8,2.2)*h);
   // the tablet: bare copper, so the letters read on any ground
   for(let y=Math.max(0,y0);y<Math.min(H,y0+bh);y++) for(let x=Math.max(0,x0);x<Math.min(W,x0+bw);x++){ const e=Math.min(x-x0,x0+bw-1-x,y-y0,y0+bh-1-y);
     INK[y*W+x]=framed&&(e<hw*1.6||(dbl&&e>hw*3.4&&e<hw*4.8))?1:0; }
@@ -3317,8 +3332,9 @@ function isLite(){ const q=new URLSearchParams(URLQ).get("lite"); if(q!=null) re
   const mem=navigator.deviceMemory||8, cores=navigator.hardwareConcurrency||4, touch=matchMedia&&matchMedia("(pointer:coarse)").matches, small=Math.min(screen.width,screen.height)<=900;
   return mem<=4||cores<=4||(touch&&small); }
 /* ---- studio: two choices (how it is made, how fine), then paint ---- */
-const ST={style:"",silk:"",detail:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:""};   // the last six: URL only
+const ST={style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:""};   // the last six: URL only
 for(const k in ST) ST[k]=Q.get(k)||"";
+if(ST.shade==="new") ST.shade="blended"; else if(ST.shade!=="blended") ST.shade="";   // older links: new = blended, old/between = rough
 if(!SKEYS[ST.style]) ST.style="acrylic";   // acrylic unless another way is chosen
 const STYLE_DESC={
   tonal:"Oil on canvas: muted, close values, soft edges, thick lights.",
@@ -3397,7 +3413,7 @@ function save(){ if(SITE||SAVING) return; const base=`still-life-code-${SEED}${S
     btn.textContent="Saving at 300 dpi…"; if(s) status("saving the 300 dpi file · "+s); },700); }
 function toggleLabel(){ labelOn=!labelOn; $("label").classList.toggle("hidden",!labelOn); }
 $("studioBtn").onclick=()=>$("studio").classList.toggle("closed");
-if(innerWidth>=1100||(document.body.classList.contains("embedded")&&innerWidth>=640)) $("studio").classList.remove("closed");   // on the shop page, the menu is open from the start
+if(innerWidth>=1100) $("studio").classList.remove("closed");
 for(const b of $("st-manner").children) b.onclick=()=>{ ST.style=b.dataset.v; go(SEED); };
 for(const b of $("st-busy").children) b.onclick=()=>{ ST.busy=b.dataset.v; go(SEED); };
 for(const r of [...$("st-things").children,...$("st-finish").children,...$("st-silk").children]) for(const b of r.querySelectorAll("button")) b.onclick=()=>{ ST[r.dataset.k]=b.dataset.v; go(SEED); };

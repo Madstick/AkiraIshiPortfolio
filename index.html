@@ -71,6 +71,12 @@
                 <span class="mosaic-tile md drift-a" style="left: 26%; top: 86%;"><img data-src="images/previews/deconstructedpumkin.webp" alt="" width="240" height="240" decoding="async"></span>
                 <span class="mosaic-tile sm drift-c" style="left: 88%; top: 84%;"><img data-src="images/gallery/thumbs/hat googly rock.webp" alt="" width="240" height="240" decoding="async"></span>
                 <span class="mosaic-tile sm drift-b" style="left: 10%; top: 36%;"><img data-src="images/previews/provenancetree.webp" alt="" width="240" height="240" decoding="async"></span>
+                <span class="mosaic-tile md drift-c" style="left: 22%; top: 22%;"><img data-src="images/gallery/thumbs/slc-oil.webp" alt="" width="240" height="240" decoding="async"></span>
+                <span class="mosaic-tile md drift-a" style="left: 91%; top: 24%;"><img data-src="images/gallery/thumbs/slc-vanitas.webp" alt="" width="240" height="240" decoding="async"></span>
+                <span class="mosaic-tile md drift-b" style="left: 8%; top: 88%;"><img data-src="images/gallery/thumbs/slc-apples.webp" alt="" width="240" height="240" decoding="async"></span>
+                <span class="mosaic-tile sm drift-c" style="left: 60%; top: 88%;"><img data-src="images/gallery/thumbs/slc-acrylic.webp" alt="" width="240" height="240" decoding="async"></span>
+                <span class="mosaic-tile sm drift-a" style="left: 22%; top: 46%;"><img data-src="images/gallery/thumbs/slc-watercolour.webp" alt="" width="240" height="240" decoding="async"></span>
+                <span class="mosaic-tile sm drift-b" style="left: 84%; top: 64%;"><img data-src="images/gallery/thumbs/slc-charcoal.webp" alt="" width="240" height="240" decoding="async"></span>
             </div>
             <div class="hall-glow"></div>
 
@@ -82,14 +88,14 @@
             <div class="choices" id="choices">
 
                 <!-- Choice 1 : Online shops -->
-                <div class="choice choice-shop is-closed" data-choice="shop" aria-disabled="true">
+                <a class="choice choice-shop" href="shop.html" data-choice="shop">
                     <span class="choice-frame"></span>
                     <span class="choice-body">
                         <img src="images/desktop-icons/reliquary/images_a.webp" alt="" class="choice-icon" decoding="async">
                         <span class="choice-title" data-i18n="gates.online-shops">Online Shops</span>
                         <span class="choice-tagline" data-i18n="gates.prints-amp-physical-works">Prints &amp; physical works</span>
                         <span class="choice-desc" data-i18n="gates.pieces-you-can-hold-framed-and">Pieces you can hold, framed and shipped from my shops.</span>
-                        <span class="choice-warning" role="note"><span aria-hidden="true">⚠</span> <span data-i18n="gates.under-construction">Under construction &mdash; not open yet</span></span>
+                        <span class="choice-enter"><span data-i18n="gates.enter">Enter</span> <span class="choice-arrow">→</span></span>
                     </span>
 
                     <!-- Hover preview of the shop page -->
@@ -101,10 +107,10 @@
                         <span class="preview-page">
                             <span class="preview-heading"></span>
                             <span class="preview-grid">
-                                <img data-src="images/previews/deconstructedpumkin.webp" alt="" decoding="async">
-                                <img data-src="images/previews/songe1.webp" alt="" decoding="async">
-                                <img data-src="images/previews/googly.webp" alt="" decoding="async">
-                                <img data-src="images/previews/songe.webp" alt="" decoding="async">
+                                <img data-src="images/gallery/thumbs/slc-oil.webp" alt="" decoding="async">
+                                <img data-src="images/gallery/thumbs/slc-apples.webp" alt="" decoding="async">
+                                <img data-src="images/gallery/thumbs/slc-vanitas.webp" alt="" decoding="async">
+                                <img data-src="images/gallery/thumbs/slc-watercolour.webp" alt="" decoding="async">
                             </span>
                             <span class="preview-lines">
                                 <span></span><span></span><span></span>
@@ -112,7 +118,7 @@
                         </span>
                         <span class="preview-caption" data-i18n="gates.shop-the-prints-rarr">Shop the prints &rarr;</span>
                     </span>
-                </div>
+                </a>
 
                 <!-- Choice 2 : Web3 / NFTs -->
                 <a class="choice choice-web3" href="reliquary.html" data-choice="web3">
@@ -176,7 +182,7 @@
 
     <noscript>
         <div class="noscript-links">
-            <span><span data-i18n="gates.online-shops">Online Shops</span> (<span data-i18n="gates.under-construction">Under construction &mdash; not open yet</span>)</span>
+            <a href="shop.html" data-i18n="gates.online-shops">Online Shops</a>
             <a href="reliquary.html" data-i18n="gates.web3-amp-nfts-mdash-the-reliquary">Web3 &amp; NFTs &mdash; The Reliquary</a>
         </div>
     </noscript>
