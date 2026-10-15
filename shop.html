@@ -79,9 +79,8 @@
                     <span class="eyebrow" data-i18n="shop.original-generative-art">Original generative art</span>
                     <h1 class="hero-title"><span data-i18n="shop.art-made-with-code">Art made with code,</span><br><em data-i18n="shop.printed-for-your-wall">printed for your wall.</em></h1>
                     <p class="hero-text" data-i18n="shop.hero-slc-text">
-                        Still Life Code is a painter written in code: it sets a table, lights it from a window and
-                        paints the scene stroke by stroke. Compose your own still life below, then have it printed,
-                        and framed if you like, and shipped to your door.
+                        Compose a still life that has never existed, then have it printed, framed if you like,
+                        and shipped to your door.
                     </p>
                     <div class="hero-actions">
                         <a href="#atelier" class="btn btn-primary" data-i18n="shop.paint-your-own">Paint your own</a>
@@ -128,6 +127,11 @@
 
                     <aside class="atelier-panel">
                       <div class="atelier-info">
+                        <div class="atelier-actions">
+                            <button type="button" class="btn btn-ghost" id="atelier-new" disabled data-i18n="shop.new-painting">New painting</button>
+                            <button type="button" class="btn btn-ghost" id="atelier-full" disabled data-i18n="shop.full-screen">Full screen</button>
+                        </div>
+
                         <h3 data-i18n="shop.your-painting">Your painting</h3>
                         <p class="atelier-title" id="atelier-title" data-i18n="shop.nothing-painted-yet">Nothing painted yet</p>
                         <p class="atelier-meta" id="atelier-meta" data-i18n="shop.open-the-atelier-and-click-the">
@@ -142,10 +146,6 @@
                             </p>
                         </div>
 
-                        <div class="atelier-actions">
-                            <button type="button" class="btn btn-ghost" id="atelier-new" disabled data-i18n="shop.new-painting">New painting</button>
-                            <button type="button" class="btn btn-ghost" id="atelier-full" disabled data-i18n="shop.full-screen">Full screen</button>
-                        </div>
                       </div>
 
                       <div class="atelier-order-col">
@@ -173,7 +173,7 @@
                             <button type="button" class="btn btn-primary atelier-order" id="atelier-order" disabled
                                     data-i18n="shop.coming-soon">Coming soon</button>
                             <p class="atelier-fineprint" id="atelier-fineprint" data-i18n="shop.api-fineprint">
-                                Pay securely on this site; the print is made to order and shipped to you.
+                                Secure payment through Stripe.
                             </p>
                             <p class="atelier-fineprint atelier-legal">
                                 <span data-i18n="shop.legal-withdrawal">Each print is made to order from the painting you chose: the 14-day right of withdrawal does not apply (Consumer Code, art. L221-28, 3&deg;).</span>
@@ -217,13 +217,6 @@
                         <span data-i18n="shop.pick-a-finish-and-a-format">
                             Pick a format. When you order, your painting is painted again for the print, at 300 dpi,
                             which takes a few minutes.
-                        </span>
-                    </li>
-                    <li>
-                        <strong data-i18n="shop.one-of-a-kind">One of a kind</strong>
-                        <span data-i18n="shop.the-reference-brings-the-same-painting">
-                            The reference brings the same painting back, brushstroke for brushstroke. Nobody else will find it
-                            unless you give it to them.
                         </span>
                     </li>
                 </ul>

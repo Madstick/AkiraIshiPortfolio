@@ -1,4 +1,4 @@
-/* The seller's name, SIRET, address and phone are not written in this page, nor in the public repository: they are
+/* The seller's name, SIRET and address are not written in this page, nor in the public repository: they are
    asked of the order Worker (a secret there), which only answers this site. A crawler that reads the HTML sees
    nothing; a visitor sees them. */
 (function () {
@@ -22,9 +22,6 @@
                 const key = el.getAttribute('data-legal');
                 if (typeof d[key] !== 'string') return;
                 el.textContent = d[key];
-                if (el.tagName === 'A' && (key === 'phone' || key === 'phoneIntl') && d.tel) {
-                    el.setAttribute('href', 'tel:' + d.tel);
-                }
             });
         })
         .catch(fail);

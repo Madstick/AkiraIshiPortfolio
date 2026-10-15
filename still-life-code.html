@@ -44,6 +44,8 @@
   #studio .trow.two { grid-template-columns:52px 1fr 1fr; }
   #studio .trow.six { grid-template-columns:52px repeat(6,1fr); gap:3px; }
   #studio .trow.six button { font-size:10px; padding:4px 0; }
+  #studio .trow.seven { grid-template-columns:52px repeat(7,1fr); gap:3px; }
+  #studio .trow.seven button { font-size:9.5px; padding:4px 0; }
   #studio .trow.four { grid-template-columns:52px 1fr 1fr 1fr 1fr; }
   #studio .trow span { font-size:11px; color:#a39884; }
   #studio .trow button { font-size:10.5px; padding:4px 2px; }
@@ -108,14 +110,27 @@
     <div class="trow" data-k="mirror"><span>Mirror</span><button data-v="">Auto</button><button data-v="yes">With</button><button data-v="none">Without</button></div>
     <div class="trow" data-k="cloth"><span>Cloth</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
     <div class="trow" data-k="books"><span>Books</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
-    <div class="trow six" data-k="fruitn"><span>Fruit</span><button data-v="">Auto</button><button data-v="1">1</button><button data-v="3">3</button><button data-v="6">6</button><button data-v="10">10</button><button data-v="15">15</button></div>
+    <div class="trow four" data-k="fill"><span>Tall picture</span><button data-v="" title="portrait and square pictures: a taller group, brought nearer">Auto</button><button data-v="soft">Light</button><button data-v="full" title="and a shelf on the wall, above the things">Full</button><button data-v="off" title="as before">None</button></div>
+    <div class="trow" data-k="flowers"><span>Flowers</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">None</button></div>
+    <div class="trow seven" data-k="fruitn"><span>Fruit</span><button data-v="">Auto</button><button data-v="none" title="no fruit at all">None</button><button data-v="1">1</button><button data-v="3">3</button><button data-v="6">6</button><button data-v="10">10</button><button data-v="15">15</button></div>
   </div>
   <div class="sub">Arrangement</div>
   <div class="chips" id="st-comp"></div>
+  <div class="sub">Which flower</div>
+  <div class="chips" id="st-flower"></div>
   <div class="sub">Which fruit <i>· up to 5</i></div>
   <div class="chips" id="st-fruit"></div>
   <div class="sub">Other things <i>· tap: with, again: without · up to 4</i></div>
   <div class="chips" id="st-objs"></div>
+  <div id="st-sign">
+    <div class="sub">Signature <i>· local studio only</i></div>
+    <div class="things" id="st-sigrows">
+      <div class="trow four" data-k="sig"><span>Style</span><button data-v="">Auto</button><button data-v="script">Script</button><button data-v="caps">Capitals</button><button data-v="off">None</button></div>
+      <div class="trow four" data-k="sigcol"><span>Colour</span><button data-v="">Auto</button><button data-v="dark">Dark</button><button data-v="gold">Gold</button><button data-v="light">Light</button></div>
+      <div class="trow four" data-k="sigpos"><span>Place</span><button data-v="">Corner</button><button data-v="right">Right</button><button data-v="center">Centre</button><button data-v="left">Left</button></div>
+    </div>
+    <button id="st-sigvar" style="width:100%;margin-top:6px" title="another hand: the same signature written again, a little differently">Another signature</button>
+  </div>
   </div>
   <div class="step"><b>3</b>Varnish and format</div>
   <div class="things" id="st-finish">
@@ -573,6 +588,280 @@ function addLeaf(x,z,ang,kind){
       return M(c,{ks:kind==="citrus"?0.45:0.2,gl:kind==="citrus"?45:20,wrap:0.35,ss:0.3}); }});
 }
 
+/* FLOWERS-BEGIN */
+/* =============================================================================
+   FLOWERS — seven kinds (rose, tulip, daisy, sunflower, peony, lily, poppy), put in the vases. A petal is a thin curved
+   sheet (a pointed or rounded outline, cupped across, bent along its length, frilled at the edge); a ring of petals is
+   one petal repeated round the axis (the angle is folded into one cell and the neighbour is looked at too), so a head
+   of thirty petals costs a few rings. Everything is drawn from the flower's own stream: a picture that has none is
+   exactly the picture the seed always gave.
+   ========================================================================== */
+const FLOWER_KINDS={rose:3,tulip:2.2,daisy:1.5,sunflower:1.2,peony:1.8,lily:1.5,poppy:1.6};
+const FLOWER_NAMES={rose:["a rose","roses"],tulip:["a tulip","tulips"],daisy:["a daisy","daisies"],sunflower:["a sunflower","sunflowers"],
+  peony:["a peony","peonies"],lily:["a lily","lilies"],poppy:["a poppy","poppies"]};
+const FLOWER_N={rose:[3,6],tulip:[5,9],daisy:[5,10],sunflower:[1,3],peony:[2,4],lily:[2,4],poppy:[4,8]};
+const PS={t:0,q:0};
+/* u along the petal (0..L), w across it, v through it */
+function petalSheet(u,w,v,L,W,th,pt,cup,bend,fr,fa){
+  const t=u<0?0:u>L?1:u/L, s=Math.sin(Math.PI*t), hw=W*(Math.sqrt(s)*(1-pt)+s*pt)+1e-4, q=Math.min(1,Math.abs(w)/hw);
+  PS.t=t; PS.q=q;
+  const surf=cup*w*w/W+bend*u*u+(fr?fr*q*q*Math.sin(u*fa+w*fa*0.8):0);
+  return Math.max(Math.abs(v-surf)-th, Math.abs(w)-hw, -u, u-L);
+}
+function ringOf(o){ const r=Object.assign({n:5,ph:0,r0:0.02,y0:0,L:0.15,W:0.07,th:0.004,tau:60,cup:0,bend:0,pt:0,fr:0,fa:30,seed:0,part:"petal"},o), a=r.tau*Math.PI/180;
+  r.c=2*Math.PI/r.n; r.ct=Math.cos(a); r.st=Math.sin(a);
+  const m=0.04+Math.abs(r.bend)*r.L*r.L+Math.abs(r.cup)*r.W+r.fr;
+  r.yh=r.y0+Math.max(0,r.L*r.st)+r.W*0.6+m; r.yl=r.y0+Math.min(0,r.L*r.st)-r.W*0.6-m; r.rh=r.r0+Math.max(0,r.L*r.ct)+r.W*0.9+m; return r; }
+/* the nearest petal of any ring: distance, and which ring / where on the petal for its colour */
+function evalRings(rings,x,y,z,O){ const ro=Math.hypot(x,z), al=Math.atan2(z,x); let best=1e9;
+  for(let k=0;k<rings.length;k++){ const R=rings[k];
+    const dr=Math.max(0,ro-R.rh), dy=Math.max(R.yl-y,y-R.yh,0); if(0.5*Math.hypot(dr,dy)>=best) continue;
+    const a0=al-R.ph, j0=Math.round(a0/R.c), a=a0-j0*R.c, sg=a>=0?1:-1;
+    for(let i=0;i<2;i++){ const aa=i?a-sg*R.c:a, jj=j0+(i?sg:0), hv=0.86+0.28*hash3i(jj+R.seed,k,7);
+      const p=ro*Math.cos(aa), w=ro*Math.sin(aa), u0=p-R.r0, v0=y-R.y0, u=u0*R.ct+v0*R.st, v=-u0*R.st+v0*R.ct;
+      const d=petalSheet(u,w,v,R.L*hv,R.W*(0.9+0.2*hv),R.th,R.pt,R.cup,R.bend,R.fr,R.fa)*0.5;
+      if(d<best){ best=d; O.k=k; O.t=PS.t; O.q=PS.q; O.w=w; O.v=v; O.j=jj; O.hv=hv; } } }
+  return best; }
+
+/* what each kind is made of: rings of petals, the parts between them, how they are coloured */
+function flowerSpec(kind,s,V,Hh){
+  const H=k=>hash3i(Hh,k,53), sp={rings:[],extra:null,yc:0.1*s,Rb:0.3*s,stemR:0.011,stemC:C(78,104,46),leaf:null,face:0.45};
+  const green=C(70,98,44), sepalC=C(86,112,52);
+  if(kind==="rose"){
+    for(let k=0;k<6;k++) sp.rings.push(ringOf({n:k<2?3:5,ph:k*2.4+H(1)*6,r0:0.012+0.02*k,L:(0.1+0.03*k)*s,W:(0.055+0.02*k)*s,th:0.0035,tau:86-11*k,cup:2.0-0.15*k,bend:1.4-0.55*k,pt:0.1,fr:0.004*k,fa:36,seed:k*31}));
+    sp.rings.push(ringOf({n:5,ph:H(2)*6,r0:0.02,y0:-0.012,L:0.17*s,W:0.026*s,th:0.0035,tau:-28,bend:-0.5,pt:0.9,seed:97,part:"sepal"}));
+    sp.Rb=0.28*s; sp.yc=0.09*s; sp.stemR=0.012; sp.leaf={n:2,len:0.26,wid:0.13,kind:"rose"};
+    const pal=[[C(120,6,14),C(196,30,40)],[C(196,86,118),C(244,172,190)],[C(226,216,198),C(252,246,236)],[C(210,150,26),C(246,214,92)],[C(222,112,84),C(248,190,150)]][V%5];
+    sp.mat=(O)=>{ const k=O.k; if(k===6) return M(sepalC,{ks:0.12,wrap:0.3,ss:0.2});
+      const f=k/5; let c=mixc(pal[0],pal[1],0.25+0.75*f); c=mixc(c,pal[1].map(v=>v*1.1),smooth(0.7,1,O.t)*0.5);
+      c=mixc(c,C(150,110,70),smooth(0.8,1,O.t)*(0.1+0.05*k)*smooth(0.3,0.9,noise3(O.j*3.1,O.t*4,k)));      // an edge turning
+      c=mixc(c,c.map(v=>v*0.72),smooth(0.25,0,O.t)*0.6);                                                      // the base, in shade
+      c=c.map(v=>v*(1-0.07*Math.abs(Math.sin(O.w*70*s+O.j)))); return M(c,{ks:0.14,gl:18,wrap:0.5,ss:0.65}); };
+  }
+  else if(kind==="tulip"){
+    const o=[]; for(let k=0;k<2;k++) sp.rings.push(ringOf({n:3,ph:k*Math.PI/3+H(1)*6,r0:0.035,y0:0,L:(0.3-0.015*k)*s,W:(0.125-0.01*k)*s,th:0.0045,tau:70+3*k,cup:0.9,bend:1.5+0.1*k,pt:0.55,fr:0.006,fa:24,seed:k*19}));
+    sp.Rb=0.25*s; sp.yc=0.13*s; sp.stemR=0.012; sp.stemC=C(104,136,84); sp.face=0.15; sp.leaf={n:2,len:0.62,wid:0.1,kind:"strap"};
+    const pal=[[C(150,12,22),C(206,28,32)],[C(214,164,30),C(246,214,70)],[C(214,100,140),C(244,170,196)],[C(226,222,208),C(252,250,244)],[C(86,40,110),C(140,72,150)],[C(214,90,24),C(246,150,50)]][V%6];
+    sp.mat=(O)=>{ let c=mixc(pal[0],pal[1],0.2+0.8*smooth(0,0.8,O.t)); c=mixc(c,pal[1].map(v=>Math.min(1,v*1.1)),O.q*0.35*smooth(0.1,0.7,O.t));
+      c=mixc(c,C(190,196,90),smooth(0.2,0.0,O.t)*0.8*(V%6===0?1:0.5));                                          // the green-yellow flame at the foot
+      c=c.map(v=>v*(1-0.08*Math.abs(Math.sin(O.w*60*s)))); return M(c,{ks:0.3,gl:30,wrap:0.35,ss:0.55}); };
+  }
+  else if(kind==="daisy"){
+    for(let k=0;k<2;k++) sp.rings.push(ringOf({n:23,ph:(k?0.5:0)*2*Math.PI/23+H(1)*6,r0:0.035,y0:k*0.004,L:(0.13-0.02*k)*s,W:0.019*s,th:0.0022,tau:12-8*k,cup:0.8,bend:-0.7,pt:0.2,seed:k*13}));
+    sp.Rb=0.19*s; sp.yc=0.01*s; sp.stemR=0.0085; sp.leaf={n:1,len:0.22,wid:0.05,kind:"strap"};
+    const pink=V%3===2;
+    const disc=(x,y,z)=>sdEllipsoid(x,y-0.012*s,z,0.05*s,0.032*s,0.05*s);
+    sp.extra=(x,y,z,O)=>{ O.part="disc"; return disc(x,y,z)*0.8; };
+    sp.mat=(O)=>{ if(O.part==="disc") return M(mixc(C(226,170,24),C(160,100,16),0.3+0.5*noise3(O.x*60,O.y*60,O.z*60)),{ks:0.1,wrap:0.3});
+      let c=mixc(C(236,228,206),C(252,252,248),smooth(0.1,0.7,O.t)); if(pink) c=mixc(c,C(236,150,170),smooth(0.4,1,O.t)*0.8);
+      c=mixc(c,C(214,200,100),smooth(0.15,0,O.t)*0.7); return M(c,{ks:0.12,gl:16,wrap:0.55,ss:0.5}); };
+  }
+  else if(kind==="sunflower"){
+    for(let k=0;k<2;k++) sp.rings.push(ringOf({n:21,ph:(k?0.5:0)*2*Math.PI/21+H(1)*6,r0:0.15*s,y0:k*-0.006,L:(0.17-0.025*k)*s,W:0.043*s,th:0.0035,tau:22-14*k,cup:0.9,bend:-0.9,pt:0.55,fr:0.004,fa:30,seed:k*17}));
+    sp.rings.push(ringOf({n:17,ph:H(2)*6,r0:0.06*s,y0:-0.035*s,L:0.12*s,W:0.04*s,th:0.004,tau:-24,bend:-0.5,pt:0.9,seed:51,part:"sepal"}));
+    const R=0.165*s, disc=(x,y,z)=>{ const rho=Math.hypot(x,z); return sdEllipsoid(x,y+0.0*s-0.012*s*(1-Math.min(1,rho/R)),z,R,0.045*s,R); };
+    sp.extra=(x,y,z,O)=>{ O.part="disc"; return disc(x,y,z)*0.8; };
+    sp.Rb=0.4*s; sp.yc=0.0; sp.stemR=0.026; sp.stemC=C(88,108,48); sp.face=0.7; sp.leaf={n:2,len:0.4,wid:0.3,kind:"heart"};
+    sp.mat=(O)=>{ if(O.part==="disc"){ const rho=Math.hypot(O.x,O.z)/R, a=Math.atan2(O.z,O.x);
+        const seeds=0.5+0.5*Math.sin(a*21+rho*60)*Math.sin(a*34-rho*92);
+        let c=mixc(C(40,24,12),C(96,66,28),seeds*0.6*smooth(0.1,0.6,rho)); c=mixc(c,C(120,112,34),smooth(0.62,0.95,rho)*0.8); c=mixc(c,C(30,18,10),smooth(0.4,0.0,rho)*0.5);
+        return M(c,{ks:0.08,wrap:0.2,bump:0.02,bf:90}); }
+      if(O.k===2) return M(mixc(C(90,116,50),C(60,86,36),O.t),{ks:0.1,wrap:0.3,ss:0.3});
+      let c=mixc(C(206,110,8),C(246,184,20),smooth(0,0.6,O.t)); c=mixc(c,C(252,206,60),O.q*0.3); c=c.map(v=>v*(1-0.08*Math.abs(Math.sin(O.w*55/s)))); return M(c,{ks:0.1,gl:14,wrap:0.5,ss:0.55}); };
+  }
+  else if(kind==="peony"){
+    const cnt=[5,6,7,7,8,8];
+    for(let k=0;k<6;k++) sp.rings.push(ringOf({n:cnt[k],ph:k*1.9+H(1)*6,r0:0.02+0.028*k,L:(0.1+0.035*k)*s,W:(0.08+0.028*k)*s,th:0.0035,tau:80-9*k,cup:1.4,bend:0.8-0.45*k,pt:0,fr:0.012+0.004*k,fa:44,seed:k*23}));
+    sp.rings.push(ringOf({n:5,ph:H(2)*6,r0:0.03,y0:-0.03,L:0.16*s,W:0.04*s,th:0.004,tau:-30,bend:-0.4,pt:0.7,seed:77,part:"sepal"}));
+    sp.Rb=0.33*s; sp.yc=0.1*s; sp.stemR=0.013; sp.leaf={n:2,len:0.3,wid:0.2,kind:"rose"};
+    const pal=[[C(210,110,146),C(252,206,218)],[C(226,216,206),C(254,250,244)],[C(222,96,84),C(250,176,150)],[C(150,28,70),C(214,84,128)]][V%4];
+    sp.mat=(O)=>{ if(O.k===6) return M(sepalC,{ks:0.1,wrap:0.3});
+      let c=mixc(pal[0],pal[1],0.1+0.9*(O.k/5)*0.5+0.5*smooth(0.1,0.9,O.t)); c=mixc(c,pal[0],smooth(0.3,0,O.t)*0.6);
+      c=c.map(v=>v*(1-0.06*Math.abs(Math.sin(O.w*50*s+O.j*2)))); return M(c,{ks:0.1,gl:14,wrap:0.6,ss:0.7}); };
+  }
+  else if(kind==="lily"){
+    for(let k=0;k<2;k++) sp.rings.push(ringOf({n:3,ph:k*Math.PI/3+H(1)*6,r0:0.01,L:(0.36-0.02*k)*s,W:(0.085-0.01*k)*s,th:0.0035,tau:64-4*k,cup:-0.5,bend:-1.5,pt:1,fr:0.004,fa:26,seed:k*29}));
+    const st=[]; for(let i=0;i<6;i++){ const a=i/6*6.283+H(3)*3, r=0.03+0.015*H(4+i); st.push([Math.cos(a)*r,0.25*s+0.03*H(10+i),Math.sin(a)*r]); }
+    const pist=[0.01,0.3*s,0.008];
+    sp.extra=(x,y,z,O)=>{ let d=1e9; O.part="stamen";
+      for(const q of st){ const e=sdCapsule(x,y,z,0,0.0,0,q[0],q[1],q[2],0.0045); if(e<d){ d=e; } const a=sdEllipsoid(x-q[0],y-q[1],z-q[2],0.011,0.032,0.011); if(a<d){ d=a; O.part="anther"; } }
+      const p=sdCapsule(x,y,z,0,0,0,pist[0],pist[1],pist[2],0.006); if(p<d){ d=p; O.part="stamen"; }
+      return d*0.8; };
+    sp.Rb=0.42*s; sp.yc=0.17*s; sp.stemR=0.012; sp.leaf={n:3,len:0.45,wid:0.07,kind:"strap"}; sp.face=0.2;
+    const pal=[[C(244,240,230),C(252,250,244),false],[C(236,126,24),C(250,170,60),true],[C(220,120,150),C(250,196,212),true]][V%3];
+    sp.mat=(O)=>{ if(O.part==="anther") return M(C(150,70,20),{ks:0.05,wrap:0.2});
+      if(O.part==="stamen") return M(C(200,210,150),{ks:0.1,wrap:0.3});
+      let c=mixc(pal[0],pal[1],smooth(0,0.8,O.t)); c=mixc(c,C(150,170,86),smooth(0.2,0,O.t)*0.9);               // the green throat
+      if(pal[2]) c=mixc(c,C(90,30,16),dots(O.j*0.7+O.t*3,O.w*30,O.k,9,0.3)*smooth(0.15,0.35,O.t)*smooth(0.8,0.5,O.t)*0.8);
+      c=mixc(c,c.map(v=>v*0.82),smooth(0.04,0,Math.abs(O.w))*0.8);                                                // the midrib's groove
+      return M(c,{ks:0.22,gl:28,wrap:0.45,ss:0.6}); };
+  }
+  else{ // poppy
+    for(let k=0;k<2;k++) sp.rings.push(ringOf({n:2,ph:k*Math.PI/2+H(1)*6,r0:0.02,y0:k*0.006,L:(0.2-0.01*k)*s,W:(0.19-0.015*k)*s,th:0.003,tau:46+4*k,cup:1.2,bend:0.5,pt:0,fr:0.034,fa:34,seed:k*41}));
+    const over=(x,y,z)=>sdEllipsoid(x,y-0.04*s,z,0.034*s,0.048*s,0.034*s), fuzz=(x,y,z)=>Math.hypot(Math.hypot(x,z)-0.07*s,y-0.035*s)-0.012*s;
+    sp.extra=(x,y,z,O)=>{ const a=over(x,y,z), b=fuzz(x,y,z); if(b<a){ O.part="fuzz"; return b*0.8; } O.part="ovary"; return a*0.8; };
+    sp.Rb=0.26*s; sp.yc=0.07*s; sp.stemR=0.0075; sp.stemC=C(96,120,66); sp.face=0.55; sp.leaf={n:2,len:0.22,wid:0.07,kind:"strap"};
+    const pal=[[C(196,28,14),C(238,70,34)],[C(226,112,16),C(248,160,40)],[C(222,150,160),C(248,206,210)]][V%3];
+    sp.mat=(O)=>{ if(O.part==="ovary") return M(C(126,150,100),{ks:0.2,gl:30,wrap:0.3});
+      if(O.part==="fuzz") return M(C(40,24,44),{ks:0.04,wrap:0.3,bump:0.02,bf:120});
+      let c=mixc(pal[0],pal[1],smooth(0.1,0.9,O.t)); const blot=smooth(0.3,0.18,O.t)*(V%3===2?0.5:1);
+      c=mixc(c,C(22,8,20),blot*(0.55+0.45*smooth(0.9,0.3,O.q)));
+      c=c.map(v=>v*(1-0.06*Math.abs(Math.sin(O.w*48/s+O.t*3)))); return M(c,{ks:0.08,gl:12,wrap:0.6,ss:0.7}); };
+  }
+  return sp;
+}
+
+/* a smooth curve through points (Catmull-Rom), `sub` steps between each pair */
+function flowerPath(P,sub){ const out=[];
+  for(let i=0;i<P.length-1;i++){ const p0=P[Math.max(0,i-1)],p1=P[i],p2=P[i+1],p3=P[Math.min(P.length-1,i+2)];
+    for(let k=0;k<sub;k++){ const t=k/sub,t2=t*t,t3=t2*t;
+      out.push([0,1,2].map(c=>0.5*((2*p1[c])+(-p0[c]+p2[c])*t+(2*p0[c]-5*p1[c]+4*p2[c]-p3[c])*t2+(-p0[c]+3*p1[c]-3*p2[c]+p3[c])*t3))); } }
+  out.push(P[P.length-1]); return out; }
+const FLOWER_DROOP={sunflower:0.12,peony:0.08,poppy:0.05,daisy:0.06,rose:0.04,lily:0.04,tulip:0.0};
+/* one stem: a curve from the vase's mouth to the head, the head on the end of it, a leaf or two on the stem */
+function addFlowerStem(kind,mouth,head,dirHint,s,V,seedN,opt){
+  opt=opt||{};
+  const Hh=seedN*977+13, spec=flowerSpec(kind,s,V,Hh), HASH=k=>hash3i(Hh,k,71);
+  // the head faces along the end of the stem, turned a little toward the viewer
+  let D=norm3([dirHint[0]*(1-spec.face)+0*spec.face, dirHint[1]*(1-spec.face)+0.35*spec.face, dirHint[2]*(1-spec.face)-1*spec.face]);
+  const yaw=HASH(1)*6.28, m=frame(D[0],D[1],D[2],yaw);
+  const lc=P=>{ const d=[P[0]-head[0],P[1]-head[1],P[2]-head[2]]; return [d[0]*m[0]+d[1]*m[1]+d[2]*m[2], d[0]*m[3]+d[1]*m[4]+d[2]*m[5], d[0]*m[6]+d[1]*m[7]+d[2]*m[8]]; };
+  // The stem is never a straight rod: from low in the vase it crosses the lip (where it leans, it rests on it), swings a
+  // little to one side and then the other, and arrives along the head's own axis; a heavy head makes it sag.
+  const via=opt.via, end=[head[0]-D[0]*0.02,head[1]-D[1]*0.02,head[2]-D[2]*0.02];
+  const base=opt.base||[mouth[0],mouth[1]-0.5,mouth[2]];
+  const up=via||base, chord=[end[0]-up[0],end[1]-up[1],end[2]-up[2]], cl=Math.hypot(chord[0],chord[1],chord[2])+1e-6;
+  let sa=cross3(chord,[0,1,0]); const sl=Math.hypot(sa[0],sa[1],sa[2]); sa=sl<1e-4?[1,0,0]:[sa[0]/sl,sa[1]/sl,sa[2]/sl];
+  const aw=(opt.wob!=null?opt.wob:0.1)*cl, w1=(HASH(60)-0.5)*2*aw, w2=(HASH(61)-0.5)*2*aw*0.8, dp=(FLOWER_DROOP[kind]||0)*cl;
+  const mid1=[up[0]+chord[0]*0.35+sa[0]*w1, up[1]+chord[1]*0.35-dp*0.4, up[2]+chord[2]*0.35+sa[2]*w1];
+  const mid2=[up[0]+chord[0]*0.7+sa[0]*w2, up[1]+chord[1]*0.7-dp, up[2]+chord[2]*0.7+sa[2]*w2];
+  const pre=[end[0]-D[0]*0.12,end[1]-D[1]*0.12,end[2]-D[2]*0.12];
+  const ctrl=[base]; if(via) ctrl.push(via); ctrl.push(mid1,mid2,pre,end);
+  const pts=flowerPath(ctrl,3), NP=pts.length-1;
+  const L=pts.map(lc), sr=spec.stemR*Math.max(1,s*0.9);
+  const stem=(x,y,z)=>{ let d=1e9; for(let i=0;i<L.length-1;i++){ const e=sdCapsule(x,y,z,L[i][0],L[i][1],L[i][2],L[i+1][0],L[i+1][1],L[i+1][2],sr*(1-0.15*i/NP)); if(e<d) d=e; } return d; };
+  // leaves: flat blades along the stem
+  const blades=[]; const nl=spec.leaf?spec.leaf.n:0;
+  for(let i=0;i<nl;i++){ const t=0.34+0.4*(i+HASH(20+i)*0.6)/Math.max(1,nl), k=Math.min(NP-1,Math.floor(t*NP)), f=t*NP-k;
+    const c0=pts[k], c1=pts[k+1], p=[lerp(c0[0],c1[0],f),lerp(c0[1],c1[1],f),lerp(c0[2],c1[2],f)];
+    const tan=norm3([c1[0]-c0[0],c1[1]-c0[1],c1[2]-c0[2]]), ang=HASH(30+i)*6.28, out=[Math.cos(ang),0.15,Math.sin(ang)];
+    const len=spec.leaf.len*s*(0.8+0.4*HASH(40+i)), wid=spec.leaf.wid*s;
+    const strap=spec.leaf.kind==="strap";
+    // blade axis: mostly along the stem for a strap, out and up for the others
+    let ax=strap?norm3([tan[0]*0.85+out[0]*0.35,tan[1]*0.85+0.1,tan[2]*0.85+out[2]*0.35]):norm3([out[0],0.55,out[2]]);
+    const nm=norm3(cross3(ax,[0,1,0])), sd=cross3(nm,ax);
+    const cen=[p[0]+ax[0]*len*0.5,p[1]+ax[1]*len*0.5,p[2]+ax[2]*len*0.5];
+    blades.push({c:lc(cen),ax:[ax[0]*m[0]+ax[1]*m[1]+ax[2]*m[2],ax[0]*m[3]+ax[1]*m[4]+ax[2]*m[5],ax[0]*m[6]+ax[1]*m[7]+ax[2]*m[8]],
+      nm:[nm[0]*m[0]+nm[1]*m[1]+nm[2]*m[2],nm[0]*m[3]+nm[1]*m[4]+nm[2]*m[5],nm[0]*m[6]+nm[1]*m[7]+nm[2]*m[8]],
+      sd:[sd[0]*m[0]+sd[1]*m[1]+sd[2]*m[2],sd[0]*m[3]+sd[1]*m[4]+sd[2]*m[5],sd[0]*m[6]+sd[1]*m[7]+sd[2]*m[8]],
+      a:len*0.5,b:0.007,c:wid*0.5*(0.85+0.3*HASH(50+i)),kind:spec.leaf.kind}); }
+  const blade=(x,y,z,B)=>{ const dx=x-B.c[0],dy=y-B.c[1],dz=z-B.c[2];
+    const u=dx*B.ax[0]+dy*B.ax[1]+dz*B.ax[2], w=dx*B.sd[0]+dy*B.sd[1]+dz*B.sd[2], v=dx*B.nm[0]+dy*B.nm[1]+dz*B.nm[2]-0.35*w*w/Math.max(0.03,B.c)*0.1;
+    return sdEllipsoid(u,v,w,B.a,B.b,B.c)*0.7; };
+  const O={k:0,t:0,q:0,w:0,v:0,j:0,hv:1,part:"petal",x:0,y:0,z:0};
+  const headD=(x,y,z)=>{ O.part="petal"; let d=spec.rings.length?evalRings(spec.rings,x,y,z,O):1e9;
+    if(spec.extra){ const e=spec.extra(x,y,z,O2); if(e<d){ d=e; O.part=O2.part; } }
+    return d; };
+  const O2={part:"petal"};
+  const leafD=(x,y,z)=>{ let d=1e9; for(const B of blades){ const e=blade(x,y,z,B); if(e<d) d=e; } return d; };
+  // the box: the head's sphere and every stem point
+  const pad=0.12, xs=[head[0]-spec.Rb,head[0]+spec.Rb], ys=[head[1]-spec.Rb,head[1]+spec.Rb], zs=[head[2]-spec.Rb,head[2]+spec.Rb];
+  for(const p of pts.concat(blades.map(b=>b.c).length?pts:[])){ xs.push(p[0]); ys.push(p[1]); zs.push(p[2]); }
+  const bl=spec.leaf?spec.leaf.len*s*1.2:0;
+  const box=[Math.min(...xs)-pad-bl*0.5,Math.min(...ys)-pad,Math.min(...zs)-pad-bl*0.5,Math.max(...xs)+pad+bl*0.5,Math.max(...ys)+pad+bl*0.3,Math.max(...zs)+pad+bl*0.5];
+  const yc=spec.yc, Rb=spec.Rb, stemC=spec.stemC;
+  const leafC=C(60,88,38);
+  const o=addObj({kind:"flower",flower:kind,thinHit:true,cx:head[0],cy:head[1],cz:head[2],m,bound:Math.max(...box.map((v,i)=>Math.abs(v-[head[0],head[1],head[2]][i%3])))+0.05,box,
+    sdf:(x,y,z)=>{ let d=Math.min(stem(x,y,z),blades.length?leafD(x,y,z):1e9);
+      const dh=Math.hypot(x,y-yc,z)-Rb; if(dh>0.1) return Math.min(d,dh); return Math.min(d,headD(x,y,z)); },
+    mat:(x,y,z)=>{ const ds=stem(x,y,z), dl=blades.length?leafD(x,y,z):1e9, dh=Math.hypot(x,y-yc,z)-Rb>0.1?1e9:headD(x,y,z);
+      if(dh<=ds&&dh<=dl){ O.x=x;O.y=y;O.z=z; O2.part=O.part; return spec.mat(O); }
+      if(dl<ds){ let c=mixc(leafC,C(104,130,60),0.5*noise3(x*20,y*20,z*20)); return M(c,{ks:0.18,gl:24,wrap:0.35,ss:0.3}); }
+      return M(mixc(stemC,C(60,80,36),0.4*noise3(x*40,y*40,z*40)),{ks:0.1,gl:14,wrap:0.3}); } });
+  return o;
+}
+
+/* the bouquets: a vase on the table has flowers more often than not */
+function addBouquets(){
+  const Q_=new URLSearchParams(URLQ), want=Q_.get("flowers"), only=Q_.get("flower");
+  if(want==="0") return;
+  if((Q_.get("without")||"").split(".").includes("vase")&&want!=="1") return;     // no vase asked for: no flowers in one
+  const FR=makeRng(String(CURSEED)+"~flowers"), fr=(a,b)=>a+(b-a)*FR(), fpick=a=>a[Math.floor(FR()*a.length)];
+  const pickKind=()=>{ if(only&&FLOWER_KINDS[only]) return only; let s=0; for(const k in FLOWER_KINDS) s+=FLOWER_KINDS[k]; let r=FR()*s; for(const k in FLOWER_KINDS){ r-=FLOWER_KINDS[k]; if(r<=0) return k; } return "rose"; };
+  let vases=OBJS.filter(o=>o.kind==="jug"&&o.vTop!=null&&(o.vase||FR()<0.4));
+  // asked for, or by chance, and no vase to put them in: a vase is stood on the table for them
+  if(!vases.length&&(want==="1"||FR()<0.55)){
+    const k=DR; DR=makeRng(String(CURSEED)+"~flowervase");
+    let p=null; try{ p=placeExtra(0.6,false,true); }finally{ DR=k; }
+    if(p){ ownStream("flowervase",()=>addJug(p[0],p[1],p[2],{scale:rr(1.1,1.35),noHandle:true,style:pick(["faience","greenglaze","stoneware"])}));
+      vases=OBJS.filter(o=>o.kind==="jug"&&o.vTop!=null).slice(-1); } }
+  let nb=0;
+  for(const v of vases){
+    if(want!=="1"&&FR()>0.9) continue;
+    const kind=pickKind(), [a,b]=FLOWER_N[kind], n=Math.round(fr(a,b+0.49)), V=Math.floor(FR()*6);
+    const mouth=[v.cx,v.vTop,v.cz], rim=v.vRim, heads=[];
+    const sBase=kind==="sunflower"?fr(1.0,1.25):kind==="daisy"?fr(1.3,1.6):kind==="lily"?fr(1.05,1.3):fr(1.35,1.65);
+    const reach=Math.min(fr(0.7,1.1)*(v.vase?1:0.85),Math.max(0.4,3.4-v.vTop));
+    // a loose bunch (stems at all lengths, each crossing the lip somewhere else) or a packed one (heads close above the
+    // mouth, the stems hardly to be seen)
+    const dense=n>=4&&FR()<0.5;
+    for(let i=0;i<n;i++){
+      const phi=(i/n)*6.283+fr(-0.55,0.55), th=n===1?fr(0,0.15):dense?fr(0.05,0.36):fr(0.12,0.66)*(i%2?1:0.75);
+      let Ls;
+      if(dense) Ls=fr(0.1,0.42)+(kind==="tulip"?0.2:0)+(kind==="sunflower"?0.1:0);
+      else Ls=(FR()<0.3?fr(0.28,0.55):fr(0.5,1.05))*reach+(kind==="tulip"?0.25:0)+(kind==="sunflower"?0.15:0);
+      const dir=[Math.sin(th)*Math.cos(phi),Math.cos(th),Math.sin(th)*Math.sin(phi)];
+      // where the stem crosses the lip: the more it leans, the nearer the rim (and resting on it)
+      const cr=rim*(0.25+0.75*Math.min(1,th/0.5))+(th>0.35?0.012:0);
+      const via=[mouth[0]+Math.cos(phi)*cr,mouth[1]+0.004,mouth[2]+Math.sin(phi)*cr];
+      let head=[via[0]+dir[0]*Ls,via[1]+dir[1]*Ls+(dense?0.16:0.1),via[2]+dir[2]*Ls];
+      head[2]=clamp(head[2],0.12,ZW-0.35);
+      // not on top of another head of the same bunch (a packed bunch may touch)
+      const mn=(dense?0.15:0.3)*sBase*(kind==="sunflower"?1.45:kind==="daisy"?0.8:1);
+      for(let t=0;t<10;t++){ let moved=false; for(const h of heads){ const dd=Math.hypot(head[0]-h[0],head[1]-h[1],head[2]-h[2]);
+          if(dd<mn){ const k=(mn-dd)/(dd+1e-6); head[0]+=(head[0]-h[0])*k; head[1]+=(head[1]-h[1])*k*0.6+0.02; head[2]+=(head[2]-h[2])*k*0.5; moved=true; } } if(!moved) break; }
+      head[1]=Math.max(head[1],mouth[1]+0.2);
+      heads.push(head);
+      const tangent=norm3([head[0]-via[0],head[1]-via[1],head[2]-via[2]]);
+      const base=[mouth[0]+fr(-0.05,0.05),mouth[1]-0.55,mouth[2]+fr(-0.05,0.05)];
+      addFlowerStem(kind,mouth,head,tangent,sBase*fr(0.9,1.1),V+(FR()<0.15?1:0),++nb,{via,base,wob:dense?0.05:fr(0.06,0.16)}); }
+    NAMES.push(n===1?FLOWER_NAMES[kind][0]:"a bunch of "+FLOWER_NAMES[kind][1]);
+  }
+}
+/* FLOWERS-END */
+
+/* FILL-BEGIN */
+/* PORTRAIT AND SQUARE PICTURES: the top of the picture. "fill" (studio: Auto / Light / Full / None): on a portrait or a
+   square picture the group of things is taller (composition), is brought nearer so that it fills the width, and, when
+   Full, a shelf on the wall behind carries two or three small things in the band above. All of it from its own streams. */
+function fillMode(){ const q=new URLSearchParams(URLQ).get("fill"); if(q==="off"||!(FORMAT==="portrait"||RATIO>=0.99)) return ""; return q==="full"?"full":"soft"; }
+const FILL_COMP={tall:3,pyramid:2.2,heap:1.3,ring:1.2,spill:1.1,corner:0.8,diagonal:0.5,pair:0.5,sparse:0.3,chaos:0.2,frieze:0.05,banquet:0.05};
+function addWallShelf(P,len,room){   // P: top-left of the board's centre on the wall plane (x, y), len: its length, room: the height free above it
+  if(BACKDROP==="niche"||BACKDROP==="curtain"||CURTAIN||MIRROR||OBJS.some(o=>o.kind==="mirror")) return false;
+  const FS=makeRng(String(CURSEED)+"~shelf"), fs=(a,b)=>a+(b-a)*FS();
+  const zs=WALLZ-0.3, x0=P[0]-len/2, x1=P[0]+len/2, y=P[1], th=0.035, d=0.22, off=fs(0,40), wood=TABLE.kind==="wood"?TABLE.c:C(110,76,44);
+  addObj({kind:"shelf",cx:P[0],cy:y-th,cz:WALLZ-d,m:IDM,bound:len/2+0.3,box:[x0-0.04,y-0.35,WALLZ-2*d-0.02,x1+0.04,y+0.04,WALLZ+0.02],
+    sdf:(lx,ly,lz)=>Math.min(sdBox(lx,ly,lz,len/2,th,d,0.012),
+      sdBox(Math.abs(lx)-len*0.36,ly+th+0.1,lz-d*0.55,0.025,0.1,d*0.4,0.008)),
+    mat:(lx,ly,lz)=>{ const g=0.5+0.5*Math.sin((lz*9+noise3(lx*2+off,ly*2,lz*2)*2.5)*2.4); return M(wood.map(v=>v*(0.82+0.22*g)),{ks:0.16,gl:18,bump:0.01,bf:60}); }});
+  NAMES.push("a wall shelf");
+  const n=Math.max(1,Math.min(3,Math.round(len/0.9))), makers=["vase","vase","vase","jug","jug","candle","books"];
+  const sc=clamp(0.7*room/1.75,0.45,1.0);          // the things are as large as the band above the table allows
+  for(let i=0;i<n;i++){ const kind=makers[Math.floor(FS()*makers.length)], slot=(len-0.5)/n, xc=x0+0.25+slot*(i+0.5)+fs(-0.05,0.05);
+    const before=OBJS.length, nB=NAMES.length, cB=COLL.length, rngKeep=rand, drKeep=DR; rand=makeRng(String(CURSEED)+"~shelfitem"+i); DR=makeRng(String(CURSEED)+"~shelfdetail"+i);
+    try{
+      if(kind==="vase") addJug(xc,zs,y,{scale:sc*fs(0.85,1.1),noHandle:true,style:["faience","greenglaze","stoneware"][Math.floor(FS()*3)]});
+      else if(kind==="jug") addJug(xc,zs,y,{scale:sc*fs(0.75,1.0)});
+      else if(kind==="books") addBooks(xc,zs,y);
+      else addCandlestick(xc,zs,y,false);
+    }finally{ rand=rngKeep; DR=drKeep; }
+    // too tall for the band: taken away again
+    const added=OBJS.slice(before); let top=0; for(const o of added) top=Math.max(top,o.box[4]-y);
+    if(top>room){ for(const o of added) OBJS.splice(OBJS.indexOf(o),1); NAMES.length=nB; COLL.length=cB; }
+    else for(const o of added){ if(o.vTop!=null) o.bouq=true; } }
+  return true; }
+/* FILL-END */
+
 /* ---------- VESSELS ---------- */
 /* a glaze is one colour: it pools darker toward the foot, runs thin and a little paler over the swell and the rim, and
    shows a few faint runs where it flowed down in the kiln; k = how much it varies */
@@ -599,7 +888,7 @@ function addJug(x,z,floorY,opt){ opt=opt||{};
   const yaw=(rand()<0.5?0:Math.PI)+rr(-0.9,0.9);
   const handle=opt.noHandle?(()=>1e9):joinedHandle(outline,0.8*H,0.4*H,0.19*H,0.05*sc,0.022); const vase=!!opt.noHandle;   // both ends sunk into the wall
   const mat=VESSEL_MATS[style]();
-  addObj({kind:"jug",style,vase, cx:x,cy:floorY,cz:z, m:frame(0,1,0,yaw), bound:Math.max(H,Rb+RM)*1.05,
+  addObj({kind:"jug",style,vase, vTop:floorY+H, vRim:Rb*0.46, cx:x,cy:floorY,cz:z, m:frame(0,1,0,yaw), bound:Math.max(H,Rb+RM)*1.05,
     box:[x-Rb-RM-0.1,floorY,z-Rb-RM-0.1,x+Rb+RM+0.1,floorY+H+0.05,z+Rb+RM+0.1],
     sdf:(lx,ly,lz)=>Math.min(L(Math.hypot(lx,lz),ly)-0.022, handle(lx,ly,lz)), mat:(lx,ly,lz)=>mat(lx,ly,lz)});
   COLL.push({x,z,r:Rb+0.02,h:floorY+H}); NAMES.push(opt.noHandle?(style==="faience"?"a delftware vase":"a tall vase"):style==="pewter"?"a pewter flagon":style==="faience"?"a faience jug":style==="greenglaze"?"a green-glazed jug":"a stoneware jug");
@@ -1556,6 +1845,9 @@ function buildScene(){
     for(const k in cw) cw[k]*=bias[k]||1; COMP=OV("comp")||wpick(cw); } FORMAT=COMP==="frieze"||COMP==="banquet"||COMP==="chaos"||COMP==="pair"?"landscape":(rand()<(COMP==="sparse"||COMP==="pyramid"?0.35:0.15)?"portrait":"landscape");
   if(OV("orient")==="p") FORMAT="portrait"; if(OV("orient")==="l") FORMAT="landscape";
   RATIO={"4x5":0.8,"3x4":0.75,"2x3":2/3,"a":Math.SQRT1_2,"1x1":1}[OV("ratio")]||0.8;      // short side : long side (A = 1:√2)
+  if(!OV("comp")&&OV("fill")!=="off"&&(FORMAT==="portrait"||RATIO>=0.99)){ // a taller group for a portrait or a square: chosen again, from its own stream
+    const r=makeRng(String(CURSEED)+"~fillcomp"), w=Object.keys(SCH.comps).map(k=>[k,SCH.comps[k]*(FILL_COMP[k]||1)]).filter(e=>e[1]>0); let s=0; for(const e of w) s+=e[1];
+    let q=r()*s, pick_=w.length?w[0][0]:COMP; for(const e of w){ q-=e[1]; if(q<=0){ pick_=e[0]; break; } } COMP=pick_; }
   const tk=wpick(SCH.tables); TABLE={kind:tk, off:rr(0,50)};
   TABLE.polish = tk==="wood"?(rand()<0.5?rr(0.35,0.8):0):tk==="marble"?rr(0.25,0.6):0;
   TABLE.c = tk==="wood"?pick([C(92,58,34),C(70,44,26),C(110,72,40)]):tk==="marble"?pick([C(196,190,178),C(150,120,100),C(90,86,80)]):pick([C(150,136,112),C(128,118,100),C(170,154,124)]);
@@ -1697,7 +1989,8 @@ function buildScene(){
   if(BACKDROP==="curtain") addCurtain(rand()<0.5?-1:1);
   if(BACKDROP==="niche"){ let cx=0,n=0; for(const o of OBJS){ cx+=o.cx; n++; } cx=n?cx/n:0; addNiche(cx+rr(-0.6,0.6),rr(1.4,2.3),rr(1.2,2.2),rr(0.7,1.2)); }
   studioThings(kinds.filter(k=>!["grapes","cherry","walnut"].includes(k)).concat(["apple"]).slice(0,Math.max(1,kinds.length)));
-  fruitCount(+OV("fruitn")||0, kinds);
+  if(OV("fruitn")==="none"){ BODIES.length=0; OBJS=OBJS.filter(o=>o.kind!=="leaf"); }   // no fruit at all (and none of its leaves)
+  else fruitCount(+OV("fruitn")||0, kinds);
   runPhysics(); materialize(); placeKnife();
   if(MIRROR){ const fg=OBJS.filter(o=>!o.bg); let mn=1e9,mx=-1e9; for(const o of fg){ mn=Math.min(mn,o.cx); mx=Math.max(mx,o.cx); }
     const mid=(mn+mx)/2, half=Math.max(0.8,(mx-mn)/2), sd=rand()<0.5?-1:1;
@@ -1706,6 +1999,7 @@ function buildScene(){
     if(CURTAIN){ const R=1.45, edge=CURTAIN.xe+CURTAIN.side*CURTAIN.pull; if(CURTAIN.side<0) mxp=Math.max(mxp,Math.max(edge,CURTAIN.xe)+R); else mxp=Math.min(mxp,Math.min(edge,CURTAIN.xe)-R); }
     if(!CURTAIN||Math.abs(mxp-mid)<half+2.2) addMirror(MIRROR,mxp,myp); else MIRROR=""; }
   addCuriosities(); addExtras(); settle(OBJS); noPassThrough(); settle(OBJS); noPassThrough(); SHINYID=shinyIds();   // settled last, so every placement above is made exactly as the seed always made it
+  addBouquets();         // flowers in the vases: drawn from their own stream, after everything else, so nothing above moves
 }
 
 /* =============================================================================
@@ -1788,6 +2082,27 @@ function setupCamera(){
         else break; }
       TH=TW/aspect; YC=yEdge+(bV-0.5)*2*TH; XC=clamp(XC,(x0+x1)/2-Math.max(0,TW-(x1-x0)/2/0.95),(x0+x1)/2+Math.max(0,TW-(x1-x0)/2/0.95)); } }
   if(COMP==="corner"){ const sg=cx>=0?1:-1; TW*=1.6; TH=TW/aspect; XC=(x0+x1)/2-sg*0.34*TW; YC=yEdge+(0.8-0.5)*2*TH; }   // the bare side of the table is part of the picture
+  { // Portrait and square pictures (studio: Fill): brought nearer so that the group fills the width, and set low in the
+    // picture, with a band left free above it for a shelf (Full)
+    const fm=fillMode();
+    if(fm){ const sb=safeBox(), bot=sb.y1-SIG_BAND, bandTop=sb.y0+0.02+(fm==="full"?0.2:0);
+      const cw=(x1-x0)/(2*TW), ch=aspect*(y1-y0)/(2*TW);          // the group's width and height as shares of the canvas
+      const k=Math.min((sb.x1-sb.x0)/cw,(bot-bandTop)/ch,fm==="full"?1.7:1.4);
+      if(k>1.02){ TW/=k; TH=TW/aspect; XC=(x0+x1)/2; YC=y0+(bot-0.5)*2*TH; } } }
+  { // The print margin: whatever the size a print is cut to, every object stays whole, a small gap in from its edge,
+    // with the strip at the foot left free for the signature. The picture is only drawn further back when it has to be.
+    const sb=safeBox(); sb.y1-=SIG_BAND;
+    const needW=(x1-x0)/(2*(sb.x1-sb.x0)), needH=aspect*(y1-y0)/(2*(sb.y1-sb.y0));
+    TW=Math.max(TW,needW,needH); TH=TW/aspect;
+    const xLo=x1-(sb.x1-0.5)*2*TW, xHi=x0-(sb.x0-0.5)*2*TW; XC=xLo<=xHi?clamp(XC,xLo,xHi):(xLo+xHi)/2;
+    const yLo=y1-(0.5-sb.y0)*2*TH, yHi=y0+(sb.y1-0.5)*2*TH; YC=yLo<=yHi?clamp(YC,yLo,yHi):(yLo+yHi)/2; }
+  if(fillMode()==="full"){ // a shelf on the wall in the band above the things
+    const sb=safeBox(), vTop=0.5-(y1-YC)/(2*TH), fyb=vTop-0.045;
+    if(fyb-sb.y0>0.12){ const FS=makeRng(String(CURSEED)+"~shelfpos"), zs=WALLZ-0.3, frac=0.34+0.14*FS();
+      let fx=0.5+(FS()<0.5?-1:1)*(0.08+0.1*FS()); fx=clamp(fx,sb.x0+frac/2+0.01,sb.x1-frac/2-0.01);
+      const u=XC+(fx-0.5)*2*TW, v=YC+(0.5-fyb)*2*TH, dx=FWD[0]+u*RT[0]+v*UPV[0], dy=FWD[1]+u*RT[1]+v*UPV[1], dz=FWD[2]+u*RT[2]+v*UPV[2], t=(zs-EYE[2])/dz;
+      const px=EYE[0]+dx*t, py=EYE[1]+dy*t, room=(fyb-sb.y0-0.025)*2*TH*t;
+      if(room>0.5) addWallShelf([px,py],frac*2*TW*t,room); } }
   dropHidden();          // only now: the picture is framed exactly as the seed always framed it
 }
 
@@ -2619,8 +2934,22 @@ const SIG_CAPS={ // cap height 1
   S:[[[0.56,0.86],[0.32,1],[0.07,0.86],[0.1,0.62],[0.47,0.42],[0.57,0.17],[0.32,0],[0.02,0.12]]], H:[[[0.05,0],[0.05,1]],[[0.62,0],[0.62,1]],[[0.05,0.5],[0.62,0.5]]] };
 const SIG_CW={A:0.85,K:0.72,I:0.25,R:0.68,S:0.62,H:0.72," ":0.45};
 function ownStream(tag,f){ const k=rand; rand=makeRng(CURSEED+"~"+tag); try{ return f(); } finally{ rand=k; } }
-function paintSignature(opt){ return ownStream("sign",()=>paintSignature0(opt)); }
-function paintSignature0(opt){ opt=opt||{}; const u=Math.sqrt(W*H/(1200*960)), caps=rand()<0.3, name=caps?"AKIRA ISHI":"Akira Ishi", G=caps?SIG_CAPS:SIG_SCRIPT, AW=caps?SIG_CW:SIG_SW;
+/* What a print may cut. The sizes on sale are 13x18, 15x20, 20x25, 21x29.7 (8x12 in) and A3: shapes from 0.667 to 0.8
+   (short : long). A print is cut from the middle of the picture to the shape of its size, so what has to stay whole
+   (the objects, the signature) is kept inside what every one of those sizes keeps, and a small gap in from its edge.
+   Returns shares of the canvas { x0, x1, y0, y1 }. SIG_BAND: the strip at the foot that the signature takes. */
+const SOLD_SHAPES=[2/3,Math.SQRT1_2,13/18,0.75,0.8], PRINT_GAP=0.03, SIG_BAND=0.075;
+function safeBox(){ const rho=RATIO, hi=Math.max(...SOLD_SHAPES), lo=Math.min(...SOLD_SHAPES);
+  const along=hi>rho?rho/hi:1, across=lo<rho?lo/rho:1;          // what survives, along the long side and across it
+  const rng=k=>{ const g=PRINT_GAP*k; return [(1-k)/2+g,(1+k)/2-g]; };
+  const L=rng(along), S=rng(across);
+  return FORMAT!=="portrait"?{x0:L[0],x1:L[1],y0:S[0],y1:S[1]}:{x0:S[0],x1:S[1],y0:L[0],y1:L[1]}; }
+/* the signature can be chosen in the local studio (menu, "Signature"); on akiraishi.com (data-site) it never is */
+const SIGQ=k=>{ try{ if(typeof document!=="undefined"&&document.documentElement.hasAttribute("data-site")) return "";
+  return new URLSearchParams(URLQ).get(k)||""; }catch(e){ return ""; } };
+function paintSignature(opt){ return ownStream("sign"+SIGQ("sigvar"),()=>paintSignature0(opt)); }
+function paintSignature0(opt){ opt=opt||{}; const forced=SIGQ("sig"); if(forced==="off") return {caps:false};
+  const u=Math.sqrt(W*H/(1200*960)), caps=(r=>forced==="caps"?true:forced==="script"?false:r<0.3)(rand()), name=caps?"AKIRA ISHI":"Akira Ishi", G=caps?SIG_CAPS:SIG_SCRIPT, AW=caps?SIG_CW:SIG_SW;
   const xh=(caps?rr(11,16):rr(11,17))*u, slant=caps?rr(-0.02,0.12):rr(0.15,0.42), wide=rr(0.85,1.2), track=caps?rr(0.15,0.38):rr(-0.03,0.06), jit=caps?rr(0.03,0.06):rr(0.015,0.05), ang=rr(-0.09,0.04), pen=(caps?rr(1.15,1.6):rr(0.85,1.45))*u*(opt.thread?1.6:1);
   const strokes=[]; let cx=0, prevEnd=null;
   for(const ch of name){ const g=G[ch];
@@ -2640,11 +2969,21 @@ function paintSignature0(opt){ opt=opt||{}; const u=Math.sqrt(W*H/(1200*960)), c
   const paths=strokes.map(st=>st.length===1?[T(st[0])]:(caps?st.map(T):spline(st.map(T),5)));
   let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; for(const p of paths) for(const [x,y] of p){ x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y); }
   const pw=x1-x0, ph=y1-y0, m=16*u;
-  const ox=rr(W*0.6, Math.max(W*0.6, W-m-pw))-x0, oy=rr(Math.max(H*0.86, m-y0+ph), H-m-y1)+0;
-  const OX=ox, OY=Math.min(oy,H-m-y1);
+  // Always inside the print margin (safeBox): by default in the bottom-right corner, a little varied from one painting
+  // to the next; or at the bottom centre or bottom left when it is chosen in the local studio
+  const sb=safeBox(), pos=SIGQ("sigpos"), rightMax=sb.x1*W, leftMin=sb.x0*W, bottomMax=sb.y1*H;
+  let lo, hi;                                   // where the signature's left edge may start
+  if(pos==="left"){ lo=leftMin; hi=leftMin+W*0.04; }
+  else if(pos==="center"){ lo=(W-pw)/2-W*0.03; hi=(W-pw)/2+W*0.03; }
+  else { hi=rightMax-pw; lo=hi-W*0.07; }
+  lo=Math.max(leftMin,lo); hi=Math.max(lo,Math.min(hi,rightMax-pw));
+  const oyMax=bottomMax-y1, oyMin=Math.min(oyMax,Math.max(m-y0,oyMax-H*0.025));
+  const ox=rr(lo,hi)-x0, oy=rr(oyMin,oyMax);
+  const OX=ox, OY=Math.min(oy,oyMax);
   let lr=0,n=0; for(let y=Math.max(0,Math.floor(OY+y0));y<Math.min(H,OY+y1);y+=2) for(let x=Math.max(0,Math.floor(OX+x0));x<Math.min(W,OX+x1);x+=2){ const i=y*W+x; lr+=lum(CR[i],CG[i],CB[i]); n++; }
   lr/=Math.max(1,n);
-  const col0=lr>0.1?pick([C(34,24,18),C(52,28,20),C(30,26,24)]):pick([C(196,152,72),C(196,152,72),C(168,62,36)]); const col=opt.col||col0;
+  const col0=lr>0.1?pick([C(34,24,18),C(52,28,20),C(30,26,24)]):pick([C(196,152,72),C(196,152,72),C(168,62,36)]);
+  const col=({dark:C(34,24,18),gold:C(196,152,72),light:C(236,226,206)})[SIGQ("sigcol")]||opt.col||col0;
   const P={op:0.95,dep:0.06,thick:opt.thread?0.7:0.45,streak:0.02,clip:0,onGold:true,full:true,thread:!!opt.thread,len:10*u};
   for(const p of paths){ if(p.length===1){ renderStroke([p[0][0]+OX,p[0][1]+OY],pen*1.4,col[0],col[1],col[2],P); continue; }
     if(caps){ const flat=[]; for(const [x,y] of p) flat.push(x+OX,y+OY); renderStroke(flat,pen,col[0],col[1],col[2],P); continue; }
@@ -3061,13 +3400,13 @@ let ENGRAVE_PM=0;
    engravers signed), the name alone, or with SC. (sculpsit), or shortened to A. ISHI; never the painter's handwriting */
 const ENG_GLYPH=Object.assign({},SIG_CAPS,{C:[[[0.56,0.82],[0.34,1],[0.12,0.84],[0.05,0.5],[0.12,0.16],[0.34,0],[0.56,0.18]]],".":[[[0.1,0.02],[0.1,0.06]]]}), ENG_W=Object.assign({},SIG_CW,{C:0.66,".":0.25});
 function engraveSignature(INK,pm){ return ownStream("sign",()=>engraveSignature0(INK,pm)); }
-function engraveSignature0(INK,pm){ const v=Math.sqrt(SC), kind=wpick({name:3,sc:2,mono:1.5}), txt=kind==="name"?"AKIRA ISHI":kind==="sc"?"AKIRA ISHI SC.":"A. ISHI";
+function engraveSignature0(INK,pm){ if(SIGQ("sig")==="off") return; const v=Math.sqrt(SC), kind=wpick({name:3,sc:2,mono:1.5}), txt=kind==="name"?"AKIRA ISHI":kind==="sc"?"AKIRA ISHI SC.":"A. ISHI";
   const h=(kind==="mono"?rr(16,20):rr(13,17))*v*1.5, track=rr(0.22,0.34), hw=Math.max(0.55,h*0.045), segs=[]; let cx=0;
   for(const ch of txt){ const g=ENG_GLYPH[ch]; if(g) for(const st of g){ for(let k=0;k<st.length-1;k++) segs.push([st[k][0]+cx,st[k][1],st[k+1][0]+cx,st[k+1][1]]);
       for(const [px,py] of [st[0],st[st.length-1]]) if(ch!=="."&&(py<0.02||py>0.98)) segs.push([px+cx-0.09,py,px+cx+0.09,py]); }   // serifs
     cx+=(ENG_W[ch]||0.5)+track; }
   const Wt=(cx-track)*h, padx=h*0.7, pady=h*0.55, bw=Wt+2*padx, bh=h+2*pady, framed=rand()<0.7, dbl=rand()<0.4;
-  const x0=Math.round(rr(W*0.62,Math.max(W*0.62,W-pm-bw-h*1.2))), y0=Math.round(H-pm-bh-rr(0.8,2.2)*h);
+  const sbx=safeBox(), farR=Math.min(W-pm-bw-h*1.2,sbx.x1*W-bw), x0=Math.round(rr(Math.max(W*0.55,farR-W*0.09),Math.max(W*0.55,farR))), y0=Math.round(Math.min(H-pm-bh-rr(0.8,2.2)*h,sbx.y1*H-bh));   // bottom-right corner, inside the print margin
   // the tablet: bare copper, so the letters read on any ground
   for(let y=Math.max(0,y0);y<Math.min(H,y0+bh);y++) for(let x=Math.max(0,x0);x<Math.min(W,x0+bw);x++){ const e=Math.min(x-x0,x0+bw-1-x,y-y0,y0+bh-1-y);
     INK[y*W+x]=framed&&(e<hw*1.6||(dbl&&e>hw*3.4&&e<hw*4.8))?1:0; }
@@ -3332,7 +3671,7 @@ function isLite(){ const q=new URLSearchParams(URLQ).get("lite"); if(q!=null) re
   const mem=navigator.deviceMemory||8, cores=navigator.hardwareConcurrency||4, touch=matchMedia&&matchMedia("(pointer:coarse)").matches, small=Math.min(screen.width,screen.height)<=900;
   return mem<=4||cores<=4||(touch&&small); }
 /* ---- studio: two choices (how it is made, how fine), then paint ---- */
-const ST={style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:""};   // the last six: URL only
+const ST={style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:"",sig:"",sigcol:"",sigpos:"",sigvar:"",flowers:"",flower:"",fill:""};   // school..haze: URL only; sig*: the signature, local studio only
 for(const k in ST) ST[k]=Q.get(k)||"";
 if(ST.shade==="new") ST.shade="blended"; else if(ST.shade!=="blended") ST.shade="";   // older links: new = blended, old/between = rough
 if(!SKEYS[ST.style]) ST.style="acrylic";   // acrylic unless another way is chosen
@@ -3351,6 +3690,8 @@ const $=id=>document.getElementById(id);
 const COMP_UI=[["","Auto"],["pyramid","Pyramid"],["heap","Heap"],["diagonal","Diagonal"],["frieze","Ledge"],["sparse","Spare"],["banquet","Banquet"],["pair","Two groups"],["spill","Spill"],["tall","Tall"],["corner","Corner"],["ring","Ring"],["chaos","Chaos"]];
 const FRUIT_UI=[["apple","Apple"],["pear","Pear"],["lemon","Lemon"],["orange","Orange"],["plum","Plum"],["peach","Peach"],["grapes","Grapes"],["cherry","Cherries"],["pomegranate","Pomegranate"],["fig","Fig"],["walnut","Walnuts"],["quince","Quince"]];
 const OBJ_UI=[["knife","Knife"],["jug","Jug"],["vase","Vase"],["bottle","Bottle"],["glass","Glass"],["candlestick","Candlestick"],["bowl","Bowl"],["plate","Plate"],["bread","Bread"],["cheese","Cheese"],["eggs","Eggs"],["onion","Onions"],["shell","Shell"],["hourglass","Hourglass"],["cup","Cup"],["mugClay","Clay mug"],["mugStone","Tankard"],["strawberries","Strawberries"],["pipe","Pipe"],["mortar","Mortar"],["asparagus","Asparagus"],["pumpkin","Pumpkin"]];
+const FLOWER_UI=[["","Auto"],["rose","Rose"],["tulip","Tulip"],["daisy","Daisy"],["sunflower","Sunflower"],["peony","Peony"],["lily","Lily"],["poppy","Poppy"],["none","None"]];
+for(const [k,t] of FLOWER_UI){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $("st-flower").appendChild(b); b.onclick=()=>{ if(k==="none"){ ST.flowers="0"; ST.flower=""; } else { ST.flower=k; if(k&&ST.flowers==="0") ST.flowers=""; } go(SEED); }; }
 const lst=k=>ST[k]?ST[k].split("."):[], setLst=(k,a)=>{ ST[k]=a.join("."); };
 for(const [k,t] of COMP_UI){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $("st-comp").appendChild(b); b.onclick=()=>{ ST.comp=k; go(SEED); }; }
 for(const [k,t] of FRUIT_UI){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $("st-fruit").appendChild(b);
@@ -3364,12 +3705,13 @@ function queryFor(seed){ const p=new URLSearchParams(); p.set("seed",seed); for(
   for(const k of ["print","res","lite"]) if(Q.has(k)) p.set(k,Q.get(k)); return "?"+p.toString(); }
 function syncUI(){ for(const b of $("st-manner").children) b.classList.toggle("on",b.dataset.v===ST.style);
   for(const b of $("st-busy").children) b.classList.toggle("on",b.dataset.v===ST.busy);
-  for(const r of [...$("st-things").children,...$("st-finish").children,...$("st-silk").children]) for(const b of r.querySelectorAll("button")) b.classList.toggle("on",b.dataset.v===(ST[r.dataset.k]||""));
+  for(const r of [...$("st-things").children,...$("st-finish").children,...$("st-silk").children,...$("st-sigrows").children]) for(const b of r.querySelectorAll("button")) b.classList.toggle("on",b.dataset.v===(ST[r.dataset.k]||""));
   // silk embroidery has its own choices: a version row, and the detail counted in stitches
   for(const b of $("st-comp").children) b.classList.toggle("on",b.dataset.v===(ST.comp||""));
+  for(const b of $("st-flower").children) b.classList.toggle("on",b.dataset.v==="none"?ST.flowers==="0":(b.dataset.v===(ST.flower||"")&&ST.flowers!=="0"));
   for(const b of $("st-fruit").children) b.classList.toggle("on",lst("fruit").includes(b.dataset.v));
   for(const b of $("st-objs").children){ b.classList.toggle("on",lst("with").includes(b.dataset.v)); b.classList.toggle("no",lst("without").includes(b.dataset.v)); }
-  if(["skull","mirror","cloth","books","fruitn","fruit","with","without","light","comp"].some(k=>ST[k])&&$("st-moreBox").style.display==="none") $("st-moreBtn").click();   // choices already made: show them
+  if(["skull","mirror","cloth","books","fruitn","fruit","with","without","light","comp","flowers","flower","fill","sig","sigcol","sigpos","sigvar"].some(k=>ST[k])&&$("st-moreBox").style.display==="none") $("st-moreBtn").click();   // choices already made: show them
   const silk=ST.style==="silk"; $("st-silk").style.display=silk?"":"none";
   $("st-bdesc").textContent=BUSY_DESC[ST.busy]||"";
   $("st-desc").textContent=STYLE_DESC[ST.style]||"";
@@ -3380,7 +3722,7 @@ function go(seed,push){ SEED=seed; try{ history.replaceState(null,"",queryFor(se
 function travel(d){ const n=HI+d; if(n<0||n>=HIST.length) return; HI=n; Object.assign(ST,HIST[n].st); go(HIST[n].seed,false); }
 /* on akiraishi.com (the copy there carries data-site on its <html>) the picture is only shown: no file, no menu */
 const SITE=document.documentElement.hasAttribute("data-site");
-if(SITE){ $("st-keys").textContent="Keys: N new · ← → previous/next · F full screen · M studio";
+if(SITE){ $("st-sign").style.display="none"; $("st-keys").textContent="Keys: N new · ← → previous/next · F full screen · M studio";
   const no=e=>{ if(e.target.closest&&e.target.closest("#stage,canvas")) e.preventDefault(); };
   document.addEventListener("contextmenu",no); document.addEventListener("dragstart",no); document.addEventListener("selectstart",no); }
 /* full screen: the browser's own where it has one; the page is also told, so a site that frames it can enlarge the frame
@@ -3413,10 +3755,11 @@ function save(){ if(SITE||SAVING) return; const base=`still-life-code-${SEED}${S
     btn.textContent="Saving at 300 dpi…"; if(s) status("saving the 300 dpi file · "+s); },700); }
 function toggleLabel(){ labelOn=!labelOn; $("label").classList.toggle("hidden",!labelOn); }
 $("studioBtn").onclick=()=>$("studio").classList.toggle("closed");
-if(innerWidth>=1100) $("studio").classList.remove("closed");
+if(innerWidth>=1100||(document.body.classList.contains("embedded")&&innerWidth>=640)) $("studio").classList.remove("closed");   // on the shop page, the menu is open from the start
 for(const b of $("st-manner").children) b.onclick=()=>{ ST.style=b.dataset.v; go(SEED); };
 for(const b of $("st-busy").children) b.onclick=()=>{ ST.busy=b.dataset.v; go(SEED); };
-for(const r of [...$("st-things").children,...$("st-finish").children,...$("st-silk").children]) for(const b of r.querySelectorAll("button")) b.onclick=()=>{ ST[r.dataset.k]=b.dataset.v; go(SEED); };
+for(const r of [...$("st-things").children,...$("st-finish").children,...$("st-silk").children,...$("st-sigrows").children]) for(const b of r.querySelectorAll("button")) b.onclick=()=>{ ST[r.dataset.k]=b.dataset.v; go(SEED); };
+$("st-sigvar").onclick=()=>{ ST.sigvar=String((+ST.sigvar||0)+1); go(SEED); };
 $("st-new").onclick=()=>go(newSeed()); $("st-prev").onclick=()=>travel(-1); $("st-next").onclick=()=>travel(1);
 $("st-save").onclick=save;
 canvas.addEventListener("click",()=>go(newSeed())); if(VIEW) VIEW.addEventListener("click",()=>{ if(isFs()) exitFs(); else go(newSeed()); });

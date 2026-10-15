@@ -429,8 +429,9 @@
         }
     }
 
-    // The part of the painting that a size prints: all of it, cut to the shape of the size from the top and the left,
-    // so that the signature's corner stays. [width, height] of the print in millimetres; no size: no cut.
+    // The part of the painting that a size prints: all of it, cut to the shape of the size from the middle (the
+    // studio keeps its objects and its signature inside what every size keeps). [width, height] of the print in
+    // millimetres; no size: no cut.
     function cropFor(srcW, srcH, sizeMm) {
         const whole = { sx: 0, sy: 0, sw: srcW, sh: srcH };
         if (!sizeMm || !(sizeMm[0] > 0) || !(sizeMm[1] > 0) || !srcW || !srcH) return whole;
@@ -439,10 +440,10 @@
         if (Math.abs(target - aspect) / aspect < 0.004) return whole;
         if (target < aspect) {
             const sw = Math.round(srcH * target);
-            return { sx: srcW - sw, sy: 0, sw: sw, sh: srcH };
+            return { sx: Math.round((srcW - sw) / 2), sy: 0, sw: sw, sh: srcH };
         }
         const sh = Math.round(srcW / target);
-        return { sx: 0, sy: srcH - sh, sw: srcW, sh: sh };
+        return { sx: 0, sy: Math.round((srcH - sh) / 2), sw: srcW, sh: sh };
     }
 
     // The resolution the print file gives at the chosen size: its long side over the print's long side
@@ -801,7 +802,7 @@
 
     function renderFineprint() {
         fineprint.textContent = t('shop.api-fineprint',
-            'Pay securely on this site; the print is made to order and shipped to you.');
+            'Secure payment through Stripe.');
     }
 
     // The order service could not be reached (an ad blocker, a network): say so, instead of "opens soon"
