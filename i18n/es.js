@@ -150,6 +150,8 @@ ui: {
 "shop.dpi-note": "Gran formato (unos {dpi} dpi): pensado para verse a un metro o más.",
 "shop.coming-soon": "Próximamente",
 "shop.work-vanitas": "Bodegón con calavera",
+"shop.work-candle": "Bodegón con vela y naranjas",
+"shop.work-skullcandle": "Calavera con vela y girasoles",
 "shop.the-artist": "El artista",
 "shop.about-akira-ishi": "Sobre Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi es un artista francés que trabaja con código. Su obra busca la sencillez con fondo: formas mínimas para decir ideas complejas, a través de un proceso paciente, iterativo y muy personal.",

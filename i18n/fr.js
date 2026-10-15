@@ -150,6 +150,8 @@ ui: {
 "shop.dpi-note": "Grand format (environ {dpi} dpi) : fait pour être vu à un mètre ou plus.",
 "shop.coming-soon": "Bientôt disponible",
 "shop.work-vanitas": "Nature morte au crâne",
+"shop.work-candle": "Nature morte à la bougie et aux oranges",
+"shop.work-skullcandle": "Crâne à la bougie et tournesols",
 "shop.the-artist": "L'artiste",
 "shop.about-akira-ishi": "À propos d'Akira Ishi",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi est un artiste français qui travaille avec le code. Son travail cherche la simplicité avec de la profondeur : des formes minimales pour dire des idées complexes, au fil d'un processus patient, itératif et très personnel.",
