@@ -152,6 +152,8 @@ ui: {
 "shop.work-vanitas": "ドクロのある静物画",
 "shop.work-candle": "ろうそくとオレンジの静物画",
 "shop.work-skullcandle": "ドクロのろうそくとひまわり",
+"shop.work-poppies": "ポピーの静物画",
+"shop.work-roses": "赤いバラの静物画",
 "shop.the-artist": "アーティスト",
 "shop.about-akira-ishi": "Akira Ishi について",
 "shop.akira-ishi-is-a-french-artist": "Akira Ishi はコードで制作するフランスのアーティストです。目指しているのは「シンプルなのに奥がある」こと。最小限のかたちで複雑な考えを語るために、根気よく、何度も手を入れながら、ごく個人的なやり方で制作しています。",
