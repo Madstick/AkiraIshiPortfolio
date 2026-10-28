@@ -768,21 +768,32 @@ const MAKERS={apple:makeApple,pear:makePear,lemon:makeLemon,orange:makeOrange,pl
   apricot:makeApricot,mandarin:makeMandarin,persimmon:makePersimmon,lime:makeLime,nectarine:makeNectarine,blackberry:makeBlackberry,
   banana:makeBanana,blueberry:makeBlueberry,melon:makeMelon};
 
-/* grapes: one object per bunch, spheres placed by the physics */
+/* grapes, after the paintings: the fruit alone, no stem, packed tight so each presses into its neighbours; each a little
+   long (an egg, not a ball), lying its own way. Dark grapes are every shade from rosy lilac to plum and blue-black, a
+   crimson flush glowing through the middle of the paler ones, a frosted lavender bloom that grows toward the edges as the
+   skin turns from us, a soft broad shine and a small sharp catch of light. Pale grapes stay a translucent yellow-green
+   with a golden flush. (The stem's draws are still made, so the seed's later draws are as they were.) */
 function makeBunch(bodies,dark){
   let cx=0,cy=0,cz=0; for(const g of bodies){cx+=g.x;cy+=g.y;cz+=g.z;} cx/=bodies.length;cy/=bodies.length;cz/=bodies.length;
-  const G=new Float64Array(bodies.length*4); let bound=0;
-  bodies.forEach((g,i)=>{ G[i*4]=g.x-cx;G[i*4+1]=g.y-cy;G[i*4+2]=g.z-cz;G[i*4+3]=g.r; bound=Math.max(bound,Math.hypot(g.x-cx,g.y-cy,g.z-cz)+g.r); });
-  const top=bodies[0]; const s0=[top.x-cx,top.y-cy+top.r*0.8,top.z-cz]; const s1=[s0[0]+rr(-0.15,0.15),s0[1]+0.18,s0[2]+rr(-0.1,0.1)];
-  const n=bodies.length, tone=dark?C(40,22,40):C(170,176,70), tone2=dark?C(78,40,70):C(196,190,90);
-  const stem=bentStem([s0[0],s0[1]-0.05,s0[2]],s1,[(hash3i(n,cx*1000|0,3)-0.5)*0.06,0.01,(hash3i(n,cz*1000|0,5)-0.5)*0.06],0.024,0.018);
-  return { kind:"grapes", cx,cy,cz, m:IDM, bound:bound+0.25,
-    sdf:(x,y,z)=>{ let d=stem(x,y,z); for(let i=0;i<n*4;i+=4){ const e=Math.hypot(x-G[i],y-G[i+1],z-G[i+2])-G[i+3]; if(e<d)d=e; } return d; },
-    mat:(x,y,z)=>{ let bi=0,bd=1e9; for(let i=0;i<n*4;i+=4){ const e=Math.hypot(x-G[i],y-G[i+1],z-G[i+2])-G[i+3]; if(e<bd){bd=e;bi=i;} } if(stem(x,y,z)<=bd) return stemMat(x,y,z);
-      const h=hash3i(bi,7,3), c=mixc(tone,tone2,h*0.8);
-      const lx=(x-G[bi])/G[bi+3], ly=(y-G[bi+1])/G[bi+3], lz=(z-G[bi+2])/G[bi+3];
-      const bloom=dark?smooth(-0.4,0.6,noise3(lx*0.9+bi,ly*0.9,lz*0.9)):0.1;
-      return M(mixc(c,C(130,120,150),bloom*0.35),{ks:dark?0.5*(1-bloom*0.7):0.45,gl:dark?60:80,wrap:dark?0.3:0.65,ss:0.6,sheen:0.1*bloom,sc:C(160,160,190)}); } };
+  const n=bodies.length, G=new Float64Array(n*8); let bound=0;
+  bodies.forEach((g,i)=>{ const h1=hash3i(i,n,11)*6.283, h2=hash3i(i,n,12)*2-1, s_=Math.sqrt(1-h2*h2), r=g.r*1.1;   // (a tenth larger than the physics' ball: they press together)
+    G[i*8]=(g.x-cx)*0.84;G[i*8+1]=g.y-cy;G[i*8+2]=(g.z-cz)*0.84;   /* (and drawn in toward the middle of the bunch, at the heights they settled at: packed) */ G[i*8+3]=r; G[i*8+4]=s_*Math.cos(h1);G[i*8+5]=h2;G[i*8+6]=s_*Math.sin(h1); G[i*8+7]=1.1+0.12*hash3i(i,n,13);   // the long axis, how long
+    bound=Math.max(bound,Math.hypot(g.x-cx,g.y-cy,g.z-cz)+r*1.25); });
+  const top=bodies[0]; const s0=[top.x-cx,top.y-cy+top.r*0.8,top.z-cz]; rr(-0.15,0.15); rr(-0.1,0.1);   // (where the stem was: its draws kept)
+  const one=(x,y,z,i)=>{ const px=x-G[i],py=y-G[i+1],pz=z-G[i+2], t=px*G[i+4]+py*G[i+5]+pz*G[i+6], k=1-1/G[i+7];   // an egg along its axis
+    return (Math.hypot(px-k*t*G[i+4],py-k*t*G[i+5],pz-k*t*G[i+6])-G[i+3])*0.88; };
+  const PAL=dark?[C(92,78,130),C(88,58,104),C(70,50,108),C(54,40,96),C(42,34,86),C(30,22,52),C(76,54,98),C(48,42,100),C(36,26,66)]   /* (darker: deep violet to plum-black) */   // lilac, mauve, violet, blue-violet, plum-black (pink kept for the flush only)
+    :[C(168,178,104),C(186,184,112),C(150,168,96),C(196,178,98),C(136,156,90),C(176,170,92),C(160,176,118),C(190,166,86),C(144,160,100)];   // white: pale green, yellow-green, gold, amber   // lilac, rose, mauve, violet, blue-violet, plum-black
+  return { kind:"grapes", cx,cy,cz, m:IDM, bound:bound+0.05,
+    sdf:(x,y,z)=>{ let d=1e9; for(let i=0;i<n*8;i+=8){ const q=Math.hypot(x-G[i],y-G[i+1],z-G[i+2])-G[i+3]*1.25; if(q>d) continue; const e=one(x,y,z,i); if(e<d)d=e; } return d; },
+    mat:(x,y,z)=>{ let bi=0,bd=1e9; for(let i=0;i<n*8;i+=8){ const e=one(x,y,z,i); if(e<bd){bd=e;bi=i;} }
+      const gi=bi/8, h=hash3i(gi,n,7), h2=hash3i(gi,n,8), r=G[bi+3], lx=(x-G[bi])/r, ly=(y-G[bi+1])/r, lz=(z-G[bi+2])/r;
+      const f=h*(PAL.length-1), c0=PAL[Math.floor(f)], c1=PAL[Math.min(PAL.length-1,Math.floor(f)+1)]; let c=mixc(c0,c1,f-Math.floor(f));
+      const fl=smooth(-0.2,0.5,noise3(lx*1.1+gi*3.1,ly*1.1,lz*1.1+h2*9))*(0.35+0.65*(1-h));               // the crimson flush through the middle of the paler ones
+      c=mixc(c,dark?C(150,56,100):C(204,150,70),fl*(dark?0.12:0.3));   // (white grapes: a golden-amber flush)
+      const fr=smooth(-0.1,0.7,noise3(lx*2.4+gi,ly*2.4+h2*5,lz*2.4));                                 // the bloom: frosted lavender, in drifts
+      c=mixc(c,dark?C(124,118,160):C(208,212,190),fr*(dark?0.28:0.26));
+      return M(c,{ks:0.42*(1-fr*0.45),gl:46,wrap:0.25,ss:dark?0.3:0.5,sheen:0.14+0.16*fr,sc:dark?C(170,166,212):C(214,218,196)}); } };   // (the sheen: the frost thickening toward the edges)
 }
 function makeCherries(a,b){
   const cx=(a.x+b.x)/2, cy=(a.y+b.y)/2, cz=(a.z+b.z)/2;   // the fruit alone, no stems
@@ -2102,7 +2113,7 @@ function addCuriosities(){
       const yaw=kind==="fly"||kind==="ladybird"?DR()*6.283:(DR()<0.5?0:Math.PI)+(DR()-0.5)*0.5;
       NAMES.push(addInsect(ox,y-0.002,oz,yaw,kind)); OBJS[OBJS.length-1].on=o; if(o.hidden){ OBJS[OBJS.length-1].hidden=true; NAMES.pop(); } break; } }
   for(const o of OBJS.filter(o=>o.cut)) if(DR()<0.55){ const n0=OBJS.length, m0=NAMES.length; addSeeds(o); if(o.hidden){ for(let k=n0;k<OBJS.length;k++) OBJS[k].hidden=true; NAMES.length=m0; } }
-  for(const o of OBJS.filter(o=>o.kind==="grapes")) if(DR()<0.5) addTendril(o);
+  for(const o of OBJS.filter(o=>o.kind==="grapes")) if(DR()<0.5){ const n0=OBJS.length, m0=NAMES.length; addTendril(o); for(let k=n0;k<OBJS.length;k++) OBJS[k].hidden=true; NAMES.length=m0; }   // (grapes alone, packed, no tendril: still made, so the draws after it are as they were)
 }
 function pick_(a){ return a[Math.floor(DR()*a.length)]; }
 /* ---------- FOURTEEN MORE THINGS FOR THE TABLE ----------
