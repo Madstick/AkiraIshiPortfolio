@@ -70,6 +70,7 @@ ui: {
 "shop.your-painting": "あなたの絵",
 "shop.nothing-painted-yet": "まだ描かれていません",
 "shop.reference": "参照番号",
+"shop.in-development": "開発中",
 "shop.new-painting": "新しい一枚",
 "shop.full-screen": "全画面",
 "shop.your-own-arrangement": "配置はあなた次第",

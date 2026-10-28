@@ -111,8 +111,13 @@
                 </div>
 
                 <div class="atelier reveal">
+                    <div class="atelier-actions">
+                        <button type="button" class="btn btn-ghost" id="atelier-new" disabled data-i18n="shop.new-painting">New painting</button>
+                        <button type="button" class="btn btn-ghost" id="atelier-full" disabled data-i18n="shop.full-screen">Full screen</button>
+                    </div>
                     <div class="atelier-stage" id="atelier-stage">
                         <div class="atelier-poster" id="atelier-poster">
+                            <span class="atelier-dev" data-i18n="shop.in-development">In development</span>
                             <img src="images/atelier/slc-oil.webp" loading="lazy" decoding="async"
                                  alt="A generated still life in oil: pomegranates, a candlestick and an hourglass on a table against a golden wall"
                                  data-i18n-alt="shop.atelier-poster-alt">
@@ -127,11 +132,6 @@
 
                     <aside class="atelier-panel">
                       <div class="atelier-info">
-                        <div class="atelier-actions">
-                            <button type="button" class="btn btn-ghost" id="atelier-new" disabled data-i18n="shop.new-painting">New painting</button>
-                            <button type="button" class="btn btn-ghost" id="atelier-full" disabled data-i18n="shop.full-screen">Full screen</button>
-                        </div>
-
                         <h3 data-i18n="shop.your-painting">Your painting</h3>
                         <p class="atelier-title" id="atelier-title" data-i18n="shop.nothing-painted-yet">Nothing painted yet</p>
                         <p class="atelier-meta" id="atelier-meta" data-i18n="shop.open-the-atelier-and-click-the">

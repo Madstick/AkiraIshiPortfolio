@@ -70,6 +70,7 @@ ui: {
 "shop.your-painting": "Votre tableau",
 "shop.nothing-painted-yet": "Rien de peint pour l’instant",
 "shop.reference": "Référence",
+"shop.in-development": "En développement",
 "shop.new-painting": "Nouveau tableau",
 "shop.full-screen": "Plein écran",
 "shop.your-own-arrangement": "Votre mise en scène",

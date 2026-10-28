@@ -49,6 +49,11 @@
   #studio .trow.four { grid-template-columns:52px 1fr 1fr 1fr 1fr; }
   #studio .trow span { font-size:11px; color:#a39884; }
   #studio .trow button { font-size:10.5px; padding:4px 2px; }
+  /* a row of buttons longer than the menu is wide goes on over a second line (the buttons in a box that wraps) */
+  #studio .trow:not(.views) { grid-template-columns:52px 1fr; align-items:start; }
+  #studio .trow:not(.views) > span { padding-top:5px; }
+  #studio .trow .tb { display:flex; flex-wrap:wrap; gap:4px; }
+  #studio .trow .tb button { flex:1 1 auto; white-space:nowrap; font-size:10.5px; padding:4px 6px; }
   #studio .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
   #studio .grid3 button { font-size:11.5px; padding:6px 2px; }
   #studio .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
@@ -74,6 +79,9 @@
   #studio .sec i { font-style:normal; opacity:0.6; margin-left:4px; margin-right:auto; }
   #studio .sec::after { content:"▸"; opacity:0.7; }
   #studio .sec.open::after { content:"▾"; }
+  #studio .sec.grp { font-size:12.5px; padding:7px 10px; margin-top:8px; }
+  #studio #st-theme { gap:6px; }
+  #studio #st-theme button { font-size:12px; padding:6px 12px; border-radius:15px; }
   #studio .secbox { margin:4px 0 2px 6px; padding-left:6px; border-left:1px solid rgba(184,153,90,0.3); }
   #studio .sub i { font-style:normal; opacity:0.7; }
   #studio button.big { width:100%; padding:9px 6px; font-weight:600; background:#3a2f1d; border-color:#b8995a; color:#f1e3c2; }
@@ -81,7 +89,8 @@
   body.fs { background:#000; }
   body.fs #studio, body.fs #studioBtn, body.fs #label, body.fs #nmHome { display:none !important; }
   body.fs #stage { gap:0; }
-  body.fs canvas#v { max-width:100vw; max-height:100vh; max-height:100dvh; box-shadow:none; cursor:zoom-out; }
+  body.fs canvas#v { max-width:100vw; max-height:100vh; max-height:100dvh; box-shadow:none; cursor:zoom-in; }
+  body.fs canvas#v.zmax { cursor:zoom-out; }
   #fsClose { display:none; position:fixed; top:12px; right:12px; z-index:6; font:600 18px/1 system-ui,sans-serif; color:#d9d0c1; background:rgba(0,0,0,.45);
     border:1px solid rgba(217,208,193,.35); border-radius:50%; width:38px; height:38px; cursor:pointer; }
   body.fs #fsClose { display:block; }
@@ -115,58 +124,67 @@
   </div>
   <div class="desc" id="st-desc">&nbsp;</div>
   <div class="step"><b>2</b>Choose what is on the table</div>
-  <div class="chips" id="st-theme" style="margin-bottom:6px"><button data-v="" title="whatever the seed puts there">Any</button><button data-v="flowers" title="bouquets in every vase, a second vase, cut flowers on the table, little fruit">Flowers</button><button data-v="fruit" title="a table heaped with fruit, no flowers">Fruit</button><button data-v="kitchen" title="bread, cheese, eggs, onions on a cloth">Kitchen</button><button data-v="study" title="books, an hourglass, a clay pipe, a shell, by window and candle">Study</button><button data-v="harvest" title="autumn: apples, pears, quinces, walnuts, grapes, a pumpkin, onions">Harvest</button><button data-v="everything" title="all of it: fruit, flowers, bread and cheese, books, a skull, a pumpkin, a banquet">Everything</button><button data-v="dying" title="a vanitas: the fruit rotting, the flowers wilting, game on the table, a skull">Dying</button></div>
-  <div class="grid3" id="st-view" style="grid-template-columns:1fr 1fr;margin-bottom:6px"><button data-v="">Whole table</button><button data-v="1" title="one thing, close: a vase of flowers, a few fruit…">Close-up</button></div>
-  <div class="focusrow" id="st-focus" style="display:none"><button id="st-fprev" title="the subject to the left">◀</button><span id="st-focusname"></span><button id="st-fnext" title="the subject to the right">▶</button></div>
-  <div class="grid3" id="st-busy"><button data-v="less">Fewer things</button><button data-v="">Usual</button><button data-v="more">More things</button></div>
-  <div class="desc" id="st-bdesc">&nbsp;</div>
-  <button id="st-moreBtn" style="width:100%;margin-top:6px;white-space:nowrap">Objects and arrangement ▾</button>
-  <div id="st-moreBox" style="display:none">
-    <button class="sec" data-sec="sx-cam">Camera</button>
-    <div class="secbox things" id="sx-cam">
-      <div class="trow views" data-k="view"><span>View</span><div class="vgrid"><button data-v="">Auto</button><button data-v="front" title="square on">Front</button><button data-v="left" title="from 45° to the left">45° L</button><button data-v="right" title="from 45° to the right">45° R</button><button data-v="high" title="standing, looking down">High</button><button data-v="low" title="eye at the table's edge">Low</button><button data-v="above" title="nearly straight down">Above</button><button data-v="free" title="turn round the scene yourself">Free</button></div></div>
-      <div id="st-free" style="display:none">
-        <label class="slide"><span>Around</span><input type="range" id="st-yaw" min="-75" max="75" step="5" value="0"><b id="st-yawv">0°</b></label>
-        <label class="slide"><span>Height</span><input type="range" id="st-pitch" min="3" max="80" step="1" value="15"><b id="st-pitchv">15°</b></label>
+  <div id="st-moreBox">
+    <button class="sec grp" data-sec="sx-gobj">Objects</button>
+    <div class="secbox" id="sx-gobj">
+      <button class="sec" data-sec="sx-table">Skull, mirror, cloth, books</button>
+      <div class="secbox things" id="sx-table">
+        <div class="trow" data-k="skull"><span>Skull</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
+        <div class="trow" data-k="mirror"><span>Mirror</span><button data-v="">Auto</button><button data-v="yes">With</button><button data-v="none">Without</button></div>
+        <div class="trow" data-k="cloth"><span>Cloth</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
+        <div class="trow" data-k="books"><span>Books</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
       </div>
-      <div class="desc" style="margin-top:2px">Drag the picture to turn round the scene, wheel or two fingers to zoom (the free view comes on) · in the free view, right-drag to move it <button id="st-zreset" style="font-size:10px;padding:1px 6px;margin-left:4px">Reset</button></div>
+      <button class="sec" data-sec="sx-flower">Flowers</button>
+      <div class="secbox things" id="sx-flower"><div class="trow" data-k="flowers"><span>Flowers</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">None</button></div><div class="sub" style="margin-top:6px"><i>which · tap: with · again: without</i></div><div class="chips" id="st-flower"></div></div>
+      <button class="sec" data-sec="sx-fruit">Fruit <i>· up to 5</i></button>
+      <div class="secbox things" id="sx-fruit"><div class="trow seven" data-k="fruitn"><span>Fruit</span><button data-v="">Auto</button><button data-v="none" title="no fruit at all">None</button><button data-v="1">1</button><button data-v="3">3</button><button data-v="6">6</button><button data-v="10">10</button><button data-v="15">15</button></div><div class="sub" style="margin-top:6px"><i>which · tap: with · again: without</i></div><div class="chips" id="st-fruit"></div></div>
+      <button class="sec" data-sec="sx-veg">Nuts and vegetables</button>
+      <div class="secbox" id="sx-veg"><div class="sub"><i>tap: with · again: without</i></div><div class="chips" id="st-veg"></div></div>
+      <button class="sec" data-sec="sx-bowl">Bowls</button>
+      <div class="secbox things" id="sx-bowl"><div class="trow" data-k="bowl"><span>Kind</span><button data-v="">Auto</button><button data-v="shallow">Shallow</button><button data-v="footed" title="on a tall foot, a compote">Footed</button></div>
+        <div class="trow four" data-k="bowlsize"><span>Size</span><button data-v="">Auto</button><button data-v="small">Small</button><button data-v="medium">Medium</button><button data-v="large">Large</button></div>
+        <div class="sub" style="margin-top:6px"><i>colour</i></div><div class="chips" id="st-bowlstyle"></div></div>
+      <button class="sec" data-sec="sx-jug">Vases and jugs</button>
+      <div class="secbox" id="sx-jug"><div class="sub"><i>glaze</i></div><div class="chips" id="st-jug"></div><div class="sub" style="margin-top:6px"><i>shape</i></div><div class="chips" id="st-jugshape"></div></div>
+      <button class="sec" data-sec="sx-objs">Other objects</button>
+      <div class="secbox" id="sx-objs"><div class="sub"><i>tap: with · again: without · up to 4</i></div><div class="chips" id="st-objs"></div></div>
+      <button class="sec" data-sec="sx-tbl">Table</button>
+      <div class="secbox things" id="sx-tbl"><div class="trow four" data-k="table"><span>Table</span><button data-v="">Auto</button><button data-v="wood">Wood</button><button data-v="marble">Marble</button><button data-v="stone">Stone</button></div></div>
+      <button class="sec" data-sec="sx-wall">Wall</button>
+      <div class="secbox" id="sx-wall"><div class="sub"><i>material</i></div><div class="chips" id="st-wall"></div><div class="sub" style="margin-top:6px"><i>colour</i></div><div class="chips" id="st-wallcol"></div></div>
     </div>
-    <button class="sec" data-sec="sx-light">Light</button>
-    <div class="secbox things" id="sx-light">
-      <div class="trow four" data-k="light"><span>Light</span><button data-v="">Auto</button><button data-v="day">Window</button><button data-v="candle">Candle</button><button data-v="both" title="window light and a lit candle">Both</button></div>
-      <div class="trow six" data-k="sun"><span>Sun</span><button data-v="">Auto</button><button data-v="left">Left</button><button data-v="right">Right</button><button data-v="front" title="from the window behind the painter">Front</button><button data-v="free" title="move the window freely round the scene">Free</button></div>
-      <div id="st-sunfree" style="display:none">
-        <label class="slide"><span>Around</span><input type="range" id="st-sunyaw" min="-95" max="95" step="5" value="-50"><b id="st-sunyawv">-50°</b></label>
-        <label class="slide"><span>Height</span><input type="range" id="st-sunpitch" min="6" max="82" step="2" value="40"><b id="st-sunpitchv">40°</b></label>
+    <button class="sec grp" data-sec="sx-gscene">Scene</button>
+    <div class="secbox" id="sx-gscene">
+      <div class="sub"><i>theme</i></div>
+      <div class="chips" id="st-theme" style="margin-bottom:6px"><button data-v="" title="whatever the seed puts there">Any</button><button data-v="flowers" title="bouquets in every vase, a second vase, cut flowers on the table, little fruit">Flowers</button><button data-v="fruit" title="a table heaped with fruit, no flowers">Fruit</button><button data-v="kitchen" title="bread, cheese, eggs, onions on a cloth">Kitchen</button><button data-v="study" title="books, an hourglass, a clay pipe, a shell, by window and candle">Study</button><button data-v="harvest" title="autumn: apples, pears, quinces, walnuts, grapes, a pumpkin, onions">Harvest</button><button data-v="everything" title="all of it: fruit, flowers, bread and cheese, books, a skull, a pumpkin, a banquet">Everything</button><button data-v="dying" title="a vanitas: the fruit rotting, the flowers wilting, game on the table, a skull">Dying</button></div>
+      <button class="sec" data-sec="sx-comp">Arrangement</button>
+      <div class="secbox" id="sx-comp">
+        <div class="grid3" id="st-busy"><button data-v="less">Fewer things</button><button data-v="">Usual</button><button data-v="more">More things</button></div>
+        <div class="desc" id="st-bdesc">&nbsp;</div>
+        <div class="chips" id="st-comp"></div></div>
+      <button class="sec" data-sec="sx-cam">Camera</button>
+      <div class="secbox things" id="sx-cam">
+        <div class="grid3" id="st-view" style="grid-template-columns:1fr 1fr;margin-bottom:6px"><button data-v="">Whole table</button><button data-v="1" title="one thing, close: a vase of flowers, a few fruit…">Close-up</button></div>
+        <div class="focusrow" id="st-focus" style="display:none"><button id="st-fprev" title="the subject to the left">◀</button><span id="st-focusname"></span><button id="st-fnext" title="the subject to the right">▶</button></div>
+        <div class="trow views" data-k="view"><span>View</span><div class="vgrid"><button data-v="">Auto</button><button data-v="front" title="square on">Front</button><button data-v="left" title="from 45° to the left">45° L</button><button data-v="right" title="from 45° to the right">45° R</button><button data-v="high" title="standing, looking down">High</button><button data-v="low" title="eye at the table's edge">Low</button><button data-v="above" title="nearly straight down">Above</button><button data-v="free" title="turn round the scene yourself">Free</button></div></div>
+        <div id="st-free" style="display:none">
+          <label class="slide"><span>Around</span><input type="range" id="st-yaw" min="-75" max="75" step="5" value="0"><b id="st-yawv">0°</b></label>
+          <label class="slide"><span>Height</span><input type="range" id="st-pitch" min="3" max="80" step="1" value="15"><b id="st-pitchv">15°</b></label>
+        </div>
+        <div class="desc" style="margin-top:2px">Drag the picture to turn round the scene, wheel or two fingers to zoom (the free view comes on) · in the free view, right-drag to move it <button id="st-zreset" style="font-size:10px;padding:1px 6px;margin-left:4px">Reset</button></div>
       </div>
-      <div class="trow" data-k="sunh"><span>Angle</span><button data-v="">Auto</button><button data-v="high" title="high: short, steep shadows">High</button><button data-v="low" title="low: long, raking light">Low</button></div>
-      <div class="sub" style="margin-top:6px"><i>window</i></div><div class="chips" id="st-win"></div>
+      <button class="sec" data-sec="sx-light">Light</button>
+      <div class="secbox things" id="sx-light">
+        <div class="trow four" data-k="light"><span>Light</span><button data-v="">Auto</button><button data-v="day">Window</button><button data-v="candle">Candle</button><button data-v="both" title="window light and a lit candle">Both</button></div>
+        <div class="trow six" data-k="sun"><span>Sun</span><button data-v="">Auto</button><button data-v="left">Left</button><button data-v="right">Right</button><button data-v="front" title="from the window behind the painter">Front</button><button data-v="free" title="move the window freely round the scene">Free</button></div>
+        <div class="trow" data-k="sunh"><span>Angle</span><button data-v="">Auto</button><button data-v="high" title="high: short, steep shadows">High</button><button data-v="low" title="low: long, raking light">Low</button></div>
+        <div class="trow four" data-k="candle"><span>Candle</span><button data-v="">Auto</button><button data-v="left">Left</button><button data-v="centre">Centre</button><button data-v="right">Right</button><button data-v="front" title="near the front edge of the table">Front</button><button data-v="back" title="back, near the wall">Back</button><button data-v="free" title="placed by hand on the picture">By hand</button></div>
+        <div class="sub" style="margin-top:6px"><i>strength</i></div>
+        <label class="slide"><span>Window</span><input type="range" id="st-sunI" min="20" max="200" step="10" value="100"><b id="st-sunIv">100%</b></label>
+        <label class="slide"><span>Candle</span><input type="range" id="st-candleI" min="20" max="200" step="10" value="100"><b id="st-candleIv">100%</b></label>
+        <div class="sub" style="margin-top:6px"><i>window</i></div><div class="chips" id="st-win"></div>
+      </div>
     </div>
-    <button class="sec" data-sec="sx-table">Skull, mirror, cloth, books</button>
-    <div class="secbox things" id="sx-table">
-      <div class="trow" data-k="skull"><span>Skull</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
-      <div class="trow" data-k="mirror"><span>Mirror</span><button data-v="">Auto</button><button data-v="yes">With</button><button data-v="none">Without</button></div>
-      <div class="trow" data-k="cloth"><span>Cloth</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
-      <div class="trow" data-k="books"><span>Books</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
-    </div>
-    <button class="sec" data-sec="sx-tbl">Table</button>
-    <div class="secbox things" id="sx-tbl"><div class="trow four" data-k="table"><span>Table</span><button data-v="">Auto</button><button data-v="wood">Wood</button><button data-v="marble">Marble</button><button data-v="stone">Stone</button></div></div>
-    <button class="sec" data-sec="sx-comp">Arrangement</button>
-    <div class="secbox" id="sx-comp"><div class="chips" id="st-comp"></div></div>
-    <button class="sec" data-sec="sx-flower">Flowers</button>
-    <div class="secbox things" id="sx-flower"><div class="trow" data-k="flowers"><span>Flowers</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">None</button></div><div class="sub" style="margin-top:6px"><i>which · tap: with · again: without</i></div><div class="chips" id="st-flower"></div></div>
-    <button class="sec" data-sec="sx-fruit">Fruit <i>· up to 5</i></button>
-    <div class="secbox things" id="sx-fruit"><div class="trow seven" data-k="fruitn"><span>Fruit</span><button data-v="">Auto</button><button data-v="none" title="no fruit at all">None</button><button data-v="1">1</button><button data-v="3">3</button><button data-v="6">6</button><button data-v="10">10</button><button data-v="15">15</button></div><div class="sub" style="margin-top:6px"><i>which · tap: with · again: without</i></div><div class="chips" id="st-fruit"></div></div>
-    <button class="sec" data-sec="sx-veg">Nuts and vegetables</button>
-    <div class="secbox" id="sx-veg"><div class="sub"><i>tap: with · again: without</i></div><div class="chips" id="st-veg"></div></div>
-    <button class="sec" data-sec="sx-bowl">Bowls</button>
-    <div class="secbox things" id="sx-bowl"><div class="trow" data-k="bowl"><span>Kind</span><button data-v="">Auto</button><button data-v="shallow">Shallow</button><button data-v="footed" title="on a tall foot, a compote">Footed</button></div>
-      <div class="trow four" data-k="bowlsize"><span>Size</span><button data-v="">Auto</button><button data-v="small">Small</button><button data-v="medium">Medium</button><button data-v="large">Large</button></div>
-      <div class="sub" style="margin-top:6px"><i>colour</i></div><div class="chips" id="st-bowlstyle"></div></div>
-    <button class="sec" data-sec="sx-jug">Vases and jugs</button>
-    <div class="secbox" id="sx-jug"><div class="sub"><i>glaze</i></div><div class="chips" id="st-jug"></div><div class="sub" style="margin-top:6px"><i>shape</i></div><div class="chips" id="st-jugshape"></div></div>
-    <button class="sec" data-sec="sx-objs">Other objects</button>
-    <div class="secbox" id="sx-objs"><div class="sub"><i>tap: with · again: without · up to 4</i></div><div class="chips" id="st-objs"></div></div>
     <div id="st-sign">
     <button class="sec" data-sec="sx-sign">Signature <i>· local studio only</i></button>
     <div class="secbox" id="sx-sign">
@@ -414,14 +432,15 @@ function objD(o,x,y,z){ const dx=x-o.cx,dy=y-o.cy,dz=z-o.cz,m=o.m; return o.sdf(
 function objMat(o,x,y,z){ const dx=x-o.cx,dy=y-o.cy,dz=z-o.cz,m=o.m; return o.mat(dx*m[0]+dy*m[1]+dz*m[2],dx*m[3]+dy*m[4]+dz*m[5],dx*m[6]+dy*m[7]+dz*m[8],x,y,z); }
 
 /* ---------- FRUIT ---------- */
-// every fruit as likely as any other (w); the last four new: a pineapple, a hand of bananas, blueberries, a melon
+// every fruit as likely as any other (w); the last four new: a pineapple, a hand of bananas, blueberries, a melon.
+// The pineapple is gone: it keeps its place here so the seeds draw as they always did, and one drawn is swapped for another fruit
 const FRUIT = {
   apple:{r:[0.34,0.41], w:1, pl:"apples"}, pear:{r:[0.29,0.34], w:1, pl:"pears"}, lemon:{r:[0.25,0.3], w:1, pl:"lemons"},
   orange:{r:[0.33,0.38], w:1, pl:"oranges"}, plum:{r:[0.2,0.24], w:1, pl:"plums"}, peach:{r:[0.31,0.36], w:1, pl:"peaches"},
   grapes:{r:[0.1,0.12], w:1, pl:"grapes"}, cherry:{r:[0.085,0.1], w:1, pl:"cherries"}, pomegranate:{r:[0.37,0.43], w:1, pl:"a pomegranate"},
   fig:{r:[0.2,0.24], w:1, pl:"figs"}, walnut:{r:[0.14,0.16], w:1, pl:"walnuts"}, quince:{r:[0.36,0.41], w:1, pl:"quinces"},
   apricot:{r:[0.2,0.24], w:1, pl:"apricots"}, mandarin:{r:[0.24,0.28], w:1, pl:"mandarins"}, persimmon:{r:[0.3,0.35], w:1, pl:"persimmons"},
-  medlar:{r:[0.2,0.24], w:1, pl:"medlars"}, lime:{r:[0.2,0.23], w:1, pl:"limes"}, nectarine:{r:[0.28,0.33], w:1, pl:"nectarines"}, blackberry:{r:[0.085,0.1], w:1, pl:"blackberries"},
+lime:{r:[0.2,0.23], w:1, pl:"limes"}, nectarine:{r:[0.28,0.33], w:1, pl:"nectarines"}, blackberry:{r:[0.085,0.1], w:1, pl:"blackberries"},
   pineapple:{r:[0.36,0.4], w:1, pl:"pineapples"}, banana:{r:[0.42,0.47], w:1, pl:"bananas"}, blueberry:{r:[0.06,0.07], w:1, pl:"blueberries"}, melon:{r:[0.42,0.48], w:1, pl:"melons"}
 };
 /* a stem: woody, a little darker and greener toward the fruit. Which material a point gets is decided by which part is
@@ -577,22 +596,58 @@ function makeQuince(b){ const r=b.r, off=rr(0,40);
       c=mixc(c,C(120,90,40),dots(x/r,y/r,z/r,9,0.18)*0.6);
       return M(c,{ks:0.08,gl:12,wrap:0.3,ss:0.4,sheen:0.18,sc:C(240,230,200)}); } };
 }
-function makeWalnut(b){ const r=b.r, off=rr(0,40);
+/* A WALNUT, after the paintings: an egg drawn to a point at one end, broader and blunt at the stem end, its shell a
+   pale khaki tan knotted all over with deep, wandering furrows between rounded bosses (the bosses catch the light pale,
+   the furrows go dark brown), a raised seam all round the long way. Now and then on the table (never in a bowl) one
+   lies cracked: an open half shell, cup up, its wrinkled golden kernel inside; or a loose half kernel, two lobes
+   joined, deeply wrinkled, oily gold with dark crevices. Which, from a hash of where it lies (b.wv, set in materialize) */
+function walnutFurrow(x,y,z,r,off){ const p0=x/r+off, n1=noise3(p0*3.3,y/r*3.3,z/r*1.7), n2=noise3(p0*6.8+5,y/r*6.8,z/r*3.6), n3=noise3(p0*11+9,y/r*11,z/r*7);
+  return Math.max(Math.exp(-(n1*n1)/0.022),0.6*Math.exp(-(n2*n2)/0.015),0*n3); }   // the main furrows, the side ones, the fine ones
+function makeWalnut(b){ const r=b.r, off=rr(0,40), wv=b.wv||"whole";
   const ax=0.9, ay=0.95, az=1.1;                                   // across the seam, up, along the seam (the long way)
-  // the furrows: narrow, deep, wandering grooves between rounded bosses, where a smooth noise crosses zero; drawn out
-  // along the length of the shell (the noise squeezed along z), finer toward the ends
-  const groove=(x,y,z)=>{ const p=[x/r+off,y/r,z/r], n=noise3(p[0]*3.1,p[1]*3.1,p[2]*1.5)+0.45*noise3(p[0]*6.5+5,p[1]*6.5,p[2]*3.2); return Math.exp(-(n*n)/0.0045); };
-  const shape=(x,y,z)=>{ const tip=1+0.13*smooth(0.2,1,z/(r*az))-0.05*smooth(0.3,1,-z/(r*az)); return sdEllipsoid(x,y,z,r*ax,r*ay,r*az*tip); };
-  return { r, bound:r*1.25, m:b.m,
-    sdf:(x,y,z)=>{ let d=shape(x,y,z);
-      d-=0.04*r*Math.exp(-x*x/(0.0007*r*r));                                              // the seam: a fine raised lip
-      d+=0.035*r*Math.exp(-((Math.abs(x)-0.05*r)**2)/(0.0006*r*r));                       // a channel each side of it
-      d+=0.07*r*groove(x,y,z)*smooth(0.05*r,0.14*r,Math.abs(x));                          // the furrows (none on the seam)
-      return d*0.6; },
-    mat:(x,y,z)=>{ const g=groove(x,y,z)*smooth(0.05*r,0.14*r,Math.abs(x)), seam=Math.exp(-x*x/(0.0007*r*r)), ch=Math.exp(-((Math.abs(x)-0.05*r)**2)/(0.0006*r*r));
-      let c=mixc(C(188,132,78),C(156,102,58),smooth(-0.3,0.5,noise3(x*3/r+off,y*3/r,z*3/r)));   // warm tan, a little darker in places
-      c=mixc(c,C(86,54,30),Math.max(g,ch)*0.8); c=mixc(c,C(210,160,102),seam*0.3);
-      return M(c,{ks:0.1,gl:16,wrap:0.25,bump:0.04,bf:40/r}); } };
+  if(wv==="whole"){
+    const shape=(x,y,z)=>{ const zz=z/(r*az), tip=1+0.16*smooth(0.2,1,zz)-0.06*smooth(0.3,1,-zz); return sdEllipsoid(x,y,z,r*ax*(1-0.12*smooth(0.4,1,zz)),r*ay*(1-0.12*smooth(0.4,1,zz)),r*az*tip); };
+    const g=(x,y,z)=>walnutFurrow(x,y,z,r,off)*smooth(0.05*r,0.15*r,Math.abs(x));
+    return { r, bound:r*1.3, m:b.m,
+      sdf:(x,y,z)=>{ let d=shape(x,y,z); if(d>0.2*r) return d-0.06*r;
+        d-=0.05*r*Math.exp(-x*x/(0.0008*r*r));                                              // the seam: a raised lip
+        d+=0.04*r*Math.exp(-((Math.abs(x)-0.06*r)**2)/(0.0008*r*r));                        // a channel each side of it
+        d+=0.09*r*g(x,y,z); return d*0.24; },
+      mat:(x,y,z)=>{ const gg=g(x,y,z), seam=Math.exp(-x*x/(0.0008*r*r)), ch=Math.exp(-((Math.abs(x)-0.06*r)**2)/(0.0008*r*r)), n=noise3(x*3/r+off,y*3/r,z*3/r);
+        let c=mixc(C(188,142,92),C(150,104,62),smooth(-0.4,0.5,n));                               // khaki tan, darker in places
+        c=mixc(c,C(206,166,112),(1-gg)*0.3);                                                       // the bosses pale
+        c=mixc(c,C(66,40,20),Math.pow(Math.max(gg,ch),0.7)*0.9); c=mixc(c,C(214,172,118),seam*0.35);
+        return M(c,{ks:0.12,gl:16,wrap:0.25,bump:0.05,bf:46/r}); } };
+  }
+  // the kernel's wrinkled surface: brain-like folds (a lumpy displacement with dark crevices where it sinks)
+  const fold=(x,y,z)=>{ const n=noise3(x*5/r+off,y*5/r,z*3/r)+0.45*noise3(x*10/r+off+3,y*10/r,z*6/r); return n; };
+  const kernelCol=(x,y,z,deep)=>{ const n=fold(x,y,z), cr=smooth(-0.05,-0.45,n);
+    let c=mixc(C(198,148,82),C(168,114,58),0.5+0.5*noise3(x*3/r+off,y*3/r,z*3/r)); c=mixc(c,C(222,180,112),smooth(0.15,0.6,n)*0.55); c=mixc(c,C(82,46,22),Math.max(cr,deep||0)*0.9);
+    return M(c,{ks:0.3,gl:30,wrap:0.35,ss:0.35}); };
+  if(wv==="half"){ // the open half shell, cup up: its rim a little below the ball's middle, its foot on the table
+    const hz=r*az, hx=r*ay, hy=r*ax, rimY=-r+hy;            // (the shell's depth is its across-the-seam half: ax)
+    const outer=(x,y,z)=>sdEllipsoid(x,y-rimY,z,hx,hy,hz*(1+0.12*smooth(0.2,1,z/hz))), inner=(x,y,z)=>sdEllipsoid(x,y-rimY,z,hx-0.075*r,hy-0.075*r,hz*(1+0.12*smooth(0.2,1,z/hz))-0.075*r);
+    const rim=(x,z)=>rimY+0.015*r*noise3(x*20/r+off,z*20/r,2);
+    const shellO=(x,y,z)=>{ let d=Math.max(outer(x,y,z),-inner(x,y,z),y-rim(x,z)); if(outer(x,y,z)>-0.04*r&&d<0.1*r) d+=0.06*r*walnutFurrow(z,x,y,r,off)*smooth(0.1*r,0.3*r,rimY-y+0.2*r); return d*0.27; };
+    const kern=(x,y,z)=>{ const d=sdEllipsoid(x,y-(rimY-0.06*r),z,hx-0.11*r,hy*0.85,hz-0.14*r); if(d>0.1*r) return d-0.06*r;   // the kernel, filling the cup to just under the rim
+      const cleft=0.05*r*Math.exp(-x*x/(0.0012*r*r))+0.035*r*Math.exp(-z*z/(0.002*r*r));          // the split between its lobes, and across
+      return (d-0.035*r*fold(x,y,z)+cleft)*0.5; };
+    return { r, bound:r*1.3, m:b.m,
+      sdf:(x,y,z)=>Math.min(shellO(x,y,z),kern(x,y,z)),
+      mat:(x,y,z)=>{ if(kern(x,y,z)<shellO(x,y,z)){ return kernelCol(x,y,z,Math.exp(-x*x/(0.0012*r*r))*0.6); }
+        if(inner(x,y,z)>-0.02*r&&outer(x,y,z)<-0.02*r) return M(mixc(C(196,166,124),C(150,110,70),0.5+0.5*noise3(x*8/r,y*8/r,z*8/r+off)),{ks:0.05,gl:8,wrap:0.3});   // the inside of the shell, pale
+        if(y>rim(x,z)-0.012*r) return M(C(184,148,100),{ks:0.05,gl:8});                              // the broken edge
+        const gg=walnutFurrow(z,x,y,r,off), n=noise3(x*3/r+off,y*3/r,z*3/r);
+        let c=mixc(C(196,150,98),C(160,112,66),smooth(-0.4,0.5,n)); c=mixc(c,C(78,48,26),gg*0.85); return M(c,{ks:0.12,gl:16,wrap:0.25,bump:0.05,bf:46/r}); } };
+  }
+  // a loose half kernel lying on its flat side: two long lobes joined at one end, wrinkled all over
+  const kL=(x,y,z)=>{ const yy=y+r*0.62, lobe=s_=>sdEllipsoid(x-s_*0.3*r,yy,z+0.05*r*Math.abs(z)/r,0.33*r,0.36*r,0.72*r*(1-0.15*smooth(0,0.8,s_*z/r)));
+    return Math.min(lobe(-1),lobe(1),sdEllipsoid(x,yy-0.05*r,z+0.45*r,0.45*r,0.3*r,0.3*r)); };
+  return { r, bound:r*1.2, m:b.m,
+    sdf:(x,y,z)=>{ let d=kL(x,y,z); if(d>0.16*r) return d-0.08*r; d=Math.max(d,-(y+r*0.94));
+      d+=0.05*r*Math.exp(-x*x/(0.002*r*r))*smooth(-0.3*r,0.3*r,z);                                  // the cleft between the lobes
+      return (d-0.045*r*fold(x,y,z))*0.5; },
+    mat:(x,y,z)=>kernelCol(x,y,z,Math.exp(-x*x/(0.002*r*r))*smooth(-0.3*r,0.3*r,z)*0.7) };
 }
 /* ---- the seven later fruits ---- */
 function makeApricot(b){ const r=b.r, off=rr(0,40), ba=rr(0,6.28), bx=Math.cos(ba), bz=Math.sin(ba);
@@ -608,21 +663,42 @@ function makeMandarin(b){ const r=b.r, off=rr(0,40);
     mat:(x,y,z)=>{ if(y>r*0.78&&Math.hypot(x,z)<r*0.14) return M(C(90,96,44),{ks:0.1,wrap:0.3});
       const n=noise3(x*3/r+off,y*3/r,z*3/r); return M(mixc(C(236,112,20),C(214,84,14),0.4+0.3*n),{ks:0.45,gl:60,wrap:0.3,ss:0.4,bump:0.18,bf:42/r}); } };
 }
-function makePersimmon(b){ const r=b.r, off=rr(0,40);
-  const calyx=(x,y,z)=>{ const a=Math.atan2(z,x), rr_=Math.hypot(x,z), lob=r*(0.42+0.16*Math.cos(4*a)); return Math.max(Math.abs(y-r*0.74+0.1*rr_*rr_/r)-r*0.025,rr_-lob); };
-  return { r, bound:r*1.15, m:b.m,
-    sdf:(x,y,z)=>{ const a=Math.atan2(z,x), sq=1+0.05*Math.cos(4*a); let d=sdEllipsoid(x,y,z,r*1.08*sq,r*0.78,r*1.08*sq); d+=0.05*r*smooth(0.2,0,Math.hypot(x,z)/r)*(y>0?1:0);
-      return Math.min(d*0.9,calyx(x,y,z),sdCapsule(x,y,z,0,r*0.72,0,0,r*0.86,0,r*0.05)); },
-    mat:(x,y,z)=>{ if(calyx(x,y,z)<0.006||y>r*0.8) return M(mixc(C(90,96,46),C(110,80,40),smooth(r*0.2,r*0.45,Math.hypot(x,z))),{ks:0.1,gl:12,wrap:0.2});
-      const n=noise3(x*2/r+off,y*2/r,z*2/r); return M(mixc(C(236,110,24),C(200,70,20),0.3+0.3*n),{ks:0.7,gl:90,wrap:0.3,ss:0.45,refl:0.08}); } };
-}
-function makeMedlar(b){ const r=b.r, off=rr(0,40);
-  const crown=(x,y,z)=>{ const a=Math.atan2(z,x), q=Math.hypot(x,z); return Math.max(Math.abs(q-r*0.42)-r*0.08*(0.6+0.4*Math.abs(Math.cos(2.5*a))),Math.abs(y-r*0.8)-r*0.12); };
-  return { r, bound:r*1.15, m:b.m,
-    sdf:(x,y,z)=>{ let d=sdEllipsoid(x,y,z,r*1.05,r*0.9,r*1.05); d=Math.max(d,-(Math.hypot(x,z,(y-r)*0.6)-r*0.4)); return Math.min(d*0.9,crown(x,y,z)*0.9); },
-    mat:(x,y,z)=>{ const q=Math.hypot(x,z); if(y>r*0.62&&q<r*0.36) return M(C(70,50,30),{ks:0.04});
-      if(crown(x,y,z)<0.006) return M(C(96,72,44),{ks:0.06,gl:8});
-      const n=noise3(x*5/r+off,y*5/r,z*5/r); return M(mixc(C(140,94,54),C(110,70,40),0.5+0.4*n),{ks:0.08,gl:12,wrap:0.25,bump:0.12,bf:20/r}); } };
+/* A PERSIMMON (Fuyu), as the painters show it: a squat, flattened ball, a little square seen from above (four soft lobes,
+   a faint crease between each), the foot flat where it sits, the top sunk around the calyx. The calyx: four broad,
+   leathery sepals lying on the shoulders, olive green going brown and dry toward their crinkled, up-curling edges and
+   tips, round a short square stub of stem. The skin waxy and glossy: a deep, saturated orange, redder toward the foot
+   and in the turn, a darker burnt ring round the calyx, a faint mottling */
+function makePersimmon(b){ const r=b.r, off=rr(0,40), Hk=k=>hash3i(Math.floor(off*1000),k,57), a0=Hk(1)*Math.PI/2;
+  const sq=a=>1+0.045*Math.cos(4*(a-a0)), crease=a=>smooth(-0.8,-1,Math.cos(4*(a-a0)));
+  const yTop=rho=>r*0.8-0.075*r*Math.exp(-rho*rho/(0.1*r*r))-0.32*rho*rho/r;   // the top, roughly, where the sepals lie on it
+  const SP=[0,1,2,3].map(k=>({a:a0+k*Math.PI/2+(Hk(10+k)-0.5)*0.3, L:r*(0.5+0.16*Hk(20+k)), W:r*(0.14+0.05*Hk(30+k)), curl:0.2+0.45*Hk(40+k), ph:Hk(50+k)*6.28}));
+  for(const p of SP){ p.c=Math.cos(p.a); p.s=Math.sin(p.a); }
+  const sepal=(x,y,z,p)=>{ const u=x*p.c+z*p.s, v=-x*p.s+z*p.c, t=clamp(u/p.L,0,1);
+    const hw=p.W*Math.pow(Math.sin(Math.PI*Math.pow(t,0.85)),1.3)*(0.3+0.7*smooth(0,0.4,t))*(1+0.22*Math.sin(u*30/r+p.ph))+0.004*r, q=clamp(Math.abs(v)/hw,0,1);
+    const yc=yTop(Math.max(u,0))+0.022*r+p.curl*p.L*0.35*Math.pow(smooth(0.55,1,t),2)+0.03*r*q*q+0.018*r*noise3(u*14/r+off,v*14/r,p.ph);   // tip lifting, margins curling up, crinkled
+    return [Math.max(Math.abs(v)-hw,Math.abs(y-yc)-0.016*r,-u,u-p.L)*0.5,q,t]; };
+  const calyx=(x,y,z)=>{ const rho=Math.hypot(x,z); if(rho>0.8*r||y<0.4*r||y>1.35*r) return Math.max(rho-0.8*r,0.4*r-y,y-1.35*r)+0.05*r; let m=1e9;   /* (the box is well clear of the sepals: they lie 0.1r or more inside it) */
+    for(const p of SP){ const d=sepal(x,y,z,p)[0]; if(d<m) m=d; }
+    const base=Math.max(rho-0.17*r*sq(Math.atan2(z,x)),Math.abs(y-yTop(rho)-0.025*r)-0.022*r);           // the square cup the sepals spring from
+    const stem=sdCapsule(x,y,z,0,r*0.72,0,0,r*0.88,0,r*0.045);
+    return Math.min(m,base,stem); };
+  const body=(x,y,z)=>{ const a=Math.atan2(z,x), rho=Math.hypot(x,z), k=sq(a); let d=sdEllipsoid(x,y,z,r*1.08*k,r*0.8,r*1.08*k);
+    d=Math.max(d,-(y+r*0.7)); d+=0.075*r*Math.exp(-rho*rho/(0.1*r*r))*smooth(0,0.4*r,y);        // the flat foot; the top sunk round the calyx
+    d+=0.012*r*crease(a)*smooth(-0.6*r,0.2*r,y); return d*0.85; };
+  return { r, bound:r*1.2, m:b.m,
+    sdf:(x,y,z)=>Math.min(body(x,y,z),calyx(x,y,z)),
+    mat:(x,y,z)=>{ const dc=calyx(x,y,z), db=body(x,y,z);
+      if(dc<db){ const rho=Math.hypot(x,z); if(rho<0.06*r&&y>0.7*r) return M(C(78,58,36),{ks:0.1,gl:10});   // the stub of stem
+        let best=null; for(const p of SP){ const e=sepal(x,y,z,p); if(!best||e[0]<best[0]) best=e; } const q=best[1], t=best[2], n=noise3(x*9/r+off,y*9/r,z*9/r);
+        let c=mixc(C(70,80,36),C(96,98,44),0.5+0.4*n); c=mixc(c,C(112,80,40),smooth(0.4,1,t)*0.75); c=mixc(c,C(132,104,58),smooth(0.7,1,q)*(0.45+0.4*Hk(60)));   // olive, browning to the tips, dry pale margins
+        c=mixc(c,C(48,56,26),Math.exp(-q*q/0.02)*0.5);                                                           // the midrib
+        return M(c,{ks:0.15,gl:14,wrap:0.3,ss:0.15}); }
+      const rho=Math.hypot(x,z), a=Math.atan2(z,x), n=noise3(x*2.2/r+off,y*2.2/r,z*2.2/r), f=noise3(x*14/r+off,y*14/r,z*14/r);
+      let c=mixc(C(236,104,22),C(220,80,20),0.5+0.5*n);                                                        // deep saturated orange
+      c=mixc(c,C(190,56,22),smooth(0.25*r,-0.7*r,y)*0.75);                                                       // redder toward the foot
+      c=mixc(c,C(168,72,24),smooth(0.42*r,0.2*r,rho)*smooth(0.3*r,0.6*r,y)*0.7);                                 // the burnt ring round the calyx
+      c=mixc(c,c.map(v=>v*0.82),crease(a)*0.35); c=c.map(v=>v*(0.95+0.08*f));                                    // the creases, a faint mottle
+      return M(c,{ks:0.8,gl:110,wrap:0.3,ss:0.4,refl:0.07}); } };
 }
 function makeLime(b){ const r=b.r, off=rr(0,40);
   return { r, bound:r*1.15, m:b.m,
@@ -643,39 +719,6 @@ function makeBlackberry(b){ const r=b.r, off=rr(0,40);
   return { r, bound:r*1.3, m:b.m,
     sdf:(x,y,z)=>{ const d=sdEllipsoid(x,y,z,r*0.95,r*1.1,r*0.95); return (d-0.06*r+drupe(x,y,z)*0.5)*0.8; },
     mat:(x,y,z)=>{ const e=drupe(x,y,z)/r; return M(mixc(C(30,12,30),C(70,24,50),smooth(0.25,0.0,e)*0.4),{ks:0.85,gl:120,wrap:0.3,ss:0.5}); } };
-}
-/* A PINEAPPLE, as painted: a tall egg of large raised scales (eyes), each a little pale-gold dome deepening to orange
-   and brown at its edges with a dark point at its middle, the whole going greener at the foot; out of its top a dense,
-   tall, spiky tuft of long stiff leaves, the middle ones upright, the outer ones flaring and arching out, green with
-   lighter edges. (Its foot is the bottom of the ball the physics rolled.) */
-function makePineapple(b){ const r=b.r, off=rr(0,40), Hk=k=>hash3i(Math.floor(off*1000),k,41), a=r*0.92, h=r*1.55, ey=h-r;
-  // the eyes: a lattice round the body, rows offset (a spiral of diamonds); dc: distance to the eye's middle (0..~0.7)
-  const NA=8, NV=5.5, eye=(x,y,z)=>{ const u=(Math.atan2(z,x)/(2*Math.PI)+0.5)*NA, v=((y-ey)/h+1)*NV, p=u+v, q=u-v, fp=fract(p)-0.5, fq=fract(q)-0.5; return Math.max(Math.abs(fp),Math.abs(fq)); };
-  const prof=yy=>{ const t=clamp(yy/h,-1,1); return a*(1-0.13*t*t-0.06*Math.max(0,t)); };   // a little narrower at the top
-  const body=(x,y,z)=>{ const yy=y-ey, w=prof(yy); const base=sdEllipsoid(x,yy,z,w,h,w); if(base>0.12*r) return base*0.85;
-    const e=eye(x,y,z), dome=0.045*r*(1-Math.pow(clamp(e/0.5,0,1),2));   // each eye a little dome, the seams sunk between
-    return (base-dome)*0.8; };
-  const top=[0,ey+h*0.94,0], LV=[], NL=20; for(let i=0;i<NL;i++){ const az=Hk(1)*6.283+i*2.39996, inner=1-i/NL, el=(0.3+0.55*inner+0.12*(Hk(10+i)-0.5))*Math.PI/2, len=r*(1.25+0.9*inner+0.5*Hk(30+i));   // (the middle ones upright, the outer ones flaring out and arching over)
-    const d=[Math.cos(el)*Math.cos(az),Math.sin(el),Math.cos(el)*Math.sin(az)], sd=[-Math.sin(az),0,Math.cos(az)], th=[d[1]*sd[2]-d[2]*sd[1],d[2]*sd[0]-d[0]*sd[2],d[0]*sd[1]-d[1]*sd[0]];
-    LV.push({d,sd,th,len,w:r*(0.12+0.06*Hk(50+i)),droop:(0.3+1.1*(1-inner))*(0.6+0.8*Hk(70+i)),tw:(Hk(90+i)-0.5)*0.8}); }
-  const crown=(x,y,z)=>{ const qx=x-top[0], qy=y-top[1], qz=z-top[2]; { const sd_=Math.hypot(qx,qy-1.0*r,qz)-3.0*r; if(sd_>r) return sd_; }   // (far from the crown's ball: the distance to it, quick)
-    let m=1e9;   /* (no bounding space round the crown: its edge cast a false soft shadow; each leaf is passed over on its own, below) */
-    for(const L of LV){ const u=qx*L.d[0]+qy*L.d[1]+qz*L.d[2];
-      { const cu=clamp(u,0,L.len), e0=Math.hypot(qx-L.d[0]*cu,qy-L.d[1]*cu,qz-L.d[2]*cu)-(L.w+0.4*L.droop*L.len+0.02*r); if(e0>m) continue; }   // (too far to be the nearest: the leaf's own round, droop and all)
-      if(u<-0.05*r||u>L.len+0.05*r){ const t1=u<0?0:1, dv=-L.droop*L.len*t1*0.4, ex=L.d[0]*L.len*t1+L.th[0]*dv, ey=L.d[1]*L.len*t1+L.th[1]*dv, ez=L.d[2]*L.len*t1+L.th[2]*dv, e=(Math.hypot(qx-ex,qy-ey,qz-ez)-0.004*r)*0.5; if(e<m) m=e; continue; }   // (past its end: to where its drooping tip really is)
-      const t=clamp(u/L.len,0,1); let s_=qx*L.sd[0]+qy*L.sd[1]+qz*L.sd[2], v=qx*L.th[0]+qy*L.th[1]+qz*L.th[2];
-      v+=L.droop*L.len*t*t*0.4; { const c=Math.cos(L.tw*t), sn=Math.sin(L.tw*t), s2=s_*c-v*sn; v=s_*sn+v*c; s_=s2; }   // arching out, twisting
-      const hw=L.w*Math.pow(1-t,0.85)*(0.55+0.45*Math.sqrt(t+0.04))+0.0015, e=Math.max(Math.abs(s_)-hw,Math.abs(v-0.4*hw*0.35*(1-Math.abs(s_)/hw))-0.011*r*(1-0.5*t),-u,u-L.len)*0.5; if(e<m) m=e; } return m; };
-  return { r, bound:r*4.8, boxL:[-2.85*r,-r-0.02,-2.85*r,2.85*r,top[1]+2.7*r,2.85*r], m:b.m, thinShadow:true, thinHit:true,   /* (its leaves are thin: rays must come right up to them, or they swell into boards) */
-    sdf:(x,y,z)=>Math.min(body(x,y,z),crown(x,y,z)),
-    mat:(x,y,z)=>{ if(crown(x,y,z)<body(x,y,z)){ const qy=y-top[1], n=noise3(x*12/r+off,y*12/r,z*12/r), t=clamp(qy/(2*r),0,1);
-        let c=mixc(C(88,124,72),C(146,170,100),0.3+0.35*n); c=mixc(c,C(176,182,112),t*0.35); c=mixc(c,C(60,90,58),smooth(0.15,0,t)*0.5); return M(c,{ks:0.3,gl:30,wrap:0.35,ss:0.2}); }
-      const e=eye(x,y,z), yn=(y-ey)/h, n=noise3(x*5/r+off,y*5/r,z*5/r);
-      let c=mixc(C(242,196,86),C(224,150,48),smooth(0.12,0.38,e));            // pale gold in the middle of each eye, orange toward its edge
-      c=mixc(c,C(130,70,26),smooth(0.38,0.5,e)*0.85);                          // the seams, brown
-      c=mixc(c,C(80,46,20),smooth(0.07,0.0,e)*0.8);                            // the dark point
-      c=c.map(v=>v*(0.88+0.2*n)); c=mixc(c,C(150,140,62),smooth(-0.35,-0.95,yn)*0.55); c=mixc(c,C(170,130,60),smooth(0.6,0.95,yn)*0.3);
-      return M(c,{ks:0.22,gl:22,wrap:0.3,ss:0.15,bump:0.04,bf:40/r}); } };
 }
 /* A HAND OF BANANAS: three curved fingers lying side by side, their ends lifting off the table, yellow going green at the
    ends, a brown tip and stalk, a few brown freckles, their ridges catching the light */
@@ -722,8 +765,8 @@ function makeMelon(b){ const r=b.r, cut=b.cut, off=rr(0,40);
       return M(c,{ks:0.12,gl:16,wrap:0.3,bump:0.05,bf:30/r}); } };
 }
 const MAKERS={apple:makeApple,pear:makePear,lemon:makeLemon,orange:makeOrange,plum:makePlum,peach:makePeach,fig:makeFig,pomegranate:makePomegranate,quince:makeQuince,walnut:makeWalnut,
-  apricot:makeApricot,mandarin:makeMandarin,persimmon:makePersimmon,medlar:makeMedlar,lime:makeLime,nectarine:makeNectarine,blackberry:makeBlackberry,
-  pineapple:makePineapple,banana:makeBanana,blueberry:makeBlueberry,melon:makeMelon};
+  apricot:makeApricot,mandarin:makeMandarin,persimmon:makePersimmon,lime:makeLime,nectarine:makeNectarine,blackberry:makeBlackberry,
+  banana:makeBanana,blueberry:makeBlueberry,melon:makeMelon};
 
 /* grapes: one object per bunch, spheres placed by the physics */
 function makeBunch(bodies,dark){
@@ -1428,7 +1471,7 @@ let CLOSE_INFO=null;
    leaf made just before a bottle can carry the bottle's name): only names that speak of the thing count */
 const NAME_WORDS={jug:["jug","vase","pitcher","ewer","flagon","salt-glazed"],flower:["bunch","rose","tulip","dais","sunflower","peon","lil","popp"],bowl:["bowl","dish","tureen"],plate:["plate","dish","platter","charger"],
   glass:["glass","roemer","goblet","beaker","flute","wine","hourglass"],wine:["glass","roemer","goblet","beaker","wine"],bottle:["bottle","flask","carafe"],candlestick:["candle"],flame:["candle"],skull:["skull"],book:["book","folio"],
-  hourglass:["hourglass"],sand:["hourglass"],leaf:["leaf"],insect:["fly","flies","butterfly","ladybird","bee"],knife:["knife"],mirror:["mirror"],deadfish:["herring","fish"],petal:["petal"],bread:["bread","loaf"],
+  hourglass:["hourglass"],sand:["hourglass"],leaf:["leaf"],insect:["fly","flies","butterfly","ladybird","bee"],knife:["knife"],mirror:["mirror"],deadfish:["herring","fish"],petal:["petal"],bread:["bread","loaf","baguette","roll"],
   cheese:["cheese"],eggs:["egg"],onion:["onion"],shell:["shell"],cup:["cup"],mug:["mug","tankard"],pipe:["pipe"],mortar:["mortar"],asparagus:["asparagus"],pumpkin:["pumpkin"],seeds:["pip","seed"],tendril:["tendril"],strawberries:["strawberr"]};
 const wordsFit=(k,n)=>{ const w=NAME_WORDS[k]; n=n.toLowerCase(); return w?w.some(x=>n.includes(x)):n.includes(k); };
 const nameFits=o=>{ if(!o.nm) return false; const w=NAME_WORDS[o.kind]; if(!w) return o.nm.includes(o.kind); const n=o.nm.toLowerCase(); return w.some(x=>n.includes(x)); };
@@ -1461,7 +1504,6 @@ function closeUp(){ CLOSE_INFO=null; const ALLN=NAMES.slice(), R=makeRng(String(
       if(L.some(q=>!FRUIT[q.kind]&&near(q,o,0.08))) continue; L.push(o); }
     L.sort((a,b)=>a.cx-b.cx); const fq=QF.get("focus");
     if(fq!==null&&fq!==""&&L.length){ const k=((+fq%L.length)+L.length)%L.length; F=L[k]; }
-    const nmOf=o=>FRUIT[o.kind]?(inDish(o)?null:"fruit"):(nameFits(o)?o.nm:o.kind);
     const nmF=o=>nameFits(o)?o.nm:ALLN.find(n=>wordsFit(o.kind,n))||o.kind;
     CLOSE_INFO={i:Math.max(0,L.indexOf(F)),n:L.length,name:(F.kind==="jug"&&vases.includes(F))?(OBJS.find(f=>f.vase===F&&f.kind==="flower"&&nameFits(f))||{}).nm||"a vase of flowers":FRUIT[F.kind]?(FRUIT[F.kind].pl||F.kind).replace(/^a /,""):nmF(F)}; }
   const keep=new Set([F]);
@@ -1482,12 +1524,13 @@ function closeUp(){ CLOSE_INFO=null; const ALLN=NAMES.slice(), R=makeRng(String(
     if(o.on&&!keep.has(o.on)) continue;   // a ladybird, a fly on a fruit that goes: it goes too (it was left in the air)
     if((NOFRAME.has(o.kind)||o.kind==="petal")&&o.kind!=="plinth"&&[...keep].some(k=>!NOFRAME.has(k.kind)&&near(o,k,o.kind==="string"?0.05:0.12))) keep.add(o); }
   for(const o of all) if(!keep.has(o)&&!o.bg&&o.kind!=="plinth"){ o.hidden=true; if(o.body){ o.body.gone=true; if(o.body.mate) o.body.mate.gone=true; } }
-  dropNow();
+  dropNow(); settle(OBJS); dropNow();   // (what lay on something the close-up left out comes down onto what is left, or goes)
   CANDLES=CANDLES.filter(c=>OBJS.some(o=>o.kind==="flame"&&Math.hypot(o.cx-c[0],o.cy-c[1],o.cz-c[2])<0.3));   // no light from a candle taken away
   GINFO=GINFO.filter(g=>GLASS.some(o=>!o.hg&&Math.hypot(o.cx-g.x,o.cz-g.z)<0.05));
   // and no cloth: what stood on it comes down by its thickness onto the bare table
   if(CLOTH){ const C_=CLOTH, th=C_.th; for(const o of OBJS.concat(GLASS)){ if(o.bg) continue; if(o.cx>C_.x0&&o.cx<C_.x1&&o.cz<C_.zb){ o.cy-=th; o.box[1]-=th; o.box[4]-=th; } }
-    for(const g of GINFO) if(g.x>C_.x0&&g.x<C_.x1&&g.z<C_.zb){ g.yc-=th; g.lev-=th; } CLOTH=null; }   // nor the coloured light a glass taken away threw on the table
+    for(const g of GINFO) if(g.x>C_.x0&&g.x<C_.x1&&g.z<C_.zb){ g.yc-=th; g.lev-=th; } CLOTH=null; }
+  settle(OBJS); dropNow();   // (and settled again once the cloth is gone: a thing half on it came down with it, the thing on that thing too)   // nor the coloured light a glass taken away threw on the table
   PLATES=PLATES.filter(p=>OBJS.some(o=>o.kind==="plate"&&Math.hypot(o.cx-p.x,o.cz-p.z)<0.05)); BOWLS=BOWLS.filter(w=>OBJS.some(o=>o.kind==="bowl"&&Math.hypot(o.cx-w.x,o.cz-w.z)<0.05));
   COLL=COLL.filter(c=>OBJS.concat(GLASS).some(o=>!o.bg&&Math.hypot(o.cx-c.x,o.cz-c.z)<0.05));
   if(!OBJS.some(o=>o.kind==="mirror")) MIRROR="";
@@ -1762,7 +1805,10 @@ function addBowl(x,z,floorY){
    handle at most a finger's breadth over the front edge */
 let KNIFE_REQ=null;
 function addKnife(x){ const z0=rr(0.12,0.28), phi=rand()<0.5?rr(0.35,1.1):Math.PI-rr(0.35,1.1), handleC=pick([C(60,36,22),C(80,50,28),C(34,26,20),C(170,150,110)]); KNIFE_REQ={x,z0,phi,handleC}; }
-function placeKnife(){ const q=KNIFE_REQ; KNIFE_REQ=null; if(!q) return; const Lb=0.85, Lh=0.62;
+function placeKnife(){ const q=KNIFE_REQ; KNIFE_REQ=null; if(!q) return;
+  // the arrangements ask for a knife in nearly half the pictures: only some of those keep it (its own stream), so about
+  // one picture in five has one; one chosen in the studio always stays
+  if(!(new URLSearchParams(URLQ).get("with")||"").split(".").includes("knife")&&makeRng(String(CURSEED)+"~knifekeep")()>=0.46) return; const Lb=0.85, Lh=0.62;
   const fg=OBJS.filter(o=>!o.bg&&!NOFRAME.has(o.kind)), gx=fg.length?fg.reduce((a,o)=>a+o.cx,0)/fg.length:0;
   for(let t=0;t<120;t++){ const x=q.x+(t?(DR()-0.5)*(0.6+t*0.05):0), a=0.4+DR()*0.7, phi=gx>=x?a:Math.PI-a, over=-0.04+DR()*0.16, z0=Lh*Math.sin(phi)-over;
     const c=Math.cos(phi), sn=Math.sin(phi), fy=floorAt(x,z0); let ok=true;
@@ -2086,15 +2132,93 @@ function placeExtra(r,front,wide){ if(PLACE_WIDE){ PLACE_WIDE=false; const p=pla
   return null; }
 const finishExtra=(x,z,fy,r,h,name)=>{ COLL.push({x,z,r,h:fy+h}); NAMES.push(name); };
 
+/* BREAD, after the paintings: crusty country loaves, golden brown deepening to dark at the ears of their scoring, the
+   cuts opened into paler gold blooms with one lip lifted, a dusting of flour on the tops where the crust did not
+   stretch, a fine crackle in the crust, the foot paler. Several kinds (from the bread's own stream, sized to the same
+   footprint the scene always gave it, so nothing else moves): a round boule (scored in a cross, a square, a single
+   slash or parallel cuts), an oval batard (long diagonal slashes), a baguette (a row of overlapping slashes), a few
+   rolls, half a loaf cut across (its crumb face toward us: creamy, full of irregular holes, inside a thin dark crust),
+   or a torn piece of a round loaf (a rough open crumb, as in the second painting) */
+const LTB=new Float64Array(5);
+function breadLoaf(kind,a,b,c,off,BR){ const H=kind==="baguette"?Math.min(c*0.55,0.17)*1.75:b*(kind==="rolls"?0.85:kind==="boule"?1.45:1.2);
+  const segs=[];   // score lines on the top: centre (x,z), direction, half length, opening, which lip lifts
+  const seg=(x,z,ang,L,w)=>segs.push({x,z,dx:Math.cos(ang),dz:Math.sin(ang),L,w,ear:BR()<0.5?-1:1});
+  // every loaf: widest a little above the table and tucked in under (the dough slumped and set), the foot flat
+  const loaf=(x,y,z,rx,rz)=>sdEllipsoid(x,y-H*0.4,z,rx,H*0.6,rz);
+  let shape;
+  if(kind==="boule"){ const R=a*0.95, pat=["cross","square","slash","lines"][Math.floor(BR()*4)], r0=BR()*3.14;
+    shape=(x,y,z)=>loaf(x,y,z,R,R);
+    if(pat==="cross"){ seg(0,0,r0,R*0.88,0.065); seg(0,0,r0+1.571,R*0.88,0.065); }
+    else if(pat==="square"){ for(let k=0;k<4;k++){ const t=r0+k*1.571, o=R*0.36; seg(Math.cos(t)*o,Math.sin(t)*o,t+1.571,R*0.62,0.042); } }
+    else if(pat==="slash"){ seg(R*0.08,0,r0,R*0.9,0.07); }
+    else { for(let k=-1;k<=1;k++) seg(Math.cos(r0+1.571)*k*R*0.36,Math.sin(r0+1.571)*k*R*0.36,r0,R*0.78*(1-0.22*Math.abs(k)),0.045); } }
+  else if(kind==="batard"){ const n=1+Math.floor(BR()*3);
+    shape=(x,y,z)=>{ const t=clamp(x/a,-1,1); return loaf(x,y,z,a,c*(1-0.2*t*t)); };
+    if(n===1) seg(0,0,0.12,a*0.85,0.065); else for(let k=0;k<n;k++){ const xk=(k-(n-1)/2)*a*1.3/n; seg(xk,0,0.45,a*1.05/n,0.048); } }
+  else if(kind==="baguette"){ const L=a*1.02, r=Math.min(c*0.55,0.17), n=4+Math.floor(BR()*3);   // round in section, a little higher than wide
+    shape=(x,y,z)=>{ const t=clamp(x/L,-1,1), k=Math.sqrt(Math.max(0.05,1-Math.pow(Math.abs(t),5)))*(1+0.13*noise3(x*3.2/L+off,0.5,1.3)), hk=1+0.12*noise3(x*4.5/L,off,2.1);   /* (blunt ends; swelling and pinching along its length) */
+      return sdEllipsoid(x,y-r*0.8*hk,z,L,r*0.9*k*hk,r*k); };
+    for(let k=0;k<n;k++){ const xk=(k-(n-1)/2)*L*1.55/n+(BR()-0.5)*L*0.06; seg(xk,(BR()-0.5)*r*0.25,0.34+(BR()-0.5)*0.16,L*1.05/n,0.04); } }
+  else if(kind==="rolls"){ const R=a*0.42, P3=[0,1,2].map(k=>{ const t=k*2.094+BR()*0.5; return [Math.cos(t)*a*0.48,Math.sin(t)*a*0.48,R*(0.88+0.2*BR())]; });
+    shape=(x,y,z)=>{ let m=1e9; for(const p of P3) m=Math.min(m,loaf(x-p[0],y,z-p[1],p[2],p[2])); return m; };
+    for(const p of P3) seg(p[0],p[1],BR()*3.14,p[2]*0.8,0.04); }
+  else if(kind==="half"){ const Lz=a*1.0, rx=Math.min(c*0.98,a*0.62);   // half a batard, the cut toward us at z=0
+    shape=(x,y,z)=>loaf(x,y,z,rx,Lz); seg(0,Lz*0.45,1.571+0.25,Lz*0.45,0.05); }
+  else { const R=a*0.92; shape=(x,y,z)=>loaf(x,y,z,R,R); seg(BR()*0.1,R*0.3,BR()*3.14,R*0.6,0.05); }   // "torn"
+  // a cut face is nearly flat, a little dished; a torn one is rough with lumps and pulled strands of crumb
+  const foam=(x,y)=>-0.026*a*Math.abs(noise3(x*7/a+off,y*7/a,7))-0.013*a*Math.abs(noise3(x*17/a,y*17/a+off,8))-0.005*a*Math.abs(noise3(x*40/a+off,y*40/a,9));   // (rounded puffs of crumb, creased between)
+  const cutAt=kind==="half"?(x,y)=>0.008*a*noise3(x*5/a+off,y*5/a,1)+0.004*a*noise3(x*14/a,y*14/a+off,4)+foam(x,y)
+    :kind==="torn"?(x,y)=>-a*0.1+0.3*(y-H*0.4)+0.16*a*noise3(x*2.5/a+off,y*2.5/a,2)+0.06*a*noise3(x*7/a,y*7/a+off,3)+0.02*a*noise3(x*18/a,y*18/a,off)+foam(x,y):null;
+  const HS=kind==="torn"?[[0.3*a,0.62,0.26,0.5],[0.15*a,0.7,0.24,0.46],[0.08*a,0.75,0.22,0.42]]:[[0.28*a,0.6,0.24,0.48],[0.14*a,0.7,0.22,0.44],[0.075*a,0.75,0.22,0.42]];   // (big caverns and middling holes, large enough to be painted; the small pores are in the crumb's colour)
+  const holes=(x,y,z)=>{ if(!cutAt) return 1e9; const zc=cutAt(x,y); if(z-zc>0.3*a) return 1e9; let m=1e9;
+    for(let si=0;si<HS.length;si++){ const [g,pr,r0,r1]=HS[si], ix=Math.floor(x/g), iy=Math.floor(y/g);
+      for(let dx=-1;dx<=1;dx++) for(let dy=-1;dy<=1;dy++){ const cx=ix+dx, cy=iy+dy, k0=Math.floor(off*100)+si*7; if(hash3i(cx,cy,k0)>pr) continue;
+        const px=(cx+0.15+0.7*hash3i(cx,cy,k0+1))*g, py=(cy+0.15+0.7*hash3i(cx,cy,k0+2))*g, rad=g*(r0+(r1-r0)*hash3i(cx,cy,k0+3)), pz=cutAt(px,py)+rad*(0.08+0.25*hash3i(cx,cy,k0+4));   // (open bowls: the light reaches in, as in the paintings)
+        if(py<rad*0.7+0.02||shape(px,py,pz)>-(rad+0.022)) continue;   // (only where the crumb is deep enough: never through the crust)
+        const th=hash3i(cx,cy,k0+5)*3.1416, cs=Math.cos(th), sn=Math.sin(th), qx=x-px, qy=y-py, u=qx*cs+qy*sn, v=-qx*sn+qy*cs;   // stretched one way or another, its edge uneven
+        const d=sdEllipsoid(u,v,z-pz,rad*(0.95+0.6*hash3i(cx,cy,k0+6)),rad*(0.6+0.35*hash3i(cx,cy,k0+7)),rad)+0.22*rad*noise3(x*1.3/rad+cx,y*1.3/rad+cy,z*1.3/rad); if(d<m) m=d; } } return m; };
+  const smax=(p,q,k)=>{ const hh=clamp(0.5-0.5*(q-p)/k,0,1); return q+(p-q)*hh+k*hh*(1-hh); };   // a rounded join: the crust turns under onto the foot
+  const lump=(x,y,z)=>0.045*a*noise3(x*1.4/a+off,y*1.4/a+3,z*1.4/a);   // no loaf is regular: slumped, swollen, a little lopsided
+  // the crumb: irregular holes, big and small, each in shadow with a lit lip where the crumb wall catches the light
+  const crumbN=(x,y,z)=>noise3(x*15/a+off,y*15/a,z*15/a)+0.55*noise3(x*32/a,y*32/a+off,z*32/a)+0.3*noise3(x*6/a,y*6/a,z*6/a+off);
+  const score=(x,y,z,wide)=>{ let g=0,e=0; const k=wide?1.6:1; for(const q of segs){ const px=x-q.x, pz=z-q.z, t=px*q.dx+pz*q.dz, sv=-px*q.dz+pz*q.dx, f=smooth(q.L,q.L*0.5,Math.abs(t)); if(f<=0) continue;
+      const w=q.w*k; g=Math.max(g,f*Math.exp(-(sv*sv)/(w*w))); e=Math.max(e,f*Math.exp(-((sv-q.ear*q.w*1.3*k)**2)/(w*w*0.45))); } return [g,e]; };
+  const top=y=>smooth(H*0.15,H*0.6,y);
+  const bake=kind==="baguette"?[0.05,0.04]:[0.05,0.02];   // (the baguette's cuts open deeper, their ears stand higher)
+  const sdf=(x,y,z)=>{ let d=shape(x,y,z); if(d>0.16) return d-0.07;
+    const [g,e]=score(x,y,z), u=top(y); d+=lump(x,y,z)+u*(bake[0]*g-bake[1]*e)+0.005*noise3(x*16/a+off,y*16/a,z*16/a);   // the cuts sunk, their lips lifted, the crust blistered and uneven
+    d=smax(d,-y,0.03);                                                                                 // the foot flat on the table, the crust turning under onto it
+    if(cutAt){ d=Math.max(d,cutAt(x,y)-z); const hd=holes(x,y,z); if(hd<1e8) d=smax(d,-hd,0.008); }      // the face, and the holes in it (their lips soft and rounded)
+    return d*(kind==="baguette"?0.17:0.47); };   /* (the baguette's narrowing ends steepen its field) */
+  const mat=(x,y,z,wx,wy,wz)=>{ const outer=smax(shape(x,y,z)+lump(x,y,z),-y,0.03);   // (the outer surface with its foot: the crust goes round the bottom too)
+    if(cutAt&&z<cutAt(x,y)+0.12&&outer<-0.004){ /* (inside the loaf only the face and its holes can be seen: anything behind the face is a hole's wall) */ const rw=0.026+(kind==="torn"?0.05:0.02)*Math.max(0,noise3(x*12/a+off,y*12/a,5)), rim=smooth(-rw-0.008,-rw+0.004,outer);   // the crust round the crumb: one band, darkening outward, of uneven width
+      const n=crumbN(x,y,z), pore=smooth(0.3,0.6,n), w0=noise3(x*3/a+off,y*3/a,z*3/a), fib=Math.exp(-(noise3(x*34/a+off,y*9/a,z*20/a)**2)/0.004);   // small pores, and pulled strands of crumb
+      let col=mixc(C(242,230,202),C(226,206,166),0.5+0.5*w0); col=mixc(col,C(252,246,230),fib*0.45);
+      col=mixc(col,C(218,184,128),pore*0.45);                                                                          // the pores: a warm cream-ochre, not dark
+      const dep=Math.max(0,z-cutAt(x,y)), cav=smooth(0.001,0.025,dep); col=mixc(col,C(226,184,120),cav*0.7);          // inside a hollow: golden cream
+      let li=0; if(wx!==undefined) for(const L of LIGHTS){ lightAt(L,wx,wy,wz,LTB); li+=LTB[3]; } const gl=(0.14+0.3*cav)*li+AMB;   // light that has entered the porous crumb and scattered in it: a hollow is never black
+      if(kind==="torn"){ const tn=noise3(x*7/a,y*7/a+off,3)+0.5*noise3(x*16/a+off,y*16/a,6); col=col.map(v=>v*(0.7+0.38*smooth(-0.55,0.45,tn))); }   // torn: lumps lit, crevices in shadow
+      col=mixc(col,mixc(mixc(C(156,96,42),C(196,148,88),smooth(0.06,0.0,y)),C(84,44,16),smooth(-0.6*rw,-0.1*rw,outer)),rim); const g1=gl*(1-rim); return M(col,{ks:0.05,gl:5,wrap:0.65,ss:0.45,glow:[g1,g1*0.9,g1*0.72]}); }   // (the band paler along the floury foot)
+    const [g,e]=score(x,y,z,true), t=clamp(y/H,0,1), n=noise3(x*4/a+off,y*4/a,z*4/a), bl=noise3(x*9/a+off,y*9/a+5,z*9/a), cr=noise3(x*26/a+off,y*26/a+3,z*26/a), u=top(y);
+    let col=mixc(C(206,140,64),C(160,88,32),smooth(0.05,0.65,t)); col=mixc(col,C(116,58,20),smooth(0.0,0.6,n)*0.6*t);    // golden brown, deepening to caramel and umber on top
+    col=mixc(col,C(222,168,92),smooth(0.1,0.5,bl)*0.35); col=mixc(col,C(110,54,18),smooth(-0.15,-0.5,bl)*0.4*t);            // blistered: paler and darker patches
+    col=mixc(col,C(214,162,96),smooth(0.22,0,t)*0.55);                                                                      // the foot paler
+    col=mixc(col,col.map(v=>v*0.55),Math.exp(-(cr*cr)/0.003)*0.5*t);                                                         // the crackle
+    if(kind==="baguette") col=mixc(col.map(v=>v*0.8),C(120,60,22),0.35);                                                   // a baguette: baked darker
+    col=mixc(col,C(66,32,12),smooth(-0.35,-0.65,bl)*0.55*t);                                                                 // near-burnt patches where it browned most
+    col=mixc(col,C(70,32,10),e*0.92*u);                                                                                      // the lifted lips, caramelised dark
+    col=mixc(col,mixc(C(236,204,140),C(204,146,76),smooth(-0.2,0.5,noise3(x*20/a,y*20/a+off,z*20/a))),g*0.92*u);           // the opened cut: a paler, rougher gold
+    const fn=noise3(x*2.2/a+off+9,y*1.5,z*2.2/a)+0.35*noise3(x*9/a,y*9/a+off,z*9/a);
+    const fl=smooth(-0.1,0.45,fn)*smooth(0.4,0.95,t)*(1-g)*(1-e)*(kind==="baguette"?0.08:0.55);                                // a thin veil of flour, where the crust did not stretch
+    col=mixc(col,C(236,230,216),fl);
+    return M(col,{ks:0.16,gl:18,wrap:0.3,bump:0.25,bf:34/a}); };
+  return {sdf,mat,H}; }
 function addBread(){ const a=DRr(0.42,0.6), b=DRr(0.24,0.32), round=DR()<0.35, c=round?a:a*DRr(0.6,0.78), cuts=2+Math.floor(DR()*3), off=DR()*40, yaw=DR()*6.283;
   const p=placeExtra(Math.max(a,c)+0.05); if(!p) return; const [x,z,fy]=p;
-  addObj({kind:"bread",cx:x,cy:fy,cz:z,m:frame(0,1,0,yaw),bound:a+0.1,
-    sdf:(lx,ly,lz)=>Math.max(sdEllipsoid(lx,ly+0.03,lz,a,b,c)*0.9,-ly),
-    mat:(lx,ly,lz)=>{ const t=clamp(ly/b,0,1); let col=mixc(C(190,128,64),C(140,78,32),smooth(0.3,0.9,t));
-      if(ly>b*0.45) for(let k=0;k<cuts;k++){ const xk=(k-(cuts-1)/2)*a*1.5/cuts; if(Math.abs(lx-xk+0.25*lz)<0.028*(round?1.4:1)){ col=mixc(C(226,196,136),col,smooth(0.012,0.028,Math.abs(lx-xk+0.25*lz))); break; } }
-      col=mixc(col,C(236,228,210),dots(lx+off,ly,lz,40,0.35)*smooth(0.6,1,t)*0.6);        // flour on the crust
-      return M(col,{ks:0.12,gl:14,wrap:0.3,bump:0.2,bf:28}); }});
-  finishExtra(x,z,fy,Math.max(a,c),b,round?"a round loaf":"a loaf of bread"); }
+  const BR=makeRng(String(CURSEED)+"~bread"+Math.round(x*1000)), q=BR(), kind=round?(q<0.5?"boule":q<0.75?"rolls":"torn"):(q<0.45?"batard":q<0.72?"baguette":"half");
+  const L=breadLoaf(kind,a,b,c,off+cuts,BR), yw=kind==="half"||kind==="torn"?Math.PI+(yaw/6.283-0.5)*1.1:yaw;   // (a cut or torn face turned toward us)
+  addObj({kind:"bread",cx:x,cy:fy,cz:z,m:frame(0,1,0,yw),bound:a+0.12,sdf:L.sdf,mat:L.mat,thinHit:true});   // (rays come right up to it: the crumb's holes are smaller than the usual hit tolerance)
+  finishExtra(x,z,fy,Math.max(a,c),L.H,{boule:"a round loaf",batard:"a loaf of bread",baguette:"a baguette",rolls:"bread rolls",half:"half a loaf",torn:"a piece of bread"}[kind]); }
 
 function addCheese(){ const R=DRr(0.48,0.62), h=DRr(0.24,0.34), w=DRr(0.6,1.0), phi=-Math.PI/2+DRr(-0.9,0.9), kind=wpick_({gouda:3,edam:1.5,white:1});
   const p=placeExtra(R+0.05); if(!p) return; const [x,z,fy]=p;
@@ -2475,8 +2599,9 @@ function skullCandle(x,y0,z){ const cR=DRr(0.055,0.07), cH=DRr(0.25,0.7), lit0=L
       sdf:(lx,ly,lz)=>sdEllipsoid(lx,ly,lz,0.032,0.085,0.032),
       mat:(lx,ly,lz)=>{ const t=clamp((ly+0.085)/0.17,0,1); return M([1,1,1],{emis:[lerp(9,5,t),lerp(6.5,2.2,t),lerp(3.2,0.5,t)]}); }});
     CANDLES.push([x,fy,z]); } }
-const EXTRAS={skull:0.55,cranium:0.45,half:0.3,candle:0.45,bread:1.2,cheese:1.1,eggs:1,onion:1,shell:0.9,hourglass:0.7,cup:0.9,mugClay:0.8,mugStone:0.7,strawberries:1,pipe:0.8,mortar:0.7,asparagus:0.9,pumpkin:0.7};
+const EXTRAS={skull:0.55,cranium:0.45,half:0.3,candle:0.45,bread:1.2,cheese:1.1,eggs:1,onion:1,shell:0.27,hourglass:0.7,cup:0.9,mugClay:0.8,mugStone:0.7,strawberries:1,pipe:0.8,mortar:0.7,asparagus:0.33,pumpkin:0.7};
 const EXTRA_MAKERS={skull:()=>addSkull("skull"),cranium:()=>addSkull("cranium"),half:()=>addSkull("half"),candle:()=>addSkull("candle"),bread:addBread,cheese:addCheese,eggs:addEggs,onion:addOnions,shell:addShell,hourglass:addHourglass,cup:addCup,mugClay:()=>addMug("clay"),mugStone:()=>addMug("stone"),strawberries:addStrawberries,pipe:addPipe,mortar:addMortar,asparagus:addAsparagus,pumpkin:addPumpkin,
+  leaf:()=>{ const rk=rand; rand=makeRng(String(CURSEED)+"~leaves"); for(let i=0,n=ri(3,5),t=0;i<n&&t<30;t++){ const x=rr(-1.9,1.9), z=rr(0.3,1.6); if(freeSpot(x,z,0.2)){ addLeaf(x,z,rr(0,6.283),rand()<0.5?"plain":"vine"); i++; } } rand=rk; },   // (picked only, from their own stream)
   fish:()=>{ let p=null,f=1; for(f of [1,0.8,0.65,0.5]){ p=placeExtra(1.1*f,false,true); if(p) break; } if(p) addDeadFish(p[0],p[1],p[2],DR,f,!DYING); }};   // (picked only: never drawn by chance, so no seed changes)
 function addExtras(){ const used=new Set(); let n=COMP==="banquet"?1+(DR()<0.6?1:0)+(DR()<0.3?1:0):COMP==="sparse"?(DR()<0.45?1:0):(DR()<0.65?1:0)+(DR()<0.25?1:0);
   if(BUSY<0) n=Math.min(n,DR()<0.35?1:0); if(BUSY>0) n+=1+(DR()<0.5?1:0); if(COMP==="chaos") n+=2;
@@ -2500,6 +2625,11 @@ function addExtras(){ const used=new Set(); let n=COMP==="banquet"?1+(DR()<0.6?1
    4. ARRANGEMENT — composition + a little physics so fruit rests and piles
    ========================================================================== */
 let PSCH=null, PSCHOOL="", GM=null;
+let WALLMAT="plaster", WALLTINT=false;
+const WALL_KINDS=["plaster","stone","brick","wood","tiles"];
+const WALL_COLS={grey:C(150,140,124),ochre:C(176,138,72),olive:C(104,108,70),green:C(70,96,82),red:C(132,54,42),blue:C(78,92,110),umber:C(70,54,40),white:C(214,206,190)};
+const lum3=c=>0.3*c[0]+0.59*c[1]+0.11*c[2];
+const lumFit=(c,ref,k)=>{ const f=Math.pow(lum3(ref)/Math.max(1e-3,lum3(c)),k); return c.map(v=>Math.min(1,v*f)); };   // a colour brought toward the value of another (a red wall stays dark in a dark picture)
 let CLOTH=null, TABLE=null, ZW=3.5, WALLZ=3.5, BACKDROP="plain wall", MIRROR="", LIGHTMODE="daylight", LSTRICT="", GOLDWALL=false, EVENWALL=false, CURTAIN=null, SCH=null, SCHOOL="", COMP="", FORMAT="landscape", RATIO=0.8;
 function floorAt(x,z){ let f=0; if(CLOTH && x>CLOTH.x0 && x<CLOTH.x1 && z<CLOTH.zb) f=CLOTH.th;
   if(PLINTH && x>PLINTH.x0 && x<PLINTH.x1 && z>PLINTH.z0) f=Math.max(f,PLINTH.h);
@@ -2686,6 +2816,45 @@ function passThrough(){ const L=OBJS.concat(GLASS).filter(o=>!o.hidden&&!o.bg&&!
 function noPassThrough(){ for(const [A,B] of passThrough()){ if(A.hidden||B.hidden) continue; const fa=!!A.body, fb=!!B.body;
     const o=fa&&!fb?A:fb&&!fa?B:fa&&fb?(A.cy>=B.cy?A:B):(A.bound<=B.bound?A:B);
     for(const q of [o,...OBJS.filter(q=>q.on===o)]) q.hidden=true; if(o.body) o.body.gone=true; else { const ni=NAMES.findIndex(n=>n.includes(o.kind)); if(ni>=0) NAMES.splice(ni,1); } } }
+/* THE CANDLE PLACED BY HAND (&candle=left|centre|right|front|back|free, free: &candlepos=x_z, the spot set by hand
+   on the picture): the candlestick (the lit one first) is carried to the nearest spot
+   to the one asked for where it touches nothing, on the table; if the table has none, one is set down (its own stream).
+   Everything else stays where the seed laid it */
+const CANDLE_OK=new Set(["insect","string","tendril","seeds","flame","sand","wine","water"]);
+// a lit flame wants a clear hand's breadth round it: a fruit right against it was lit to a glare, white specks on its bloom
+const flameClear=(fl,others)=>!fl||others.every(q=>q.kind==="candlestick"||q.kind==="candle"&&Math.hypot(q.cx-fl.cx,q.cz-fl.cz)<0.05||objD(q,fl.cx,fl.cy,fl.cz)>0.3);
+function placeCandle(){ const Q_=new URLSearchParams(URLQ); let cm=Q_.get("candle");
+  const lit=LIGHTMODE==="candlelight"||LSTRICT==="both", near=(o,x,z)=>Math.hypot(o.cx-x,o.cz-z)<0.05;
+  let cs=OBJS.filter(o=>o.kind==="candlestick"&&!o.hidden), C0=cs.find(o=>CANDLES.some(c=>Math.hypot(c[0]-o.cx,c[2]-o.cz)<0.05))||cs[0];
+  if(!["left","centre","right","front","back","free"].includes(cm)){   // not placed in the studio: a lit candle is only moved when it stands among things (in a raised bowl of fruit, say)
+    const bad=cs.find(o=>{ if(!CANDLES.some(c=>Math.hypot(c[0]-o.cx,c[2]-o.cz)<0.05)) return false; const fl=OBJS.find(f=>f.kind==="flame"&&near(f,o.cx,o.cz)), oth=OBJS.concat(GLASS).filter(q=>!q.hidden&&!q.bg&&q!==o&&q!==fl&&!CANDLE_OK.has(q.kind));
+      return !flameClear(fl,oth)||oth.some(q=>{ const e=q.box, b=o.box; return !(e[0]>b[3]||e[3]<b[0]||e[2]>b[5]||e[5]<b[2]||e[1]>b[4]||e[4]<b[1])&&solidsTouch(o,q); }); });
+    if(!bad) return; C0=bad; cm="nudge"; }
+  const wantLit=lit;   // (lit only when the scene's light has a candle: Light → Candle or Both)
+  if(C0&&wantLit&&!CANDLES.some(c=>Math.hypot(c[0]-C0.cx,c[2]-C0.cz)<0.05)){ C0.hidden=true; const ci=COLL.findIndex(c=>Math.hypot(c.x-C0.cx,c.z-C0.cz)<0.05); if(ci>=0) COLL.splice(ci,1); const ni=NAMES.indexOf("a candlestick"); if(ni>=0) NAMES.splice(ni,1); dropNow(); C0=null; }
+  if(!C0){ const rk=rand; rand=makeRng(String(CURSEED)+"~candle"); addCandlestick(0,0.6,floorAt(0,0.6),wantLit); rand=rk; C0=OBJS.filter(o=>o.kind==="candlestick").pop(); }
+  const fl=OBJS.find(o=>o.kind==="flame"&&near(o,C0.cx,C0.cz)), ci=CANDLES.findIndex(c=>Math.hypot(c[0]-C0.cx,c[2]-C0.cz)<0.05), co=COLL.find(c=>Math.hypot(c.x-C0.cx,c.z-C0.cz)<0.05);
+  const parts=[C0].concat(fl?[fl]:[]), x00=C0.cx, z00=C0.cz;
+  const move=(x,z)=>{ const dx=x-C0.cx, dz=z-C0.cz, dy=floorAt(x,z)-C0.cy; for(const o of parts){ o.cx+=dx; o.cy+=dy; o.cz+=dz; const b=o.box; b[0]+=dx; b[3]+=dx; b[1]+=dy; b[4]+=dy; b[2]+=dz; b[5]+=dz; } };
+  // where: across the group of things on the table, and from the front edge back toward the wall
+  const others=OBJS.concat(GLASS).filter(o=>!o.hidden&&!o.bg&&!parts.includes(o)&&!CANDLE_OK.has(o.kind));
+  const xs=others.filter(o=>!NOFRAME.has(o.kind)).map(o=>o.cx), x0=xs.length?Math.min(...xs):-1, x1=xs.length?Math.max(...xs):1, mid=(x0+x1)/2, half=Math.max(0.8,(x1-x0)/2)+0.5;
+  const a={left:-0.85,centre:0,right:0.85,front:0,back:0,free:0,nudge:0}[cm], d={front:0.05,back:0.95}[cm]??0.45;
+  const zMax=Math.min(WALLZ-0.4,2.9), cp=(Q_.get("candlepos")||"").split("_").map(Number), byHand=cm==="free"&&cp.length===2&&cp.every(isFinite);
+  const tx=cm==="nudge"?x00:byHand?cp[0]:mid+a*half, tz=cm==="nudge"?z00:byHand?clamp(cp[1],0.35,WALLZ-0.35):lerp(0.4,zMax,d);   // (nudged: from where it stood, to the nearest clear spot)   // (by hand: the very spot set on the picture)
+  const free=(x,z)=>{ if(x<TABLE.xl+0.35||x>TABLE.xr-0.35||z<0.35||z>WALLZ-0.35) return false; move(x,z); const b=C0.box;
+    for(const q of others){ const e=q.box; if(e[0]>b[3]||e[3]<b[0]||e[2]>b[5]||e[5]<b[2]||e[1]>b[4]||e[4]<b[1]) continue; if(solidsTouch(C0,q)) return false; } return flameClear(fl,others); };
+  let done=false; for(let r=0;r<=3.2&&!done;r+=0.1){ const n=r===0?1:Math.max(8,Math.round(r*14)); for(let k=0;k<n&&!done;k++){ const t=k/n*Math.PI*2; if(free(tx+r*Math.cos(t),tz+r*0.7*Math.sin(t))) done=true; } }
+  if(!done){ move(x00,z00); return; }
+  if(ci>=0){ CANDLES[ci][0]=fl?fl.cx:C0.cx; CANDLES[ci][1]=fl?fl.cy:CANDLES[ci][1]; CANDLES[ci][2]=fl?fl.cz:C0.cz; }
+  if(co){ co.x=C0.cx; co.z=C0.cz; } }
+/* a leaf lies flat on the table, thinner than the pass-through test can see: one that runs into a fruit, a jug or any
+   other thing is taken away (what rests on the leaf, an insect on it, is let be); and none at all when the studio says so */
+function leavesClear(){ const OUT=(new URLSearchParams(URLQ).get("without")||"").split(".").includes("leaf"), OK=new Set(["leaf","insect","string","tendril","seeds","flame","water","sand","wine"]);
+  for(const L of OBJS){ if(L.kind!=="leaf"||L.hidden) continue; if(OUT){ L.hidden=true; continue; }
+    for(const q of OBJS.concat(GLASS)){ if(q===L||q.hidden||q.bg||OK.has(q.kind)||q.on===L||L.on===q) continue; if(solidsTouch(L,q)){ L.hidden=true; break; } } }
+  for(const o of OBJS) if(o.on&&o.on.hidden&&o.on.kind==="leaf") o.hidden=true;
+  dropNow(); }
 /* settle: from the lowest up, whatever hangs a little above its support is let down onto it (an apple drawn flatter than
    the ball the physics rolled, a skull rested on its approximate lowest point), and whatever is truly in the air is taken
    away. Only heights change; what is on the table and where stays as the seed laid it */
@@ -2699,22 +2868,6 @@ function settle(objs){ const L=objs.filter(o=>!o.hidden&&!o.bg&&!o.hang&&!FLOAT_
       const nearO=(x,y,z)=>x>o.box[0]-0.3&&x<o.box[3]+0.3&&z>o.box[2]-0.3&&z<o.box[5]+0.3&&y>o.box[1]-0.3&&y<o.box[4]+0.6;
       for(const q of OBJS) if(q.kind==="flame"&&nearO(q.cx,q.cy,q.cz)) q.hidden=true;
       for(let k=CANDLES.length-1;k>=0;k--){ const c=CANDLES[k]; if(nearO(c[0],c[1]+0.3,c[2])) CANDLES.splice(k,1); } } } }
-/* a pineapple most often leans: onto the fruit nearest it, or against the side of the bowl it lies in; tried at the steepest
-   angle first and brought up until its body (a tall egg on the ball the physics rolled) clears the table and every other
-   fruit, so it rests on them; else it may lie on its side, or now and then stand */
-function leanPineapple(b){ const r=b.r, a=r*0.92, h=r*1.55, ey=h-r, q=rand();
-  let near=null, nd=1e9; for(const c of BODIES){ if(c===b||c.gone) continue; const d=Math.hypot(c.x-b.x,c.z-b.z); if(d<nd&&d<r*3.2){ nd=d; near=c; } }
-  const W=BOWLS.find(w=>Math.hypot(b.x-w.x,b.z-w.z)<w.Rr);
-  let dir=null; if(near&&q<0.8) dir=Math.atan2(near.z-b.z,near.x-b.x); else if(W&&q<0.8) dir=Math.atan2(W.z-b.z,W.x-b.x)+Math.PI; else if(q<0.93) dir=rr(0,6.283);
-  if(dir===null) return [0,1,0];
-  const fits=t=>{ const u=[Math.sin(t)*Math.cos(dir),Math.cos(t),Math.sin(t)*Math.sin(dir)];   // the body's axis; its points checked against the floor and the other fruit
-    for(let i=0;i<=8;i++){ const s=-1+2*i/8, cx=b.x+u[0]*(ey+h*s), cy=b.y+u[1]*(ey+h*s), cz=b.z+u[2]*(ey+h*s), w=a*Math.sqrt(Math.max(0,1-s*s))*0.9;
-      if(cy-w*Math.sin(t)-(1-Math.abs(u[1]))*w<floorAt(cx,cz)-0.02) return false;
-      for(const c of BODIES){ if(c===b||c.gone) continue; if(Math.hypot(cx-c.x,cy-c.y,cz-c.z)<w+PR(c)*0.92) return false; } }
-    return true; };
-  if(q>=0.8&&q<0.93&&fits(1.45)) return [Math.sin(1.45)*Math.cos(dir),Math.cos(1.45),Math.sin(1.45)*Math.sin(dir)];   // on its side
-  for(let t=1.0;t>=0.15;t-=0.08) if(fits(t)) return [Math.sin(t)*Math.cos(dir),Math.cos(t),Math.sin(t)*Math.sin(dir)];
-  return [0,1,0]; }
 function materialize(){ const done=new Set();
   for(const b of BODIES){ if(done.has(b)) continue;
     if(b.kind==="grapes"){ const g=b.grp<0?[b]:BODIES.filter(o=>o.grp===b.grp); g.forEach(o=>done.add(o)); addObj(makeBunch(g,b.dark)); continue; }   // a loose grape is a bunch of one: grp -1 is every other fruit, which came out wrapped in grape skin (the pale green peaches with jagged orange bands)
@@ -2724,12 +2877,14 @@ function materialize(){ const done=new Set();
     const tilt=(t,a)=>[Math.sin(t)*Math.cos(a),Math.cos(t),Math.sin(t)*Math.sin(a)];
     if(b.cut){ up=[0,1,0]; }
     // fruit as it falls: few stand straight up; many lean, some lie on their side (the stem or the eye toward us), more so heaped in a bowl
-    else if(["apple","quince","peach","pomegranate","orange","plum","persimmon","apricot","nectarine","mandarin","medlar"].includes(b.kind)){ const q=rand(), side=inBowl?0.4:0.25, lean=inBowl?0.85:0.75;
+    else if(b.kind==="persimmon"){ const q=rand(), t0=rr(0,1); up=tilt(q<(inBowl?0.4:0.12)?0.45+0.6*t0:0.25*t0,rr(0,6.283)); }   // (as many draws as the others: sits on its flat foot, now and then tipped, more in a heap)
+    else if(["apple","quince","peach","pomegranate","orange","plum","apricot","nectarine","mandarin"].includes(b.kind)){ const q=rand(), side=inBowl?0.4:0.25, lean=inBowl?0.85:0.75;
       const t=q<side?rr(1.15,1.95):q<lean?rr(0.3,0.95):rr(0,0.25); up=tilt(t,rr(0,6.283)); }
     else if(b.kind==="lemon"||b.kind==="lime"){ up=tilt(rr(0,inBowl?0.6:0.35),rr(0,6.283)); }
     else if(b.kind==="pear"||b.kind==="fig"){ if(rand()<(inBowl?0.55:0.4)){ const a=rr(0,6.283); up=[Math.cos(a),0.15+rr(0,0.35),Math.sin(a)]; } else up=[rr(-0.35,0.35),1,rr(-0.35,0.35)]; }
-    else if(b.kind==="pineapple"){ up=leanPineapple(b); }
-    else if(b.kind==="blueberry"||b.kind==="blackberry"||b.kind==="walnut"){ up=tilt(rr(0,1.7),rr(0,6.283)); }   // (little round things, rolled any way)
+    else if(b.kind==="walnut"){ const t=rr(0,1.7), a=rr(0,6.283), h=hash3i(Math.round(b.x*1000),Math.round(b.z*1000),61);
+      b.wv=inBowl?"whole":h<0.2?"half":h<0.32?"kernel":"whole"; up=b.wv==="whole"?tilt(t,a):tilt(t*0.08,a); }   // (a cracked one lies cup up, a loose kernel flat)
+    else if(b.kind==="blueberry"||b.kind==="blackberry"){ up=tilt(rr(0,1.7),rr(0,6.283)); }   // (little round things, rolled any way)
     let m=frame(up[0],up[1],up[2],yaw);
     if(b.cut){ // half resting on its rind, cut face toward the viewer and up
       const f=[0,0.55,-0.84]; const g=[0,0.84,0.55]; const h=[f[1]*g[2]-f[2]*g[1], f[2]*g[0]-f[0]*g[2], f[0]*g[1]-f[1]*g[0]]; m=[f[0],f[1],f[2],g[0],g[1],g[2],h[0],h[1],h[2]]; }
@@ -2744,7 +2899,7 @@ function materialize(){ const done=new Set();
   }
 }
 
-let LASTCAM=null, hideCamPaint=()=>{};
+let LASTCAM=null, hideCamPaint=()=>{}, lightMode=()=>{}, lightSet=()=>{}, LPLACE=false;   // (LPLACE: the light is being placed by hand: the picture shows its preview)
 const CAMVIEWS=["front","left","right","high","low","above","free"];
 let DYING=false, CLOSE=false, NAME_MARK=0, OBJSEQ=0;
 /* every name pushed is written on the objects made since the last one, so a close-up can keep only the names of what it keeps */
@@ -2811,6 +2966,16 @@ function buildScene(){
   // the light chosen in the studio is strict: Window = daylight only (no lit candle), Candle = candle only (no moonlight), Both = daylight and a lit candle
   LSTRICT=["day","candle","both"].includes(OV("light"))?OV("light"):""; if(LSTRICT==="both") LIGHTMODE="daylight";
   if(OV("backdrop")==="gold"){ BACKDROP="plain wall"; GOLDWALL=true; } else if(OV("backdrop")||BACKDROP!=="plain wall"||LIGHTMODE!=="daylight") GOLDWALL=false;
+  { // THE WALL: plaster, or stone, brick, wood boards, tiles; panelled; gold leaf; and its colour. Auto: now and then
+    // another material or colour, from the wall's own stream (nothing else in the picture changes)
+    const WR=makeRng(String(CURSEED)+"~wall"), r1=WR(), r2=WR(), r3=WR(), r4=WR(), WQ=OV("wall"), CQ=OV("wallcol");
+    WALLMAT="plaster";
+    if(WQ==="panelled"){ BACKDROP="panelled"; GOLDWALL=false; } else if(WQ==="gold"){ if(BACKDROP!=="curtain") BACKDROP="plain wall"; GOLDWALL=true; }
+    else if(WALL_KINDS.includes(WQ)){ WALLMAT=WQ; GOLDWALL=false; if(BACKDROP==="panelled"||BACKDROP==="niche") BACKDROP="plain wall"; }
+    else if(!WQ&&BACKDROP==="plain wall"&&!GOLDWALL&&r1<0.3) WALLMAT=["stone","stone","brick","wood","tiles"][Math.floor(r2*5)];
+    const col=WALL_COLS[CQ]||(!CQ&&!GOLDWALL&&r3<0.25?Object.values(WALL_COLS)[Math.floor(r4*Object.keys(WALL_COLS).length)]:null);
+    WALLTINT=!!WALL_COLS[CQ];
+    if(col&&!GOLDWALL) SCH=Object.assign({},SCH,{wall:lumFit(col,SCH.wall,0.5)}); }
   if(GOLDWALL) SCH=Object.assign({},SCH,{wall:C(150,112,50),wallVar:0.15});
   // embroidery and charcoal want an even wall: the plaster's cloudy mottling would come out as blotches in the ground
   { const pk=(SCHOOLS[SKEYS[OV("style")]]||SCH).kind; EVENWALL=pk==="silk"||pk==="charcoal"; if(EVENWALL) SCH=Object.assign({},SCH,{wallVar:0}); }
@@ -2826,9 +2991,10 @@ function buildScene(){
   const kinds=[]; const nk=clamp((COMP==="banquet"?ri(3,4):COMP==="chaos"?ri(4,5):+wpick({1:2,2:3,3:2}))+BUSY,1,5);
   const NOF=(OV("nofruit")||"").split("."), fw=Object.fromEntries(Object.entries(FRUIT).map(([k,v])=>[k,NOF.includes(k)?0:v.w*(SCHOOL==="Charcoal"&&["quince","lemon","pomegranate","orange"].includes(k)?2.5:1)]));   // (a fruit refused in the studio is never drawn)
   while(kinds.length<nk){ const k=wpick(fw); if(!kinds.includes(k)) kinds.push(k); }
-  { const want=(OV("fruit")||"").split(".").filter(k=>FRUIT[k]).slice(0,5); if(want.length) kinds.splice(0,kinds.length,...want); }   // the fruit chosen in the studio (the seed's own draws are still made)
+  { const i=kinds.indexOf("pineapple"); if(i>=0){ const R=makeRng(String(CURSEED)+"~nopine"), alt=["apple","pear","orange","quince","pomegranate","lemon","peach"].filter(k=>!kinds.includes(k)&&!NOF.includes(k));   // (the pineapple is gone: another fruit in its place, from its own stream)
+    if(alt.length) kinds[i]=alt[Math.floor(R()*alt.length)]; else kinds.splice(i,1); } }
+  { const want=(OV("fruit")||"").split(".").filter(k=>FRUIT[k]&&k!=="pineapple").slice(0,5); if(want.length) kinds.splice(0,kinds.length,...want); }   // the fruit chosen in the studio (the seed's own draws are still made)
   const big=kinds.filter(k=>!["grapes","cherry","walnut","blackberry","blueberry"].includes(k)); if(!big.length) big.push("apple");
-  const smallAdd=k=>{ if(k==="grapes") return; };
   const side=rand()<0.5?-1:1;
   const loose=(k,n,x,z)=>{ n=nn(n); if(k==="grapes"){ bunch(x,z,floorAt(x,z),rand()<0.5); return; }
     if(k==="blueberry"){ for(let i=0;i<Math.max(7,n*4);i++) body("blueberry",x+rr(-0.32,0.32),z+rr(-0.2,0.2)); return; }   // a handful scattered
@@ -2953,9 +3119,11 @@ function buildScene(){
     // a curtain hangs in front of the wall: the mirror goes on the bare wall beside it, a clear hand's breadth away, or not at all
     if(CURTAIN){ const R=1.45, edge=CURTAIN.xe+CURTAIN.side*CURTAIN.pull; if(CURTAIN.side<0) mxp=Math.max(mxp,Math.max(edge,CURTAIN.xe)+R); else mxp=Math.min(mxp,Math.min(edge,CURTAIN.xe)-R); }
     if(!CURTAIN||Math.abs(mxp-mid)<half+2.2) addMirror(MIRROR,mxp,myp); else MIRROR=""; }
-  addCuriosities(); addExtras(); settle(OBJS); noPassThrough(); settle(OBJS); noPassThrough(); SHINYID=shinyIds();   // settled last, so every placement above is made exactly as the seed always made it
+  addCuriosities(); addExtras(); settle(OBJS); noPassThrough(); settle(OBJS); noPassThrough(); leavesClear(); SHINYID=shinyIds();   // settled last, so every placement above is made exactly as the seed always made it
   addBouquets();         // flowers in the vases: drawn from their own stream, after everything else, so nothing above moves
   if(DYING) addDying();  // the dying pictures: rot, game, flies (their own stream too)
+  leavesClear();         // (and once more: no leaf through a fallen flower or the game)
+  placeCandle();         // the candle where the studio asks for it
   if(CLOSE) closeUp();
   makeTable();
 }
@@ -2982,12 +3150,17 @@ function setupLight(){
     if(sh==="high"){ LP[1]=rr(11,13); dx*=0.6; } else if(sh==="low"){ LP[1]=rr(3.2,4.2); dx*=1.35; }
     LP[0]=cx+LSIDE*dx;
     if(sf==="free"){ // the window moved freely round the scene, as the free camera is (Around: from the left through the front to the right; Height)
-      const yw=clamp(+(Q_.get("sunyaw")||-50),-95,95)*Math.PI/180, pt=clamp(+(Q_.get("sunpitch")||40),6,82)*Math.PI/180, T0=[cx,0.6,cz+0.5], D=clamp(Math.hypot(LP[0]-T0[0],LP[1]-T0[1],LP[2]-T0[2]),7,11);
-      LP[0]=T0[0]+D*Math.sin(yw)*Math.cos(pt); LP[1]=T0[1]+D*Math.sin(pt); LP[2]=Math.min(T0[2]+(-D*Math.cos(yw)*Math.cos(pt)),WALLZ-1.5); LSIDE=yw<0?-1:1; } }
-  const tgt=[cx-LSIDE*0.3,0.6,cz+0.5]; const d=[tgt[0]-LP[0],tgt[1]-LP[1],tgt[2]-LP[2]]; const D0=Math.hypot(...d), SD=d.map(v=>v/D0);
+      const yw=clamp(+(Q_.get("sunyaw")||-50),-180,180)*Math.PI/180, pt=clamp(+(Q_.get("sunpitch")||40),2,88)*Math.PI/180, T0=[cx,0.6,cz+0.5], D=9;   // (any way round, as through a window in the back wall when it is behind the scene)
+      LP[0]=T0[0]+D*Math.sin(yw)*Math.cos(pt); LP[1]=T0[1]+D*Math.sin(pt); LP[2]=T0[2]-D*Math.cos(yw)*Math.cos(pt); LSIDE=yw<0?-1:1; } }
+  const tp=(new URLSearchParams(URLQ).get("suntgt")||"").split("_").map(Number), aimed=new URLSearchParams(URLQ).get("sun")==="free"&&tp.length===2&&tp.every(isFinite);
+  const tgt=aimed?[tp[0],0,tp[1]]:[cx-LSIDE*0.3,0.6,cz+0.5]; const d=[tgt[0]-LP[0],tgt[1]-LP[1],tgt[2]-LP[2]]; const D0=Math.hypot(...d), SD=d.map(v=>v/D0);   // (the sun placed by hand can be aimed: the middle of its patch of light falls there)
   const N=norm3([SD[0],0,SD[2]]), WR=norm3(cross3(N,[0,1,0])), WU=[0,1,0], dW=2.2;
   WIN={p:LP,SD:N,WR,WU,dW, hw:dW*Math.tan(rr(18,27)*Math.PI/180), hh:dW*Math.tan(rr(21,32)*Math.PI/180),
     bars:wpick({cross:3,grid:2,leaded:2,open:1}), shutter:rand()<0.3?rr(0.25,0.5):0, soft:rr(0.7,1.3), bt:rr(0.05,0.08), shape:"rect"}; WIN.vc=SD[1]/Math.hypot(SD[0],SD[2])*dW;
+  // the sun placed by hand: the window turned to face it (an upright window can only light from low down; from high up
+  // most of the table lay behind its plane, unlit), so it lights from any angle, from overhead like a skylight
+  if(new URLSearchParams(URLQ).get("sun")==="free"){ const S3=SD, R=norm3(Math.abs(S3[1])>0.999?cross3(S3,[0,0,1]):cross3(S3,[0,1,0]));
+    WIN.SD=S3; WIN.WR=R; WIN.WU=cross3(R,S3); WIN.vc=0; }
   // the window chosen in the studio (Light: Window); the seed's draws above made as always
   { const wq=new URLSearchParams(URLQ).get("win");
     if(["cross","grid","leaded","open"].includes(wq)){ WIN.bars=wq; WIN.shutter=0; }
@@ -2995,19 +3168,25 @@ function setupLight(){
     else if(wq==="arch"){ WIN.bars="cross"; WIN.shutter=0; WIN.shape="arch"; WIN.hh=Math.max(WIN.hh,WIN.hw*1.4); }
     else if(wq==="round"){ WIN.bars="cross"; WIN.shutter=0; WIN.shape="round"; WIN.hw=WIN.hh=Math.max(WIN.hw,WIN.hh)*0.85; }
     else if(wq==="tall"){ WIN.bars="grid"; WIN.shutter=0; WIN.hw*=0.62; WIN.hh*=1.35; } }
+  // a sun placed by hand throws a pool of light about six units across where it is aimed (the seed's window, wide,
+  // washed the whole table: there was nothing to aim)
+  WIN.hw0=WIN.hw; WIN.hh0=WIN.hh;
+  if(new URLSearchParams(URLQ).get("sun")==="free"){ const f=3*WIN.dW/(D0*Math.max(WIN.hw,WIN.hh)); WIN.hw*=f; WIN.hh*=f; }
   LDIR=SD.map(v=>-v);
   const night=LIGHTMODE==="candlelight";
   LC=night?[0.55,0.66,0.95]:pick([[1,0.93,0.82],[1,0.96,0.9],[0.98,0.95,0.92]]);
   LIGHTS=[{kind:"window",p:LP,col:LC,I:night?(LSTRICT==="candle"?0:Math.PI*0.025):Math.PI,d0:D0,k:9}];
   for(const c of CANDLES) LIGHTS.push({kind:"candle",p:c,col:[1,0.62,0.28],I:night?rr(1.5,2.1):LSTRICT==="both"?1.2:0.5,d0:1.2,k:16,glow:night?1:LSTRICT==="both"?0.85:0.5});
+  { const Q_=new URLSearchParams(URLQ), sI=clamp(+(Q_.get("sunI")||100),20,200)/100, cI=clamp(+(Q_.get("candleI")||100),20,200)/100;   // the strength chosen in the studio (Light: strength)
+    for(const L of LIGHTS){ if(L.kind==="window") L.I*=sI; else { L.I*=cI; L.glow*=Math.min(1.6,cI); } } }
   AMB=SCH.amb*(night?0.35:1); ROOM=SCH.wall.map(v=>v*0.6*(night?0.25:1)); BOUNCE=0.09*(night?0.5:1);
   const hz=new URLSearchParams(URLQ).get("haze");
   HAZE=hz!=null?+hz:!night && rand()<(SCHOOL==="Engraving"?0.5:SCHOOL==="Charcoal"?0.45:GOLDWALL?0:0.3)?rr(0.6,1.1):0;
 }
-function windowMask(px,py,pz){ const w=WIN; const vx=px-w.p[0],vy=py-w.p[1],vz=pz-w.p[2];
+function windowMask(px,py,pz,w){ w=w||WIN; const vx=px-w.p[0],vy=py-w.p[1],vz=pz-w.p[2];
   const along=vx*w.SD[0]+vy*w.SD[1]+vz*w.SD[2]; if(along<=w.dW) return 0;
   const s=w.dW/along, qx=vx*s,qy=vy*s,qz=vz*s;
-  const u=qx*w.WR[0]+qy*w.WR[1]+qz*w.WR[2], v=qy-w.vc;
+  const u=qx*w.WR[0]+qy*w.WR[1]+qz*w.WR[2], v=qx*w.WU[0]+qy*w.WU[1]+qz*w.WU[2]-w.vc;
   const pen=Math.max(0.006,w.soft*0.012*(along/w.dW-1));
   let m=w.shape==="round"?smooth(w.hw+pen,w.hw-pen,Math.hypot(u,v)):smooth(w.hw+pen,w.hw-pen,Math.abs(u))*smooth(w.hh+pen,w.hh-pen,Math.abs(v));
   if(w.shape==="arch"&&v>w.hh-w.hw) m*=smooth(w.hw+pen,w.hw-pen,Math.hypot(u,v-(w.hh-w.hw)));   // a round-headed window
@@ -3022,7 +3201,8 @@ function windowMask(px,py,pz){ const w=WIN; const vx=px-w.p[0],vy=py-w.p[1],vz=p
 }
 function lightAt(L,px,py,pz,out){ let dx=L.p[0]-px,dy=L.p[1]-py,dz=L.p[2]-pz; const d=Math.hypot(dx,dy,dz); dx/=d;dy/=d;dz/=d;
   out[0]=dx;out[1]=dy;out[2]=dz;out[4]=d;
-  out[3]=L.kind==="window"?L.I*(L.d0*L.d0)/(d*d)*windowMask(px,py,pz):L.I*(L.d0*L.d0)/(d*d+0.04); }
+  if(L.kind==="window"){ out[3]=L.I*(L.d0*L.d0)/(d*d)*windowMask(px,py,pz); return; }
+  const v=L.I*(L.d0*L.d0)/(d*d+0.04); out[3]=v>5?5+(v-5)/(1+(v-5)/3):v; }   // a candle close to a fruit: softly held below about 8 (it rose without limit, and blew the fruit out to white)
 function projectPt(p){ const q=[p[0]-EYE[0],p[1]-EYE[1],p[2]-EYE[2]]; const z=q[0]*FWD[0]+q[1]*FWD[1]+q[2]*FWD[2];
   return [(q[0]*RT[0]+q[1]*RT[1]+q[2]*RT[2])/z,(q[0]*UPV[0]+q[1]*UPV[1]+q[2]*UPV[2])/z,z]; }
 const NOFRAME=new Set(["petal","string","flame","plinth","leaf","insect","seeds","tendril","sand"]);
@@ -3037,8 +3217,11 @@ function setupCamera(){
   /* VIEW POSITION (studio: View; &view=): where the painter stands. Front: square on, at the height of a seated eye;
      45° left / right: walked round the table an eighth of a turn; High: standing, looking down on the table; Low: eye at
      the table's edge, the things rising against the wall; Above: nearly straight down, the table top as the ground */
-  const VIEW=CAMVIEWS.includes(new URLSearchParams(URLQ).get("view"))?new URLSearchParams(URLQ).get("view"):"";
-  if(VIEW==="front") EYE=[cx,T[1]+D*0.25,-D];
+  let VIEW=CAMVIEWS.includes(new URLSearchParams(URLQ).get("view"))?new URLSearchParams(URLQ).get("view"):""; const AUTOV=!VIEW&&!CLOSE;
+  // left to itself (Auto) the painter stands square on four times in five; now and then a quarter round, high, low or
+  // above (its own stream: nothing else in the picture moves); the free view only when the hand turns the picture
+  if(AUTOV){ const a=makeRng(String(CURSEED)+"~autoview")(); VIEW=a<0.8?"front":a<0.86?"left":a<0.92?"right":a<0.96?"high":a<0.98?"low":"above"; }
+  if(VIEW==="front") EYE=[cx,AUTOV&&fillMode()?hc:T[1]+D*0.25,-D];   // (an upright picture keeps its higher eye)
   else if(VIEW==="left"||VIEW==="right"){ const a=(VIEW==="left"?-1:1)*Math.PI/4, dz=EYE[2]-T[2]; EYE=[T[0]-dz*Math.sin(a),hc,T[2]+dz*Math.cos(a)]; }
   else if(VIEW==="high") EYE=[EYE[0],T[1]+D*0.8,T[2]-D*0.75];
   else if(VIEW==="low") EYE=[EYE[0],0.12,T[2]-D*0.75];   // (and nearer: the things loom)
@@ -3219,6 +3402,7 @@ function clothMat(x,y,z){ const c=CLOTH; let col=c.c; const n=noise3(x*1.2,y*1.2
 const WN=[0,0,-1];
 function wallMat(x,y,z){ const o=TABLE.off; const n=fbm3(x*0.18+o,y*0.18,1,3); let c=SCH.wall.map(v=>v*(1+0.5*SCH.wallVar*n));
   WN[0]=0;WN[1]=0;WN[2]=-1;
+  if(WALLMAT!=="plaster"&&!(BACKDROP==="panelled"&&y<WAINH)) return wallKind(x,y,o,n);
   if(BACKDROP==="panelled" && y<WAINH){ const wood=TABLE.kind==="wood"?TABLE.c.map(v=>v*0.7):C(74,48,28);
     c=wood.map(v=>v*(0.8+0.4*(noise2(x*0.8+o,y*9)*0.5+0.5)));
     const pw=1.15, u=fract((x+o)/pw)*pw, v0=0.14, v1=WAINH-0.22, bx=Math.min(u-0.13,pw-0.13-u), by=Math.min(y-v0,v1-y), t=0.55;
@@ -3228,6 +3412,31 @@ function wallMat(x,y,z){ const o=TABLE.off; const n=fbm3(x*0.18+o,y*0.18,1,3); l
     const l=Math.hypot(WN[0],WN[1],WN[2]); WN[0]/=l;WN[1]/=l;WN[2]/=l;
     return M(c,{ks:0.22,gl:25}); }
   return M(c,{ks:0.02,gl:4}); }
+
+/* the wall's other materials. Each is laid out on the wall's plane (x across, y up): its units (blocks, bricks, boards,
+   tiles) found by row and column, each unit its own tone from a hash, the joints sunk and darker (or pale mortar), and
+   the edge of each unit turned a little toward the joint so the window light catches it */
+function wallKind(x,y,o,n){ const B=SCH.wall, own=(c,k)=>WALLTINT?mixc(B,lumFit(c,B,0.5),0.25):mixc(B,lumFit(c,B,0.5),k);   // (a colour chosen in the studio leads; else the material's own)
+  const bevel=(du,dv,u,w,v,h,e,t)=>{ if(Math.min(du,dv)<e){ if(du<dv) WN[0]=u<w/2?-t:t; else WN[1]=v<h/2?-t:t; const l=Math.hypot(WN[0],WN[1],WN[2]); WN[0]/=l;WN[1]/=l;WN[2]/=l; } };
+  if(WALLMAT==="stone"){ const h=0.55, row=Math.floor(y/h), v=y-row*h, w=0.8+0.55*hash3i(row,3,92), u0=(x+o*3+hash3i(row,7,91)*1.3)/w, col=Math.floor(u0), u=(u0-col)*w;
+    const du=Math.min(u,w-u), dv=Math.min(v,h-v), tone=hash3i(row,col,93), pit=fbm3(x*3+o,y*3,col,3);
+    let c=own(C(150,140,120),0.55).map(t=>t*(0.8+0.3*tone+0.18*pit+0.1*n));
+    if(Math.min(du,dv)<0.022) return M(c.map(t=>t*0.6),{ks:0.02,gl:4});
+    bevel(du,dv,u,w,v,h,0.07,0.4); return M(c,{ks:0.04,gl:5}); }
+  if(WALLMAT==="brick"){ const h=0.2, row=Math.floor(y/h), v=y-row*h, w=0.46, u0=(x+o*3+(row&1)*0.23)/w, col=Math.floor(u0), u=(u0-col)*w;
+    const du=Math.min(u,w-u), dv=Math.min(v,h-v), tone=hash3i(row,col,94), burnt=hash3i(col,row,95)<0.12;
+    if(Math.min(du,dv)<0.016) return M(own(C(184,172,150),0.6).map(t=>t*(0.9+0.15*fbm3(x*9,y*9,o,2))),{ks:0.02,gl:4});   // the mortar
+    let c=own(C(150,72,50),0.65).map(t=>t*(0.78+0.32*tone+0.15*fbm3(x*6+o,y*6,col,3))); if(burnt) c=c.map(t=>t*0.62);
+    bevel(du,dv,u,w,v,h,0.03,0.35); return M(c,{ks:0.03,gl:5}); }
+  if(WALLMAT==="wood"){ const w=0.38+0.08*hash3i(Math.floor((x+o*3)/0.42),1,96), u0=(x+o*3)/0.42, col=Math.floor(u0), u=(u0-col)*0.42, du=Math.min(u,0.42-u);
+    if(du<0.01) return M(own(C(60,40,26),0.7).map(t=>t*0.45),{ks:0.02,gl:4});   // the dark gap between two boards
+    const g=Math.sin((x*38+fbm3(x*1.5+col,y*0.25,o,3)*9))*0.5+0.5, tone=hash3i(col,5,97);
+    let c=own(C(104,70,44),0.65).map(t=>t*(0.78+0.25*tone+0.14*g+0.08*n));
+    if(du<0.03){ WN[0]=u<0.21?-0.3:0.3; const l=Math.hypot(WN[0],WN[2]); WN[0]/=l; WN[2]/=l; } return M(c,{ks:0.12,gl:16}); }
+  if(WALLMAT==="tiles"){ const s_=0.36, row=Math.floor(y/s_), col=Math.floor((x+o*3)/s_), v=y-row*s_, u=x+o*3-col*s_, du=Math.min(u,s_-u), dv=Math.min(v,s_-v), tone=hash3i(row,col,98);
+    if(Math.min(du,dv)<0.01) return M(own(C(190,184,170),0.6),{ks:0.02,gl:4});   // the grout
+    const c=own(C(214,210,196),0.55).map(t=>t*(0.9+0.12*tone+0.05*n)); bevel(du,dv,u,s_,v,s_,0.035,0.3); return M(c,{ks:0.35,gl:60}); }
+  return M(SCH.wall,{ks:0.02,gl:4}); }
 
 /* a glass bowl between a point and the light: a weak lens that gathers light
    toward the middle (a bright, wine-tinted patch) and darkens at its rim */
@@ -3264,9 +3473,10 @@ function shadeSurface(m,px,py,pz,nx,ny,nz,vx,vy,vz,out,depth){
     dr+=e*cr; dg+=e*cg; db+=e*cb;
     if(m.ss>0 && !ssDone){ ssDone=true; const band=smooth(0.45,0.0,Math.abs(ndl-0.05))*m.ss; const Lm=lum(c[0],c[1],c[2])+1e-4; c=[c[0]*Math.pow(c[0]/Lm,0.5*band),c[1]*Math.pow(c[1]/Lm,0.5*band),c[2]*Math.pow(c[2]/Lm,0.5*band)]; }
     let hx=lx+vx,hy=ly+vy,hz=lz+vz; const hl=Math.hypot(hx,hy,hz); const ndh=Math.max(0,(nx*hx+ny*hy+nz*hz)/hl);
-    const s=m.ks*Math.pow(ndh,m.gl)*(m.gl+8)/(8*Math.PI)*sh*I*Math.max(0,ndl)*(m.metal?1:(0.25+F));
+    let s=m.ks*Math.pow(ndh,m.gl)*(m.gl+8)/(8*Math.PI)*sh*I*Math.max(0,ndl)*(m.metal?1:(0.25+F));
+    if(L.kind==="candle"&&s>0.9) s=0.9+(s-0.9)/(1+(s-0.9));   // (a candle's highlight stays a warm spark, never a white dot)
     sr+=s*cr; sg+=s*cg; sb+=s*cb; spec+=s;
-    if(m.sheen>0){ const q=m.sheen*Math.pow(1-ndv,3)*Math.max(0,ndl+0.3)*sh*I*0.6; hr+=q*cr; hg+=q*cg; hb+=q*cb; } }
+    if(m.sheen>0){ const q=Math.min(m.sheen*Math.pow(1-ndv,3)*Math.max(0,ndl+0.3)*sh*I*0.6,L.kind==="candle"?0.5:9); hr+=q*cr; hg+=q*cg; hb+=q*cb; } }   // (the bloom on a plum by a candle: a glow, not white specks)
   const tc=TABLE.c, amb=AMB*ao, up=0.5+0.5*ny, bc=LIGHTMODE==="candlelight"?[1,0.62,0.3]:LC;
   const bw=Math.pow(clamp(0.55-0.5*ny,0,1),2)*ao*Math.PI*BOUNCE*(py<1.5?1:0.4);
   const ar=amb*(up*0.9+0.15)+bw*tc[0]*bc[0], ag=amb*(up*0.92+0.15)+bw*tc[1]*bc[1], ab=amb*(up*1.0+0.15)+bw*tc[2]*bc[2];
@@ -3389,7 +3599,13 @@ const VIEW=IS_WORKER?null:document.getElementById("v"), vctx=VIEW?VIEW.getContex
 function sizeView(){ if(!VIEW) return; const fs=document.body.classList.contains("fs"), ar=canvas.width/canvas.height, vh=(window.visualViewport?visualViewport.height:innerHeight)-(fs?0:150),
     cssW=Math.max(50,fs?Math.min(innerWidth,vh*ar):Math.min(innerWidth*0.94,vh*ar,canvas.width)), cssH=cssW/ar, dpr=window.devicePixelRatio||1;
   VIEW.style.width=cssW+"px"; VIEW.style.height=cssH+"px"; const bw=Math.round(cssW*dpr), bh=Math.round(cssH*dpr); if(VIEW.width!==bw||VIEW.height!==bh){ VIEW.width=bw; VIEW.height=bh; } VDIRTY=true; }
-function refreshView(){ if(!VIEW) return; let src=canvas, w=src.width, h=src.height, k=0;
+/* full screen: a click goes in close (twice as large, then four times, where it was clicked), the third back to the whole picture */
+const FSZ={z:1,cx:0.5,cy:0.5}, FSZA={z:1,cx:0.5,cy:0.5};
+function fsZoomReset(){ FSZ.z=FSZA.z=1; FSZ.cx=FSZA.cx=FSZ.cy=FSZA.cy=0.5; if(VIEW) VIEW.classList.remove("zmax"); VDIRTY=true; }
+let fsGlide=0;
+function fsZoomDraw(){ const W_=canvas.width, H_=canvas.height, z=FSZA.z, sw=W_/z, sh=H_/z, sx=clamp(FSZA.cx*W_-sw/2,0,W_-sw), sy=clamp(FSZA.cy*H_-sh/2,0,H_-sh);
+  vctx.imageSmoothingEnabled=true; vctx.imageSmoothingQuality="high"; vctx.drawImage(canvas,sx,sy,sw,sh,0,0,VIEW.width,VIEW.height); VDIRTY=false; VLAST=performance.now(); }
+function refreshView(){ if(!VIEW) return; if(FSZA.z>1.001&&document.body.classList.contains("fs")){ fsZoomDraw(); return; } let src=canvas, w=src.width, h=src.height, k=0;
   while(w/2>=VIEW.width&&h/2>=VIEW.height){ w=Math.round(w/2); h=Math.round(h/2); const t=VTMP[k]||(VTMP[k]=document.createElement("canvas")); if(t.width!==w||t.height!==h){ t.width=w; t.height=h; }
     const tc=t.getContext("2d"); tc.imageSmoothingEnabled=true; tc.imageSmoothingQuality="high"; tc.drawImage(src,0,0,src.width,src.height,0,0,w,h); src=t; k++; }
   vctx.imageSmoothingEnabled=true; vctx.imageSmoothingQuality="high"; vctx.drawImage(src,0,0,src.width,src.height,0,0,VIEW.width,VIEW.height);
@@ -3402,7 +3618,7 @@ if(ctx){ const pi=ctx.putImageData.bind(ctx), di=ctx.drawImage.bind(ctx), fr=ctx
   ctx.putImageData=(...a)=>{ pi(...a); VDIRTY=true; }; ctx.drawImage=(...a)=>{ di(...a); VDIRTY=true; }; ctx.fillRect=(...a)=>{ fr(...a); VDIRTY=true; };
   let VCOST=0, VW=0, VH=0; setInterval(()=>{ const t=performance.now();
     if(innerWidth!==VW||innerHeight!==VH){ VW=innerWidth; VH=innerHeight; sizeView(); }   // a frame resized by its page (full screen) may not get a resize event in time
-    if(!PRINTING&&VDIRTY&&t-VLAST>Math.max(100,6*VCOST)){ refreshView(); VCOST=performance.now()-t; } },120);   // a timer, not animation frames: it also catches up in a background tab (and waits longer where a refresh is slow)
+    if(!PRINTING&&!LPLACE&&VDIRTY&&t-VLAST>Math.max(100,6*VCOST)){ refreshView(); VCOST=performance.now()-t; } },120);   // a timer, not animation frames: it also catches up in a background tab (and waits longer where a refresh is slow)
   addEventListener("resize",sizeView); }
 let IMG=null;
 const SRGB=new Uint8ClampedArray(4096); for(let i=0;i<4096;i++){ const v=i/4095; SRGB[i]=Math.round(255*(v<=0.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-0.055)); }
@@ -3625,28 +3841,6 @@ function makeEdgeKeep(){ const N=W*H; KEEP=new Float32Array(N).fill(1); makeEdge
     k[i]=c<0?1:clamp(smooth(0.05,0.2,c)*0.8+0.45*IMP[i]-0.15*SOFTK+0.6*SPEC[i],0,1); }
   { for(let i=0;i<N;i++) if(brushyPx(i)) k[i]*=0.45; }   // a flower's edges are half lost: the strokes run over them, as a painter's do (0.2 was rougher than the rest of the picture)
   gauss(k,KEEP,W,H,2*SC); }
-/* lost edges, softened: where an edge is lost, the paint either side is blended a little with a dry brush */
-/* the painter's blur (studio: Surface, Blur): the lost edges, softened as a painter melts an edge into its ground.
-   Full is the picture as it always was; half mixes it back halfway; none leaves every edge as it was laid */
-function softenLostEdges(){ const PB=0; if(PB===0) return;   // (the blur is no longer used: every edge is left as it was laid)
-  if(PB===1) return softenLostEdges0();
-  const r0=CR.slice(), g0=CG.slice(), b0=CB.slice(); softenLostEdges0();
-  for(let i=0;i<CR.length;i++){ CR[i]=r0[i]+(CR[i]-r0[i])*PB; CG[i]=g0[i]+(CG[i]-g0[i])*PB; CB[i]=b0[i]+(CB[i]-b0[i])*PB; } }
-function softenLostEdges0(){ if(!KEEP||!HAND_KINDS.has(PSCH.kind)) return; const N=W*H, em=new Float32Array(N), EM=new Float32Array(N);
-  const ef=new Float32Array(N), EF=new Float32Array(N);
-  for(let y=0;y<H-1;y++) for(let x=0;x<W-1;x++){ const i=y*W+x; if(IDF[i]!==IDF[i+1]||IDF[i]!==IDF[i+W]){ em[i]=1; if(FRUITIDS_.has(IDF[i])||FRUITIDS_.has(IDF[i+1])||FRUITIDS_.has(IDF[i+W])) ef[i]=1; } } gauss(em,EM,W,H,2.5*SC); gauss(ef,EF,W,H,2.5*SC);
-  const br=new Float32Array(N),bg=new Float32Array(N),bb=new Float32Array(N); gauss(CR,br,W,H,2.2*SC*Math.sqrt(SOFTK)); gauss(CG,bg,W,H,2.2*SC*Math.sqrt(SOFTK)); gauss(CB,bb,W,H,2.2*SC*Math.sqrt(SOFTK));
-  { const EB=new Float32Array(N); gauss(em,EB,W,H,1.6*SC); const b2r=new Float32Array(N),b2g=new Float32Array(N),b2b=new Float32Array(N); gauss(CR,b2r,W,H,2.4*SC); gauss(CG,b2g,W,H,2.4*SC); gauss(CB,b2b,W,H,2.4*SC);
-    const AW=new Float32Array(N); for(let i=0;i<N;i++){ const bl=lum(b2r[i],b2g[i],b2b[i]); AW[i]=clamp(EB[i]*4,0,1)*smooth(0.35,0.08,bl)*(1-SPEC[i]); }   /* in the dark: the shadow side of a silhouette */
-    /* strokes along the edge (oil, acrylic, Evanescence) */
-    if(PSCH.kind===undefined){ const g=Math.max(2,Math.round(2.2*SC)), list=[];
-      for(let y=g;y<H-g;y+=g) for(let x=g;x<W-g;x+=g){ const px=Math.min(W-2,x+(rand()*g|0)), py=Math.min(H-2,y+(rand()*g|0)), i=py*W+px; if(AW[i]>0.2) list.push(i); }
-      for(let q=list.length-1;q>0;q--){ const j=(rand()*(q+1))|0, t=list[q]; list[q]=list[j]; list[j]=t; }
-      for(const i of list){ const x=i%W, y=(i/W)|0, gx=EB[i+1]-EB[i-1], gy=EB[i+W]-EB[i-W], gl=Math.hypot(gx,gy); if(gl<1e-6) continue;
-        const tx=-gy/gl, ty=gx/gl, l=rr(2,4)*SC, bend=rr(-0.25,0.25)*l, nx=-ty, ny=tx;                        // along the edge, a little curved
-        const pts=[x-tx*l,y-ty*l, x+nx*bend,y+ny*bend, x+tx*l,y+ty*l];
-        renderStroke(pts,rr(1.1,1.8)*SC,lerp(CR[i],b2r[i],0.75),lerp(CG[i],b2g[i],0.75),lerp(CB[i],b2b[i],0.75),{op:(0.55+0.35*AW[i])*0.42,dep:0.3,thick:0.25,streak:0.05,pick:0.25}); } } }
-  for(let i=0;i<N;i++){ const a=Math.max(clamp(EM[i]*3,0,1)*(1-KEEP[i])*Math.min(1,0.8*SOFTK), clamp(EF[i]*3,0,1)*0.58*(1-SPEC[i])); if(a<0.01) continue; CR[i]=lerp(CR[i],br[i],a); CG[i]=lerp(CG[i],bg[i],a); CB[i]=lerp(CB[i],bb[i],a); } }
 function makeImportance(){ IMP=new Float32Array(W*H); let sx=0,sy=0,sw=0; BRUSHY_=null;
   const BGID=new Set(OBJS.filter(o=>o.bg).map(o=>o.id)), FLID=new Set(OBJS.filter(o=>o.kind==="flower").map(o=>o.id));   // flowers are painted, not drawn: the biggest, loosest brushes
   for(const o of OBJS.concat(GLASS)){ if(o.bg||["string","knife","plate","flame","mirror","plinth","curtain","niche"].includes(o.kind)) continue; const p=projectPt([o.cx,o.cy,o.cz]); const u=((p[0]-XC)/(2*TW)+0.5)*W, v=(0.5-(p[1]-YC)/(2*TH))*H; const w=o.bound*o.bound*(FRUIT[o.kind]?1.5:1); sx+=u*w;sy+=v*w;sw+=w; }
@@ -3667,11 +3861,6 @@ function makeFallback(){ FB=new Float32Array(W*H); WALLFLAT=PSCH.kind==="silk"||
     FB[i]=a; } }
 /* glazes: paint the body colour lighter where a transparent glaze will go on
    top, so the glaze brings it back to the motif (old-master indirect method) */
-/* Aurum: shadows cooled toward violet, lights warmed toward gold */
-function chromaShift(){ const vi=C(92,72,150), vl=lum(...vi);
-  for(let i=0;i<W*H;i++){ if(IDF[i]===0) continue; const r=TR[i],g=TG[i],b=TB[i], L=lum(r,g,b); const ws=smooth(0.18,0.02,L)*0.32, wl=smooth(0.3,0.85,L)*0.6;
-    TR[i]=lerp(r,vi[0]*L/vl,ws); TG[i]=lerp(g,vi[1]*L/vl,ws); TB[i]=lerp(b,vi[2]*L/vl,ws);
-    TR[i]*=1+0.05*wl; TB[i]*=1-0.14*wl; } }
 /* Aurum: gold leaf laid over red bole where the wall would be. Leaf squares
    with their seams, burnished variation, the room's light (window patch, cast
    shadows) still falling across it, and punched tooling that follows the
@@ -3697,7 +3886,6 @@ function layGold(){ const N=W*H; GM=new Float32Array(N); const m=new Float32Arra
     const lit=clamp(0.25+0.85*clamp(lum(TR[i],TG[i],TB[i])/p90,0,1.3)+sheen,0,1.6);
     let v=clamp(burn*sheet*lit*(seam?0.9:1),0,1.7);
     const c=v<1?mixc(gDark,gMid,Math.pow(v,0.8)):mixc(gMid,gHi,Math.min(1,(v-1)/0.6));
-    const hol=dots(x*0.09/SC,y*0.09/SC,off,1,0.22)*smooth(0.45,0.75,noise2(x*0.006/SC,y*0.006/SC+off))*(seam||Math.min(lx,ly)<4*SC?1:0.3);
     const f=c;   /* the leaf whole: no losses showing the bole through */
     CR[i]=lerp(CR[i],f[0],GM[i]); CG[i]=lerp(CG[i],f[1],GM[i]); CB[i]=lerp(CB[i],f[2],GM[i]); HT[i]=0; } }
   // punched tooling: rows of dots along the distance field, spaced like a hand-held punch
@@ -4256,7 +4444,6 @@ async function finishDelft(tok){ status((FLBL="firing")+" · 0%"); await tick(to
   ctx.putImageData(IMG,0,0); }
 
 /* ---------------- Mokuhanga ---------------- */
-const PAPER=C(236,226,202), SUMI=C(34,30,32);
 /* ---------------- Silk needle-painting ---------------- */
 let SILK_BARE=false;
 /* long-and-short satin stitch: parallel threads with staggered ends, each thread
@@ -4350,14 +4537,6 @@ function rfBlur(src,sigma,its){ its=its||3; const out=Float32Array.from(src);
     for(let y=0;y<H;y++){ const o=y*W; for(let x=1;x<W;x++){ const i=o+x; if(IDF[i]===IDF[i-1]) out[i]+=a*(out[i-1]-out[i]); } for(let x=W-2;x>=0;x--){ const i=o+x; if(IDF[i]===IDF[i+1]) out[i]+=a*(out[i+1]-out[i]); } }
     for(let x=0;x<W;x++){ for(let y=1;y<H;y++){ const i=y*W+x; if(IDF[i]===IDF[i-W]) out[i]+=a*(out[i-W]-out[i]); } for(let y=H-2;y>=0;y--){ const i=y*W+x; if(IDF[i]===IDF[i+W]) out[i]+=a*(out[i+W]-out[i]); } } }
   return out; }
-/* paper surface height 0..1: laid (wire lines and chain lines) or cold-pressed (rounded tooth) */
-function paperGrain(kind){ const N=W*H, G=new Float32Array(N), u=SC, off=rr(0,50);
-  for(let y=0;y<H;y++) for(let x=0;x<W;x++){ let g;
-    if(kind==="laid"){ const laid=Math.sin((y+0.8*u*noise2(x*0.02/u,off))*6.283/(1.7*u)), cm=(((x+3*u*noise2(y*0.01/u,off+3))%(27*u))+27*u)%(27*u), chain=Math.exp(-((cm-13.5*u)**2)/(2*(0.9*u)**2));
-      g=0.5+0.26*noise3(x*0.6/u,y*0.6/u,off)+0.12*noise3(x*0.15/u,y*1.1/u,off+7)+0.08*laid+0.1*chain; }
-    else g=0.5+0.38*fbm3(x*0.09/u,y*0.09/u,off,3)+0.28*noise3(x*0.33/u,y*0.33/u,off+2);
-    G[y*W+x]=clamp(g,0,1); }
-  return G; }
 async function paperGrainA(tok,kind,label,a0,a1){ const N=W*H, G=new Float32Array(N), u=SC, off=rr(0,50);
   for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ let g;
       if(kind==="laid"){ const laid=Math.sin((y+0.8*u*noise2(x*0.02/u,off))*6.283/(1.7*u)), cm=(((x+3*u*noise2(y*0.01/u,off+3))%(27*u))+27*u)%(27*u), chain=Math.exp(-((cm-13.5*u)**2)/(2*(0.9*u)**2));
@@ -4808,7 +4987,7 @@ const rankN=n=>/mirror|fly|butterfly|ladybird|books|candlestick|drops|pips|seeds
 /* everything on the table, counted (the title only names the main things) */
 function makeInventory(){ const counts={}; for(const b of BODIES){ if(b.skip||b.gone) continue; const k=b.cut?b.kind+"~cut":b.kind; counts[k]=(counts[k]||0)+(b.kind==="grapes"?0:1); if(b.kind==="grapes") counts.grapes=1; }
   const nat=Object.fromEntries(Object.entries(FRUIT).map(([k,v])=>[k,v.pl])); nat.pomegranate="pomegranates"; nat.cherry="cherries";
-  const one={pineapple:"a pineapple",banana:"a hand of bananas",blueberry:"a few blueberries",melon:"a melon",apple:"an apple",pear:"a pear",lemon:"a lemon",orange:"an orange",plum:"a plum",peach:"a peach",fig:"a fig",walnut:"a walnut",quince:"a quince",pomegranate:"a pomegranate",apricot:"an apricot",mandarin:"a mandarin",persimmon:"a persimmon",medlar:"a medlar",lime:"a lime",nectarine:"a nectarine",blackberry:"a blackberry",cherry:"two cherries"};
+  const one={pineapple:"a pineapple",banana:"a hand of bananas",blueberry:"a few blueberries",melon:"a melon",apple:"an apple",pear:"a pear",lemon:"a lemon",orange:"an orange",plum:"a plum",peach:"a peach",fig:"a fig",walnut:"a walnut",quince:"a quince",pomegranate:"a pomegranate",apricot:"an apricot",mandarin:"a mandarin",persimmon:"a persimmon",lime:"a lime",nectarine:"a nectarine",blackberry:"a blackberry",cherry:"two cherries"};
   const fr=[]; for(const [k,n] of Object.entries(counts)){ if(k==="grapes"){ fr.push("a bunch of grapes"); continue; } const cut=k.endsWith("~cut"), kk=cut?k.slice(0,-4):k;
     if(cut){ fr.push(n>1?`${n} halves of ${nat[kk]}`:`half ${one[kk]}`); continue; } fr.push(n>1?`${n} ${nat[kk]}`:one[kk]); }
   const nm={}; for(const n of NAMES) nm[n]=(nm[n]||0)+1;
@@ -4821,7 +5000,7 @@ function makeInventory(){ const counts={}; for(const b of BODIES){ if(b.skip||b.
 function makeTitle(){ const counts={}; for(const b of BODIES){ if(b.skip||b.gone) continue; counts[b.kind]=(counts[b.kind]||0)+1; }
   const fr=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map((k,i)=>{ const n=counts[k]; const p=FRUIT[k].pl;
     if(DYING&&k!=="walnut"){ const adj=["rotting","withered","mouldy"][i%3]; return k==="grapes"?"shrivelled grapes":k==="cherry"?adj+" cherries":n===1?"a "+adj+" "+k:adj+" "+(k==="pomegranate"?"pomegranates":p); }
-    if(k==="grapes") return "grapes"; if(k==="pomegranate") return n>1?"pomegranates":"a pomegranate"; if(n===1){ return {pineapple:"a pineapple",banana:"bananas",blueberry:"blueberries",melon:"a melon",apple:"an apple",pear:"a pear",lemon:"a lemon",orange:"an orange",plum:"a plum",peach:"a peach",fig:"a fig",walnut:"a walnut",quince:"a quince",apricot:"an apricot",mandarin:"a mandarin",persimmon:"a persimmon",medlar:"a medlar",lime:"a lime",nectarine:"a nectarine",blackberry:"a blackberry",cherry:"cherries"}[k]; } return p; });
+    if(k==="grapes") return "grapes"; if(k==="pomegranate") return n>1?"pomegranates":"a pomegranate"; if(n===1){ return {pineapple:"a pineapple",banana:"bananas",blueberry:"blueberries",melon:"a melon",apple:"an apple",pear:"a pear",lemon:"a lemon",orange:"an orange",plum:"a plum",peach:"a peach",fig:"a fig",walnut:"a walnut",quince:"a quince",apricot:"an apricot",mandarin:"a mandarin",persimmon:"a persimmon",lime:"a lime",nectarine:"a nectarine",blackberry:"a blackberry",cherry:"cherries"}[k]; } return p; });
   const cut=BODIES.some(b=>b.cut); const dead=DYING?[...new Set(NAMES)].filter(n=>/^a (dead|half-eaten|skinned|herring)/.test(n)).slice(0,1):THEME==="flowers"?[...new Set(NAMES)].filter(n=>/^a bunch of /.test(n)).slice(0,2):[];   // what the picture is about comes first
   const items=[...dead,...fr.slice(0,dead.length>1?1:dead.length?2:3), ...[...new Set(NAMES)].filter(n=>!dead.includes(n)).filter(n=>n!=="a knife"&&!/drops|pips|seeds|tendril/.test(n)).sort((p,q)=>rankN(p)-rankN(q)).slice(0,dead.length>1?1:fr.length?2:4)];
   const list=items.length>1?items.slice(0,-1).join(", ")+" and "+items[items.length-1]:items[0]||"fruit";
@@ -4853,7 +5032,7 @@ async function generate(seed){
     setupCamera(); buildPalette(); makeBristles();
     document.getElementById("title").textContent=makeTitle(); document.getElementById("items").textContent=makeInventory();
     { const fn=document.getElementById("st-focusname"); if(fn) fn.textContent=CLOSE&&CLOSE_INFO?(CLOSE_INFO.i+1)+" / "+CLOSE_INFO.n+" · "+CLOSE_INFO.name:""; }
-    document.getElementById("meta").textContent=`${PSCHOOL} · ${ {pyramid:"pyramidal",heap:"abundance",diagonal:"diagonal",frieze:"on a ledge",sparse:"spare",banquet:"banquet",pair:"two groups",spill:"spilling",tall:"tall things",corner:"to one side",ring:"round a centrepiece",chaos:"in disorder"}[COMP] } · ${TABLE.kind} table${CLOTH?", "+CLOTH.kind+" cloth":""} · ${GOLDWALL?"gold-leaf wall":BACKDROP}${MIRROR?", "+MIRROR+" mirror":""} · ${LIGHTMODE==="candlelight"?"candlelight":"window light from the "+(new URLSearchParams(URLQ).get("sun")==="front"?"front":LSIDE<0?"left":"right")+(new URLSearchParams(URLQ).get("win")?", "+({cross:"cross-barred",grid:"many-paned",leaded:"leaded",open:"open",shutter:"half-shuttered",arch:"arched",round:"round",tall:"tall"}[new URLSearchParams(URLQ).get("win")]||"")+" window":"")+(new URLSearchParams(URLQ).get("sunh")==="high"?", high":new URLSearchParams(URLQ).get("sunh")==="low"?", low":"")+(HAZE?", hazy":"")+(CANDLES.length?", and a lit candle":"")} · seed ${seed}`;
+    document.getElementById("meta").textContent=`${PSCHOOL} · ${ {pyramid:"pyramidal",heap:"abundance",diagonal:"diagonal",frieze:"on a ledge",sparse:"spare",banquet:"banquet",pair:"two groups",spill:"spilling",tall:"tall things",corner:"to one side",ring:"round a centrepiece",chaos:"in disorder"}[COMP] } · ${TABLE.kind} table${CLOTH?", "+CLOTH.kind+" cloth":""} · ${GOLDWALL?"gold-leaf wall":BACKDROP==="plain wall"&&WALLMAT!=="plaster"?{stone:"stone wall",brick:"brick wall",wood:"boarded wall",tiles:"tiled wall"}[WALLMAT]:BACKDROP}${MIRROR?", "+MIRROR+" mirror":""} · ${LIGHTMODE==="candlelight"?"candlelight":"window light from the "+(new URLSearchParams(URLQ).get("sun")==="front"?"front":LSIDE<0?"left":"right")+(new URLSearchParams(URLQ).get("win")?", "+({cross:"cross-barred",grid:"many-paned",leaded:"leaded",open:"open",shutter:"half-shuttered",arch:"arched",round:"round",tall:"tall"}[new URLSearchParams(URLQ).get("win")]||"")+" window":"")+(new URLSearchParams(URLQ).get("sunh")==="high"?", high":new URLSearchParams(URLQ).get("sunh")==="low"?", low":"")+(HAZE?", hazy":"")+(CANDLES.length?", and a lit candle":"")} · seed ${seed}`;
     const t0=performance.now();
     status("studying the motif · 0%"); await tick(tok,true);
     let tm=performance.now(); await renderReference(tok); mark('ref',tm); tm=performance.now();
@@ -4865,7 +5044,7 @@ async function generate(seed){
     if(PSCH.sat){ const k=PSCH.sat; for(let i=0;i<W*H;i++){ const m=lum(TR[i],TG[i],TB[i]); TR[i]=clamp(m+(TR[i]-m)*k,0.004,0.92); TG[i]=clamp(m+(TG[i]-m)*k,0.004,0.92); TB[i]=clamp(m+(TB[i]-m)*k,0.004,0.92); } }   // acrylic: colour straight from the tube
     SQR=new Float32Array(W*H); SQG=new Float32Array(W*H); SQB=new Float32Array(W*H); for(let i=0;i<W*H;i++){ SQR[i]=Math.sqrt(TR[i]); SQG[i]=Math.sqrt(TG[i]); SQB[i]=Math.sqrt(TB[i]); }
     CR=new Float32Array(W*H); CG=new Float32Array(W*H); CB=new Float32Array(W*H);
-    mark('prep',tm); tm=performance.now(); await paint(tok); softenLostEdges(); mark('paint',tm); tm=performance.now(); await finish(tok); mark('finish',tm);
+    mark('prep',tm); tm=performance.now(); await paint(tok); mark('paint',tm); tm=performance.now(); await finish(tok); mark('finish',tm);
     status(`finished in ${((performance.now()-t0)/1000).toFixed(1)} s`);
   }catch(e){ if(!(e instanceof Cancel)){ console.error(e); status("error: "+e.message); } }
 }
@@ -4876,7 +5055,7 @@ function isLite(){ const q=new URLSearchParams(URLQ).get("lite"); if(q!=null) re
   const mem=navigator.deviceMemory||8, cores=navigator.hardwareConcurrency||4, touch=matchMedia&&matchMedia("(pointer:coarse)").matches, small=Math.min(screen.width,screen.height)<=900;
   return mem<=4||cores<=4||(touch&&small); }
 /* ---- studio: two choices (how it is made, how fine), then paint ---- */
-const ST={style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:"",sig:"",sigcol:"",sigpos:"",sigvar:"",flowers:"",flower:"",noflower:"",nofruit:"",theme:"",focus:"",zoom:"",panx:"",pany:"",impasto:"",jug:"",jugshape:"",table:"",sun:"",sunh:"",sunyaw:"",sunpitch:"",win:"",bowl:"",bowlsize:"",bowlstyle:"",yaw:"",pitch:"",close:"",view:"",relief:"",blur:""};   // school..haze: URL only; sig*: the signature, local studio only
+const ST={style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:"",sig:"",sigcol:"",sigpos:"",sigvar:"",flowers:"",flower:"",noflower:"",nofruit:"",theme:"",focus:"",zoom:"",panx:"",pany:"",impasto:"",jug:"",jugshape:"",table:"",sun:"",sunh:"",sunyaw:"",sunpitch:"",win:"",bowl:"",bowlsize:"",bowlstyle:"",wall:"",wallcol:"",candle:"",candlepos:"",sunI:"",candleI:"",suntgt:"",yaw:"",pitch:"",close:"",view:"",relief:""};   // school..haze: URL only; sig*: the signature, local studio only
 for(const k in ST) ST[k]=Q.get(k)||"";
 if(ST.shade==="new") ST.shade="blended"; else if(ST.shade!=="blended") ST.shade="";   // older links: new = blended, old/between = rough
 if(!SKEYS[ST.style]) ST.style="acrylic";   // acrylic unless another way is chosen
@@ -4893,9 +5072,9 @@ const BUSY_DESC={less:"A spare table: fewer pieces of fruit and fewer things aro
 let HIST=[], HI=-1;
 const $=id=>document.getElementById(id);
 const COMP_UI=[["","Auto"],["pyramid","Pyramid"],["heap","Heap"],["diagonal","Diagonal"],["banquet","Banquet"],["pair","Two groups"],["spill","Spill"],["corner","Corner"],["ring","Ring"],["chaos","Chaos"]];
-const FRUIT_UI=[["pineapple","Pineapple"],["banana","Bananas"],["blueberry","Blueberries"],["melon","Melon"],["apple","Apple"],["pear","Pear"],["lemon","Lemon"],["orange","Orange"],["mandarin","Mandarin"],["lime","Lime"],["plum","Plum"],["peach","Peach"],["nectarine","Nectarine"],["apricot","Apricot"],["grapes","Grapes"],["cherry","Cherries"],["strawberries","Strawberries","obj"],["blackberry","Blackberries"],["pomegranate","Pomegranate"],["fig","Fig"],["quince","Quince"],["persimmon","Persimmon"],["medlar","Medlar"]];
+const FRUIT_UI=[["banana","Bananas"],["blueberry","Blueberries"],["melon","Melon"],["apple","Apple"],["pear","Pear"],["lemon","Lemon"],["orange","Orange"],["mandarin","Mandarin"],["lime","Lime"],["plum","Plum"],["peach","Peach"],["nectarine","Nectarine"],["apricot","Apricot"],["grapes","Grapes"],["cherry","Cherries"],["strawberries","Strawberries","obj"],["blackberry","Blackberries"],["pomegranate","Pomegranate"],["fig","Fig"],["quince","Quince"],["persimmon","Persimmon"]];
 const VEG_UI=[["walnut","Walnuts","fruit"],["onion","Onions"],["asparagus","Asparagus"],["pumpkin","Pumpkin"]];
-const OBJ_UI=[["knife","Knife"],["jug","Jug"],["vase","Vase"],["bottle","Bottle"],["glass","Glass"],["candlestick","Candlestick"],["bowl","Bowl"],["plate","Plate"],["bread","Bread"],["cheese","Cheese"],["eggs","Eggs"],["shell","Shell"],["hourglass","Hourglass"],["cup","Cup"],["mugClay","Clay mug"],["mugStone","Tankard"],["pipe","Pipe"],["mortar","Mortar"],["fish","Herring"]];
+const OBJ_UI=[["knife","Knife"],["jug","Jug"],["vase","Vase"],["bottle","Bottle"],["glass","Glass"],["candlestick","Candlestick"],["bowl","Bowl"],["plate","Plate"],["bread","Bread"],["cheese","Cheese"],["eggs","Eggs"],["shell","Shell"],["hourglass","Hourglass"],["cup","Cup"],["mugClay","Clay mug"],["mugStone","Tankard"],["pipe","Pipe"],["mortar","Mortar"],["fish","Herring"],["leaf","Leaves"]];
 const FLOWER_UI=[["","Auto"],["rose","Rose"],["tulip","Tulip"],["daisy","Daisy"],["sunflower","Sunflower"],["peony","Peony"],["lily","Lily"],["poppy","Poppy"],["none","None"]];
 for(const [k,t] of FLOWER_UI){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $("st-flower").appendChild(b); b.onclick=()=>{
   if(k==="none"){ ST.flowers="0"; ST.flower=""; ST.noflower=""; } else if(k===""){ ST.flower=""; ST.noflower=""; if(ST.flowers==="0") ST.flowers=""; }
@@ -4920,7 +5099,11 @@ for(const [k,t] of OBJ_UI){ const b=document.createElement("button"); b.textCont
 const JUG_UI=[["","Auto"],["stoneware","Stoneware"],["faience","Delft blue"],["greenglaze","Green glaze"],["pewter","Pewter"],["cobalt","Cobalt"],["majolica","Majolica"],["slipware","Slipware"],["celadon","Celadon"],["oxblood","Oxblood"],["saltglaze","Salt-glaze"],["spongeware","Spongeware"],["mocha","Mocha"],["lustre","Silver lustre"],["turquoise","Turquoise"]];
 const WIN_UI=[["","Auto"],["cross","Cross"],["grid","Many panes"],["leaded","Leaded"],["open","Open"],["shutter","Shuttered"],["arch","Arched"],["round","Round"],["tall","Tall"]];
 for(const [k,t] of WIN_UI){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $("st-win").appendChild(b); b.onclick=()=>{ ST.win=k; go(SEED); }; }
-for(const [id,k,def] of [["st-sunyaw","sunyaw",-50],["st-sunpitch","sunpitch",40]]){ const el=$(id), lab=$(id+"v"); el.oninput=()=>{ lab.textContent=el.value+"°"; }; el.onchange=()=>{ ST[k]=String(el.value); ST.sun="free"; go(SEED); }; }
+for(const [id,k] of [["st-sunI","sunI"],["st-candleI","candleI"]]){ const el=$(id), lab=$(id+"v");   // the strength: shown at once on the picture, painted with "Paint this light"
+  el.oninput=()=>{ lab.textContent=el.value+"%"; lightSet(k,+el.value/100); }; }
+const WALL_UI=[["","Auto"],["plaster","Plaster"],["stone","Stone"],["brick","Brick"],["wood","Wood boards"],["tiles","Tiles"],["panelled","Panelled"],["gold","Gold leaf"]];
+const WALLCOL_UI=[["","Auto"],["grey","Warm grey"],["white","Limewash"],["ochre","Ochre"],["umber","Umber"],["red","Red"],["olive","Olive"],["green","Green"],["blue","Blue grey"]];
+for(const [id,key,list] of [["st-wall","wall",WALL_UI],["st-wallcol","wallcol",WALLCOL_UI]]) for(const [k,t] of list){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $(id).appendChild(b); b.onclick=()=>{ ST[key]=k; go(SEED); }; }
 const BOWL_UI=[["","Auto"],["kraak","Blue and white"],["earthen","Earthenware"],["greenglaze","Green glaze"],["silver","Silver"],["brass","Brass"],["pewter","Pewter"],["faience","Delft"],["stoneware","Stoneware"]];
 for(const [k,t] of BOWL_UI){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $("st-bowlstyle").appendChild(b); b.onclick=()=>{ ST.bowlstyle=k; go(SEED); }; }
 const JSHAPE_UI=[["","Auto"],["classic","Classic"],["baluster","Baluster"],["ovoid","Ovoid"],["pitcher","Pitcher"],["bottle","Bottle"],["squat","Squat"]];
@@ -4930,7 +5113,6 @@ for(const b of document.querySelectorAll("#studio .sec")){ const box=$(b.dataset
 let SECS_OPENED=false;
 function openChosenSections(){ if(SECS_OPENED) return; SECS_OPENED=true;   // once, on arrival: a section with a choice already made in it is shown open
   for(const b of document.querySelectorAll("#studio .sec")){ const box=$(b.dataset.sec); if(box.querySelector("button.on:not([data-v=''])")||box.querySelector("button.no")){ box.style.display=""; b.classList.add("open"); } } }
-$("st-moreBtn").onclick=()=>{ const open=$("st-moreBox").style.display==="none"; $("st-moreBox").style.display=open?"":"none"; $("st-moreBtn").textContent=open?"Objects and arrangement ▴":"Objects and arrangement ▾"; };
 function queryFor(seed){ const p=new URLSearchParams(); p.set("seed",seed); for(const k in ST) if(ST[k]) p.set(k,ST[k]); if(Q.has("ref")) p.set("ref","");
   for(const k of ["print","res","lite"]) if(Q.has(k)) p.set(k,Q.get(k)); return "?"+p.toString(); }
 function syncUI(){ for(const b of $("st-manner").children) b.classList.toggle("on",b.dataset.v===ST.style);
@@ -4947,17 +5129,18 @@ function syncUI(){ for(const b of $("st-manner").children) b.classList.toggle("o
   for(const b of [...$("st-fruit").children,...$("st-veg").children]){ const f=b.dataset.t==="fruit"; b.classList.toggle("on",f?lst("fruit").includes(b.dataset.v):lst("with").includes(b.dataset.v)); b.classList.toggle("no",f?lst("nofruit").includes(b.dataset.v):lst("without").includes(b.dataset.v)); }
   for(const b of $("st-win").children) b.classList.toggle("on",b.dataset.v===(ST.win||""));
   for(const b of $("st-bowlstyle").children) b.classList.toggle("on",b.dataset.v===(ST.bowlstyle||""));
-  $("st-sunfree").style.display=ST.sun==="free"?"":"none"; { const y=ST.sunyaw||"-50", p=ST.sunpitch||"40"; $("st-sunyaw").value=y; $("st-sunyawv").textContent=y+"°"; $("st-sunpitch").value=p; $("st-sunpitchv").textContent=p+"°"; }
+  for(const b of $("st-wall").children) b.classList.toggle("on",b.dataset.v===(ST.wall||""));
+  for(const b of $("st-wallcol").children) b.classList.toggle("on",b.dataset.v===(ST.wallcol||""));
+  for(const [id,k] of [["st-sunI","sunI"],["st-candleI","candleI"]]){ const v=ST[k]||"100"; $(id).value=v; $(id+"v").textContent=v+"%"; }
   for(const [box,key] of [["st-jug","jug"],["st-jugshape","jugshape"]]) for(const b of $(box).children) b.classList.toggle("on",b.dataset.v===(ST[key]||""));
   for(const b of $("st-objs").children){ b.classList.toggle("on",lst("with").includes(b.dataset.v)); b.classList.toggle("no",lst("without").includes(b.dataset.v)); }
-  if(!SECS_OPENED&&["view","skull","mirror","cloth","books","fruitn","fruit","with","without","light","comp","flowers","flower","jug","jugshape","table","sun","sunh","win","bowl","bowlsize","bowlstyle","sig","sigcol","sigpos","sigvar"].some(k=>ST[k])&&$("st-moreBox").style.display==="none") $("st-moreBtn").click();   // choices already made: show them
   openChosenSections();
   const silk=ST.style==="silk"; $("st-silk").style.display=silk?"":"none";
   $("st-imp").style.display=["","acrylic","tonal","evan"].includes(ST.style)?"":"none";   // (impasto: only the ways of painting that load a brush)
   $("st-bdesc").textContent=BUSY_DESC[ST.busy]||"";
   $("st-desc").textContent=STYLE_DESC[ST.style]||"";
   $("st-prev").disabled=HI<=0; $("st-next").disabled=HI>=HIST.length-1; }
-function go(seed,push){ hideCamPaint(); SEED=seed; try{ history.replaceState(null,"",queryFor(seed)); }catch(e){}
+function go(seed,push){ hideCamPaint(); fsGlide++; fsZoomReset(); SEED=seed; try{ history.replaceState(null,"",queryFor(seed)); }catch(e){}
   if(push!==false){ HIST=HIST.slice(0,HI+1); HIST.push({seed,st:Object.assign({},ST)}); HI=HIST.length-1; }
   syncUI(); generate(seed); }
 function travel(d){ const n=HI+d; if(n<0||n>=HIST.length) return; HI=n; Object.assign(ST,HIST[n].st); go(HIST[n].seed,false); }
@@ -4969,7 +5152,7 @@ if(SITE){ $("st-sign").style.display="none"; $("st-keys").textContent="Keys: N n
 /* full screen: the browser's own where it has one; the page is also told, so a site that frames it can enlarge the frame
    (an iPhone has no full screen for a page) */
 const isFs=()=>document.body.classList.contains("fs");
-function setFs(on){ document.body.classList.toggle("fs",on); sizeView(); VDIRTY=true;
+function setFs(on){ document.body.classList.toggle("fs",on); fsGlide++; fsZoomReset(); sizeView(); VDIRTY=true;
   try{ if(window.parent!==window) window.parent.postMessage({slc:"fullscreen",on},location.origin); }catch(e){} }
 function enterFs(){ if(isFs()) return; setFs(true); const el=document.documentElement;
   try{ const p=el.requestFullscreen?el.requestFullscreen():el.webkitRequestFullscreen?el.webkitRequestFullscreen():null; if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
@@ -4996,7 +5179,7 @@ function save(){ if(SITE||SAVING) return; const base=`still-life-code-${SEED}${S
     btn.textContent="Saving at 300 dpi…"; if(s) status("saving the 300 dpi file · "+s); },700); }
 function toggleLabel(){ labelOn=!labelOn; $("label").classList.toggle("hidden",!labelOn); }
 $("studioBtn").onclick=()=>$("studio").classList.toggle("closed");
-if(innerWidth>=1100||(document.body.classList.contains("embedded")&&innerWidth>=640)) $("studio").classList.remove("closed");   // on the shop page, the menu is open from the start
+if(innerWidth>=1100) $("studio").classList.remove("closed");
 for(const b of $("st-manner").children) b.onclick=()=>{ ST.style=b.dataset.v; go(SEED); };
 for(const b of $("st-busy").children) b.onclick=()=>{ ST.busy=b.dataset.v; go(SEED); };
 for(const b of $("st-theme").children) b.onclick=()=>{ ST.theme=b.dataset.v; go(SEED); };
@@ -5004,7 +5187,7 @@ for(const b of $("st-view").children) b.onclick=()=>{ ST.close=b.dataset.v; if(!
 for(const [id,d] of [["st-fprev",-1],["st-fnext",1]]) $(id).onclick=()=>{ const c=CLOSE_INFO?CLOSE_INFO.i:0; ST.focus=String(c+d); go(SEED); };   // the next subject of the close-up
 /* LIVE CAMERA: drag the picture to turn round the scene (the free view), the wheel or two fingers to come nearer or go
    back. A quick flat preview follows the hand; the painting is made again only when the hand is let go */
-function camPreview(yawD,pitchD,zoom,panx,pany){ if(!LASTCAM||!VIEW) return; const L=LASTCAM, yw=yawD*Math.PI/180, pt=pitchD*Math.PI/180, T=L.T, Dc=L.Dc;
+function camPreview(yawD,pitchD,zoom,panx,pany,LO){ if(!LASTCAM||!VIEW) return; const L=LASTCAM, yw=yawD*Math.PI/180, pt=pitchD*Math.PI/180, T=L.T, Dc=L.Dc;
   // drawn, not traced, so it keeps up with the hand. Each thing is sampled once into a cloud of points on its real surface
   // (coloured and lit as it is); the cloud is framed exactly as the free view's painting frames the things, so what the
   // hand shows is what will be painted
@@ -5013,7 +5196,7 @@ function camPreview(yawD,pitchD,zoom,panx,pany){ if(!LASTCAM||!VIEW) return; con
       const b=o.box, sx=b[3]-b[0], sy=b[4]-b[1], sz=b[5]-b[2], vol=Math.max(1e-4,sx*sy*sz), N=o.kind==="flower"&&o.fpart!=="head"?1500:2600, shell=Math.max(0.01,Math.cbrt(vol/N)*0.9), rad=shell*0.95; let kept=0;
       for(let k=0;k<N&&kept<480;k++){ const x=b[0]+sx*hash3i(k,o.id,1), y=b[1]+sy*hash3i(k,o.id,2), z=b[2]+sz*hash3i(k,o.id,3), d=objD(o,x,y,z); if(d>0||d<-shell) continue;
         let c=o.glass?[0.75,0.8,0.8]:[0.55,0.5,0.45]; try{ if(typeof o.mat==="function"){ const m=objMat(o,x,y,z); if(m&&m.c) c=m.c; } }catch(_){}
-        const n=calcNormal(o,x,y,z), lam=Math.max(0,n[0]*LDIR[0]+n[1]*LDIR[1]+n[2]*LDIR[2]); pts.push([x,y,z,c.map(q=>q*(0.42+0.75*lam)),rad]); kept++; } }
+        pts.push([x,y,z,c,rad,calcNormal(o,x,y,z)]); kept++; } }
     camPreview.pts=pts; }
   const E=[T[0]+Dc*Math.sin(yw)*Math.cos(pt),T[1]+Dc*Math.sin(pt),T[2]-Dc*Math.cos(yw)*Math.cos(pt)];
   let f=[T[0]-E[0],T[1]-E[1],T[2]-E[2]], l=Math.hypot(...f); f=f.map(v=>v/l); let rt=[f[2],0,-f[0]]; l=Math.hypot(...rt); rt=rt.map(v=>v/l);
@@ -5027,15 +5210,51 @@ function camPreview(yawD,pitchD,zoom,panx,pany){ if(!LASTCAM||!VIEW) return; con
   const col=(c,k)=>`rgb(${toByte(c[0]*k)},${toByte(c[1]*k)},${toByte(c[2]*k)})`, g=vctx;
   const poly=(pts,fill)=>{ const q=pts.map(P); if(q.some(v=>!v)) return; g.fillStyle=fill; g.beginPath(); q.forEach((v,i)=>i?g.lineTo(v[0],v[1]):g.moveTo(v[0],v[1])); g.closePath(); g.fill(); };
   const XL=Math.max(-9,TABLE.xl), XR=Math.min(9,TABLE.xr), YB=TABLE.block?Math.max(-6,TABLE.floor):-TABLE.tt;
-  g.fillStyle=col(SCH.wall,0.5); g.fillRect(0,0,Wd,Hd);
-  poly([[-9,-6,WALLZ],[9,-6,WALLZ],[9,12,WALLZ],[-9,12,WALLZ]],col(SCH.wall,0.72));
-  poly([[XL,0,0],[XR,0,0],[XR,0,WALLZ],[XL,0,WALLZ]],col(TABLE.c,0.9));
-  poly([[XL,YB,0],[XR,YB,0],[XR,0,0],[XL,0,0]],col(TABLE.c,0.5));
-  if(CLOTH) poly([[Math.max(XL,CLOTH.x0),0.01,-0.02],[Math.min(XR,CLOTH.x1),0.01,-0.02],[Math.min(XR,CLOTH.x1),0.01,CLOTH.zb],[Math.max(XL,CLOTH.x0),0.01,CLOTH.zb]],col(CLOTH.c,0.85));
-  const S=[]; camPreview.pts.forEach((p,k)=>{ const q=RP[k]; if(!q) return; const s=S_(q); S.push([q[2],s[0],s[1],p[3],p[4]/q[2]/(2*tw)*Wd]); });
+  // the light: the window's direction and strength, and the candles (warm, falling off with distance); LO, when the
+  // light is being placed by hand, moves them
+  const night=LIGHTMODE==="candlelight", LO_=LO||{}, ld=LO_.ldir||LDIR, sI=(LO_.sunI??1)*(night?0.12:1), cI=LO_.candleI??1;
+  const litC=night||LSTRICT==="both", cands=LO_.cpos?(litC?[LO_.cpos]:[]):CANDLES, cB=(night?1.8:LSTRICT==="both"?1.2:0.5)*cI, amb=night?0.2:0.42, Wn=LO_.win||WIN;   // (no candlelight unless the scene's light has a candle)
+  const shade=p=>{ const n=p[5], c=p[3], lam=Math.max(0,n[0]*ld[0]+n[1]*ld[1]+n[2]*ld[2]); let k=amb+(lam>0?0.75*sI*lam*(0.15+0.85*windowMask(p[0],p[1],p[2],Wn)):0), w=0;
+    for(const q of cands){ const dx=q[0]-p[0],dy=q[1]-p[1],dz=q[2]-p[2], d=Math.hypot(dx,dy,dz)+1e-6; w+=Math.max(0,(n[0]*dx+n[1]*dy+n[2]*dz)/d)*cB/(1+(d/1.2)**2); }
+    return [c[0]*(k+w),c[1]*(k+w*0.62),c[2]*(k+w*0.28)]; };
+  const fS=(amb+0.75*sI*0.55*0.15)/(0.42+0.75*0.55), kP=0.75*sI*0.55*0.85/(0.42+0.75*0.55);   // (the table and wall in the room's light; the patch adds the sun)
+  g.fillStyle=col(SCH.wall,0.5*fS); g.fillRect(0,0,Wd,Hd);
+  poly([[-9,-6,WALLZ],[9,-6,WALLZ],[9,12,WALLZ],[-9,12,WALLZ]],col(SCH.wall,0.72*fS));
+  poly([[XL,0,0],[XR,0,0],[XR,0,WALLZ],[XL,0,WALLZ]],col(TABLE.c,0.9*fS));
+  poly([[XL,YB,0],[XR,YB,0],[XR,0,0],[XL,0,0]],col(TABLE.c,0.5*fS));
+  if(CLOTH) poly([[Math.max(XL,CLOTH.x0),0.01,-0.02],[Math.min(XR,CLOTH.x1),0.01,-0.02],[Math.min(XR,CLOTH.x1),0.01,CLOTH.zb],[Math.max(XL,CLOTH.x0),0.01,CLOTH.zb]],col(CLOTH.c,0.85*fS));
+  // the window's patch of light on the table top and the wall: each in a grid of little cells, every cell lit by the
+  // painting's own window mask at its middle (exact where the light falls, at any angle)
+  if(sI>0.02){ const kT=0.75*sI*Math.max(0,ld[1])*0.85/(0.42+0.75*0.55), kW=0.75*sI*Math.max(0,-ld[2])*0.85/(0.42+0.75*0.55);
+    const cells=(nu,nv,at,c,k)=>{ if(k<0.01) return; g.save(); g.globalCompositeOperation="lighter";
+      for(let a=0;a<nu;a++) for(let b=0;b<nv;b++){ const m=windowMask(...at((a+0.5)/nu,(b+0.5)/nv),Wn); if(m<0.03) continue;
+        const q=[at(a/nu,b/nv),at((a+1)/nu,b/nv),at((a+1)/nu,(b+1)/nv),at(a/nu,(b+1)/nv)].map(P); if(q.some(v=>!v)) continue;
+        g.fillStyle=col(c,k*m); g.beginPath(); q.forEach((v,i)=>i?g.lineTo(v[0],v[1]):g.moveTo(v[0],v[1])); g.closePath(); g.fill(); } g.restore(); };
+    cells(110,36,(u,v)=>[lerp(XL,XR,u),0.003,v*WALLZ],TABLE.c,0.9*kT);
+    cells(110,48,(u,v)=>[lerp(-9,9,u),0.003+v*9,WALLZ-0.003],SCH.wall,0.72*kW); }
+  for(const q of cands){ const a=P([q[0],0.02,q[2]]), b=P([q[0]+2.4,0.02,q[2]]); if(!a||!b) continue; const R=Math.hypot(b[0]-a[0],b[1]-a[1]);   // the pool of candlelight on the table and the wall
+    const gr=g.createRadialGradient(a[0],a[1],0,a[0],a[1],R); gr.addColorStop(0,`rgba(255,170,90,${Math.min(0.6,0.32*cB)})`); gr.addColorStop(1,"rgba(255,170,90,0)");
+    g.save(); g.globalCompositeOperation="lighter"; g.fillStyle=gr; g.fillRect(a[0]-R,a[1]-R,2*R,2*R); g.restore(); }
+  const S=[]; camPreview.pts.forEach((p,k)=>{ const q=RP[k]; if(!q) return; const s=S_(q); S.push([q[2],s[0],s[1],shade(p),p[4]/q[2]/(2*tw)*Wd]); });
   S.sort((a,b)=>b[0]-a[0]);
-  for(const [z,x,y,c,r] of S){ g.fillStyle=col(c,1); g.beginPath(); g.arc(x,y,Math.max(0.8,r),0,Math.PI*2); g.fill(); } }
-if(VIEW){ let drag=null, busy=false, pend=null, pv=null, pvTurned=false; const ptrs=new Map();
+  for(const [z,x,y,c,r] of S){ g.fillStyle=col(c,1); g.beginPath(); g.arc(x,y,Math.max(0.8,r),0,Math.PI*2); g.fill(); }
+  camPreview.cam={E,f,rt,up,uc,vc,tw,th};   // (kept, so a point on the picture can be taken back to the table)
+  // the markers while the light is placed by hand: the sun, out along its direction (at the edge of the picture when it
+  // is behind the painter), a dashed line to the scene; the candle, a candlestick with its flame where it will stand
+  camPreview.aimScr=null;
+  if(LO_.marker==="sun"&&LO_.tgt){ const a=P(LO_.tgt); if(a){ const R=Math.min(Wd,Hd)*0.03; camPreview.aimScr=[a[0],a[1]];
+    g.save(); g.strokeStyle="rgba(255,236,170,0.95)"; g.lineWidth=Math.max(2,R*0.14); g.beginPath(); g.ellipse(a[0],a[1],R,R*0.45,0,0,7); g.stroke();
+    g.beginPath(); g.moveTo(a[0]-R*1.4,a[1]); g.lineTo(a[0]-R*0.5,a[1]); g.moveTo(a[0]+R*0.5,a[1]); g.lineTo(a[0]+R*1.4,a[1]); g.stroke(); g.restore(); } }
+  if(LO_.marker==="sun"){ const T=LO_.tgt||L.T, c0=P(T); let s=P([T[0]+ld[0]*7,T[1]+ld[1]*7,T[2]+ld[2]*7]); const m=Math.min(Wd,Hd);
+    if(!s||s[0]<0||s[0]>Wd||s[1]<0||s[1]>Hd){ const ex=ld[0]*rt[0]+ld[1]*rt[1]+ld[2]*rt[2], ey=ld[0]*up[0]+ld[1]*up[1]+ld[2]*up[2], l=Math.hypot(ex,ey)||1; s=[Wd/2+ex/l*m*0.42,Hd/2-ey/l*m*0.42]; }
+    if(c0){ g.save(); g.setLineDash([6,6]); g.strokeStyle="rgba(255,230,150,0.8)"; g.lineWidth=2; g.beginPath(); g.moveTo(s[0],s[1]); g.lineTo(c0[0],c0[1]); g.stroke(); g.restore(); }
+    const R=m*0.035; g.save(); g.shadowColor="rgba(255,210,100,0.9)"; g.shadowBlur=R; g.fillStyle="#ffd96e"; g.beginPath(); g.arc(s[0],s[1],R,0,7); g.fill(); g.strokeStyle="#ffe9a8"; g.lineWidth=2;
+    for(let k=0;k<8;k++){ const a=k*Math.PI/4; g.beginPath(); g.moveTo(s[0]+Math.cos(a)*R*1.35,s[1]+Math.sin(a)*R*1.35); g.lineTo(s[0]+Math.cos(a)*R*1.9,s[1]+Math.sin(a)*R*1.9); g.stroke(); } g.restore(); }
+  if(LO_.marker==="candle"&&LO_.cpos){ const q=LO_.cpos, a=P([q[0],q[1]-1.45,q[2]]), b=P(q); if(a&&b){ const R=Math.min(Wd,Hd)*0.018;
+    g.save(); g.strokeStyle="#c9a35a"; g.lineWidth=Math.max(3,R*0.6); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]+R); g.stroke();
+    g.fillStyle="#c9a35a"; g.beginPath(); g.ellipse(a[0],a[1],R*1.6,R*0.6,0,0,7); g.fill();
+    g.shadowColor="rgba(255,190,90,1)"; g.shadowBlur=R*3; g.fillStyle="#ffcf6a"; g.beginPath(); g.ellipse(b[0],b[1]-R*0.4,R*0.55,R*1.1,0,0,7); g.fill(); g.restore(); } } }
+if(VIEW){ let drag=null, busy=false, pend=null, pv=null, pvTurned=false, rDragged=0; const ptrs=new Map();
   // pv: the view being looked at (kept from one drag or turn of the wheel to the next); nothing is painted again until
   // "Paint this view" (top right of the picture) is pressed
   const camNow=()=>{ if(pv) return pv; const zm=+(ST.zoom||1), px=+(ST.panx||0), py=+(ST.pany||0); if(ST.view==="free") return {yaw:+(ST.yaw||0),pitch:+(ST.pitch||15),zoom:zm,panx:px,pany:py};
@@ -5051,53 +5270,128 @@ if(VIEW){ let drag=null, busy=false, pend=null, pv=null, pvTurned=false; const p
     btn.style.top=(r.top+10+(a?btnA.offsetHeight+6:0))+"px"; btn.style.left=(r.right-btn.offsetWidth-10)+"px"; };
   const camButtons=()=>{ btnA.style.display=ST.view==="free"&&!document.body.classList.contains("fs")?"":"none"; place(); };
   const toFree=c=>{ if(ST.view==="free") return; ST.view="free"; ST.yaw=String(Math.round(c.yaw)); ST.pitch=String(Math.round(c.pitch)); pvTurned=true; try{ syncUI(); }catch(_){} camButtons();
-    try{ if($("st-moreBox").style.display==="none") $("st-moreBtn").click(); if($("sx-cam").style.display==="none") document.querySelector('#studio .sec[data-sec="sx-cam"]').click(); }catch(_){} };   // (and the studio's Camera section opened, where the free view now shows)   // turning or zooming the picture puts the free view on, selected in the studio
+    try{ if($("sx-gscene").style.display==="none") document.querySelector('#studio .sec[data-sec="sx-gscene"]').click(); if($("sx-cam").style.display==="none") document.querySelector('#studio .sec[data-sec="sx-cam"]').click(); }catch(_){} };   // (and the studio's Camera section opened, where the free view now shows)   // turning or zooming the picture puts the free view on, selected in the studio
   btnA.onclick=e=>{ e.stopPropagation(); hideCamPaint(); ST.view=""; ST.yaw=""; ST.pitch=""; ST.zoom=""; ST.panx=""; ST.pany=""; go(SEED); };
   const offer=()=>{ btn.style.display=""; place(); status("turning round the scene · “Paint this view” when it is right"); };
   window.addEventListener("resize",()=>place());
   const stop=()=>{ if(!pv){ TOKEN++; } };   // the painting under way is stopped once, when the first turn begins
-  hideCamPaint=()=>{ btn.style.display="none"; pv=null; pvTurned=false; camButtons(); };
+  let zT=null, zRaf=0, zPrev=0, zLast=0, zRun=0;
+  hideCamPaint=()=>{ btn.style.display="none"; pv=null; pvTurned=false; zT=null; lightOff(); camButtons(); };
   btn.onclick=e=>{ e.stopPropagation(); if(!pv) return; const c=pv, t=pvTurned; hideCamPaint();
     if(t){ ST.view="free"; ST.yaw=String(Math.round(c.yaw)); ST.pitch=String(Math.round(c.pitch)); } ST.zoom=String(+c.zoom.toFixed(2)); ST.panx=c.panx?String(+c.panx.toFixed(3)):""; ST.pany=c.pany?String(+c.pany.toFixed(3)):""; go(SEED); };
+  /* PLACING THE LIGHT BY HAND (Light: Sun → Free, Candle → By hand, or a strength slider): the picture shows the quick
+     preview lit from where the light is; dragging moves the sun round the scene (across: from the left round to the
+     right; up and down: higher or lower) or carries the candle to the spot on the table under the hand; nothing is
+     painted until "Paint this light"; Cancel goes back */
+  let lm=null, lmDrag=null, lmPend=false;
+  const btnL=btn.cloneNode(); btnL.id="camLight"; btnL.textContent="Paint this light"; document.body.appendChild(btnL);
+  const btnLC=btn.cloneNode(); btnLC.id="camLightNo"; btnLC.textContent="Cancel"; document.body.appendChild(btnLC);
+  const placeL=()=>{ const r=VIEW.getBoundingClientRect(), on=!!lm; btnL.style.display=btnLC.style.display=on?"":"none"; if(!on) return;
+    btnL.style.top=(r.top+10)+"px"; btnL.style.left=(r.right-btnL.offsetWidth-10)+"px"; btnLC.style.top=(r.top+10+btnL.offsetHeight+6)+"px"; btnLC.style.left=(r.right-btnLC.offsetWidth-10)+"px"; };
+  window.addEventListener("resize",()=>placeL());
+  // the sun placed by hand, as setupLight places it: on a sphere round the scene (yaw, pitch), aimed at a point (the
+  // seed's own aim unless one is set: then a point on the table); its window turned to face it
+  const T0L=[0,0.6,1.8], sunGeom=(yw,pt,tg)=>{ const a=yw*Math.PI/180, b=pt*Math.PI/180, D=9, LP=[T0L[0]+D*Math.sin(a)*Math.cos(b),T0L[1]+D*Math.sin(b),T0L[2]-D*Math.cos(a)*Math.cos(b)];
+    const t=tg||[-(yw<0?-1:1)*0.3,0.6,1.8], S=norm3([t[0]-LP[0],t[1]-LP[1],t[2]-LP[2]]), R=norm3(Math.abs(S[1])>0.999?cross3(S,[0,0,1]):cross3(S,[0,1,0]));
+    const k=S[1]<-1e-3?-LP[1]/S[1]:0, hitT=S[1]<-1e-3?[LP[0]+S[0]*k,0,LP[2]+S[2]*k]:t;
+    const D0=Math.hypot(t[0]-LP[0],t[1]-LP[1],t[2]-LP[2]), f=3*WIN.dW/(D0*Math.max(WIN.hw0,WIN.hh0));   // (the same pool of light as the painting's)
+    return {ld:S.map(v=>-v), tgt:tg||hitT, win:Object.assign({},WIN,{p:LP,SD:S,WR:R,WU:cross3(R,S),vc:0,hw:WIN.hw0*f,hh:WIN.hh0*f})}; };
+  const drawL=()=>{ if(lmPend) return; lmPend=true; setTimeout(()=>{ lmPend=false; if(!lm) return; const c=camNow();
+    const sun=lm.kind==="sun"||lm.sunMoved||lm.tgt?sunGeom(lm.yaw,lm.pitch,lm.tgt):null;
+    camPreview(c.yaw,c.pitch,c.zoom,c.panx,c.pany,{ldir:sun?sun.ld:LDIR,win:sun?sun.win:WIN,tgt:sun?sun.tgt:null,sunI:lm.sunI,candleI:lm.candleI,cpos:lm.cpos,marker:lm.kind}); },16); };
+  const lightOff=()=>{ lm=null; lmDrag=null; LPLACE=false; placeL(); };
+  lightMode=kind=>{ if(!LASTCAM) return; if(lm){ lm.kind=kind; drawL(); status(kind==="sun"?"drag the picture to move the sun round and up · drag the ring on the table to aim its light · “Paint this light” when it is right":"drag on the table to set the candle down · “Paint this light” when it is right"); return; }
+    const done=/^finished/.test(statusEl?statusEl.textContent:""); TOKEN++;
+    const W0=LIGHTS[0].p, v=[W0[0]-T0L[0],W0[1]-T0L[1],W0[2]-T0L[2]], vl=Math.hypot(...v);
+    let yaw=ST.sun==="free"?+(ST.sunyaw||-50):Math.atan2(v[0],-v[2])*180/Math.PI, pitch=ST.sun==="free"?+(ST.sunpitch||40):clamp(Math.asin(v[1]/vl)*180/Math.PI,2,88);
+    const cp=(ST.candlepos||"").split("_").map(Number), c0=ST.candle==="free"&&cp.length===2&&cp.every(isFinite)?[cp[0],floorAt(cp[0],cp[1])+1.45,cp[1]]:CANDLES[0]?CANDLES[0].slice():null;
+    const tp=(ST.suntgt||"").split("_").map(Number), tg=ST.sun==="free"&&tp.length===2&&tp.every(isFinite)?[tp[0],0,tp[1]]:null;
+    lm={kind,done,yaw,pitch,tgt:tg,tgtMoved:false,sunMoved:false,candleMoved:false,cpos:c0||[0,floorAt(0,1)+1.45,1],hadCandle:!!c0,sunI:(+ST.sunI||100)/100,candleI:(+ST.candleI||100)/100,touched:new Set()};
+    LPLACE=true; btn.style.display="none"; btnA.style.display="none"; placeL(); lightMode(kind); };
+  const wrapA=a=>((a+180)%360+360)%360-180;
+  const sunTo=(yaw,pitch)=>{ lm.yaw=Math.round(wrapA(yaw)*10)/10; lm.pitch=Math.round(clamp(pitch,2,88)*10)/10; lm.sunMoved=true;
+    status(`sun: ${Math.round(lm.yaw)}° round, ${Math.round(lm.pitch)}° high · “Paint this light” when it is right`); drawL(); };
+  lightSet=(k,v)=>{ if(!lm) lightMode(k==="candleI"?"candle":"sun"); if(!lm) return;
+    lm[k]=v; lm.touched.add(k); drawL(); };
+  addEventListener("keydown",e=>{ if(!lm||lm.kind!=="sun"||/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return; const st=e.shiftKey?5:1, k=e.key;
+    const d=k==="ArrowLeft"?[-st,0]:k==="ArrowRight"?[st,0]:k==="ArrowUp"?[0,st]:k==="ArrowDown"?[0,-st]:null; if(!d) return;
+    e.preventDefault(); e.stopImmediatePropagation(); sunTo(lm.yaw+d[0],lm.pitch+d[1]); },true);   // (taken before the arrows travel between paintings)
+  const tableAt=e=>{ const K=camPreview.cam; if(!K) return null; const r=VIEW.getBoundingClientRect(), fx=(e.clientX-r.left)/r.width, fy=(e.clientY-r.top)/r.height;   // the point of the table top under the hand
+    const q0=K.uc+(fx-0.5)*2*K.tw, q1=K.vc-(fy-0.5)*2*K.th, d=[K.f[0]+q0*K.rt[0]+q1*K.up[0],K.f[1]+q0*K.rt[1]+q1*K.up[1],K.f[2]+q0*K.rt[2]+q1*K.up[2]];
+    if(d[1]>-1e-4) return null; const t=-K.E[1]/d[1]; return [clamp(K.E[0]+t*d[0],Math.max(TABLE.xl+0.35,-6),Math.min(TABLE.xr-0.35,6)),clamp(K.E[2]+t*d[2],0.35,WALLZ-0.35)]; };
+  const candleAt=e=>{ const p=tableAt(e); if(!p) return; lm.cpos=[p[0],floorAt(p[0],p[1])+1.45,p[1]]; lm.candleMoved=true; drawL(); };
+  const aimAt=e=>{ const p=tableAt(e); if(!p) return; lm.tgt=[p[0],0,p[1]]; lm.tgtMoved=true; status(`light aimed at the table · “Paint this light” when it is right`); drawL(); };
+  const nearAim=e=>{ const a=camPreview.aimScr; if(!a) return false; const r=VIEW.getBoundingClientRect(), x=(e.clientX-r.left)*VIEW.width/r.width, y=(e.clientY-r.top)*VIEW.height/r.height;
+    return Math.hypot(x-a[0],y-a[1])<Math.min(VIEW.width,VIEW.height)*0.07; };
+  btnL.onclick=e=>{ e.stopPropagation(); if(!lm) return; const L=lm; lightOff();
+    if(L.sunMoved||L.tgtMoved){ ST.sun="free"; ST.sunyaw=String(+L.yaw.toFixed(1)); ST.sunpitch=String(+L.pitch.toFixed(1)); }
+    if(L.tgtMoved) ST.suntgt=L.tgt[0].toFixed(2)+"_"+L.tgt[2].toFixed(2);
+    if(L.candleMoved){ ST.candle="free"; ST.candlepos=L.cpos[0].toFixed(2)+"_"+L.cpos[2].toFixed(2); }
+    if(L.touched.has("sunI")) ST.sunI=Math.round(L.sunI*100)===100?"":String(Math.round(L.sunI*100));
+    if(L.touched.has("candleI")) ST.candleI=Math.round(L.candleI*100)===100?"":String(Math.round(L.candleI*100));
+    go(SEED); };
+  btnLC.onclick=e=>{ e.stopPropagation(); if(!lm) return; const d=lm.done; lightOff(); try{ syncUI(); }catch(_){} if(d){ VDIRTY=true; status("finished"); } else go(SEED); };
   VIEW.style.touchAction="none";
-  const panOK=()=>ST.view==="free";   // the right button moves the view only in the free view (elsewhere it does what it always does); turning (left button) or zooming from any view puts the free view on
-  VIEW.addEventListener("contextmenu",e=>{ if(LASTCAM&&panOK()) e.preventDefault(); });
-  VIEW.addEventListener("pointerdown",e=>{ if(!LASTCAM||document.body.classList.contains("fs")||(e.button!==0&&e.button!==2)||(e.button===2&&!panOK())) return; e.preventDefault();
+  const panOK=()=>ST.view==="free";   // in the free view the right button only moves the view; elsewhere a right click does what it always does, and a right drag puts the free view on (as turning or zooming do)
+  VIEW.addEventListener("contextmenu",e=>{ if(LASTCAM&&(panOK()||performance.now()-rDragged<600)) e.preventDefault(); });
+  VIEW.addEventListener("pointerdown",e=>{ if(lm&&e.button===0){ e.preventDefault(); lmDrag={x:e.clientX,y:e.clientY,yaw:lm.yaw,pitch:lm.pitch,id:e.pointerId,shift:e.shiftKey,aim:lm.kind==="sun"&&nearAim(e)}; if(lm.kind==="candle") candleAt(e); else if(lmDrag.aim) aimAt(e); return; }
+    if(!LASTCAM||document.body.classList.contains("fs")||(e.button!==0&&e.button!==2)) return; if(e.button===0||panOK()) e.preventDefault();
     if(e.pointerType==="mouse") ptrs.clear(); ptrs.set(e.pointerId,[e.clientX,e.clientY]);
     if(ptrs.size===1) drag={x:e.clientX,y:e.clientY,c:camNow(),moved:false,pan:e.button===2};
     else if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; drag={pinch:Math.hypot(a[0]-b[0],a[1]-b[1]),c:drag&&drag.cur?drag.cur:camNow(),moved:true}; stop(); toFree(drag.c); } });
-  window.addEventListener("pointermove",e=>{ if(!drag||!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId,[e.clientX,e.clientY]); let c;
+  window.addEventListener("pointermove",e=>{ if(lmDrag&&lm&&e.pointerId===lmDrag.id){ if(lm.kind==="candle") candleAt(e); else if(lmDrag.aim) aimAt(e); else { if(e.shiftKey!==lmDrag.shift){ lmDrag={...lmDrag,x:e.clientX,y:e.clientY,yaw:lm.yaw,pitch:lm.pitch,shift:e.shiftKey}; } const r=VIEW.getBoundingClientRect(), f=e.shiftKey?0.2:1; sunTo(lmDrag.yaw+(e.clientX-lmDrag.x)/r.width*360*f,lmDrag.pitch-(e.clientY-lmDrag.y)/r.height*130*f); } return; }
+    if(!drag||!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId,[e.clientX,e.clientY]); let c;
     if(drag.pinch){ if(ptrs.size<2) return; const [a,b]=[...ptrs.values()]; c=clampC({...drag.c,zoom:drag.c.zoom*Math.hypot(a[0]-b[0],a[1]-b[1])/drag.pinch}); }
-    else { const dx=e.clientX-drag.x, dy=e.clientY-drag.y; if(!drag.moved&&Math.hypot(dx,dy)<6) return; if(!drag.moved){ drag.moved=true; stop(); if(!drag.pan) toFree(drag.c); }
+    else { const dx=e.clientX-drag.x, dy=e.clientY-drag.y; if(!drag.moved&&Math.hypot(dx,dy)<6) return; if(!drag.moved){ drag.moved=true; stop(); toFree(drag.c); }
       if(drag.pan){ const r=VIEW.getBoundingClientRect(); c=clampC({...drag.c,panx:(drag.c.panx||0)-dx/r.width,pany:(drag.c.pany||0)+dy/r.height}); }   // right button: the scene follows the hand across and up and down
       else { pvTurned=true; c=clampC({...drag.c,yaw:drag.c.yaw-dx*0.25,pitch:drag.c.pitch+dy*0.2}); } }   // drag right: the eye goes round to the left of the scene; drag down: it rises
     drag.cur=c; pv=c; show(c); });
-  const end=e=>{ if(!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); if(!drag||ptrs.size>0) return; const d=drag; drag=null; if(d.moved&&d.cur){ pv=d.cur; offer(); } };
+  const end=e=>{ if(lmDrag&&e.pointerId===lmDrag.id){ lmDrag=null; return; } if(!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); if(!drag||ptrs.size>0) return; const d=drag; drag=null; if(d.pan&&d.moved) rDragged=performance.now(); if(d.moved&&d.cur){ pv=d.cur; offer(); } };
   window.addEventListener("pointerup",end); window.addEventListener("pointercancel",end);
-  // the wheel zooms smoothly: each notch moves a target, and the view glides to it (eased, a frame every 16 ms) rather than jumping
-  let zT=null, zTimer=0;
-  const glide=()=>{ zTimer=0; if(!pv||zT===null) return; const d=zT-pv.zoom; if(Math.abs(d)<0.002*zT){ pv=clampC({...pv,zoom:zT}); zT=null; show(pv); return; }
-    pv=clampC({...pv,zoom:pv.zoom+d*0.22}); show(pv); zTimer=setTimeout(glide,16); };
-  VIEW.addEventListener("wheel",e=>{ if(!LASTCAM) return; e.preventDefault(); stop(); const c0=camNow(); toFree(c0); if(!pv) pv=clampC({...c0});
-    const dy=e.deltaMode===1?e.deltaY*33:e.deltaMode===2?e.deltaY*400:e.deltaY;   // (lines or pages turned into pixels)
-    zT=clamp((zT===null?pv.zoom:zT)*Math.exp(-dy*0.0015),0.4,3); if(!zTimer) zTimer=setTimeout(glide,16); offer(); },{passive:false});
+  // the wheel (or + and -) zooms gradually: the first notches move it only a little, and the longer the wheel keeps
+  // turning the faster it goes (a pause starts it slow again); the view eases toward where the wheel has sent it, a
+  // little every frame, by the time passed rather than the frames drawn, so it moves evenly however fast the preview draws
+  const glide=t=>{ zRaf=0; if(!pv||zT===null) return; const dt=Math.min(64,zPrev?t-zPrev:16); zPrev=t; const d=Math.log(zT/pv.zoom), end=Math.abs(d)<0.001;
+    pv=clampC({...pv,zoom:end?zT:pv.zoom*Math.exp(d*(1-Math.exp(-dt/110)))}); show(pv);
+    if(end){ zT=null; zPrev=0; return; } zRaf=requestAnimationFrame(glide); };
+  const zoomBy=dy=>{ stop(); const c0=camNow(); toFree(c0); if(!pv) pv=clampC({...c0});
+    const now=performance.now(); zRun=now-zLast<260?Math.min(zRun+Math.min(Math.abs(dy),120)/100,24):0; zLast=now;   // how long the wheel has kept turning
+    const rate=0.00007*(1+0.32*zRun);   // a first notch: under 1%; after a dozen: about 3.5%; turned on and on: about 6%
+    zT=clamp((zT===null?pv.zoom:zT)*Math.exp(-dy*rate),0.4,3); if(!zRaf){ zPrev=0; zRaf=requestAnimationFrame(glide); } offer(); };
+  VIEW.addEventListener("wheel",e=>{ if(!LASTCAM) return; e.preventDefault(); if(lm) return;
+    zoomBy(e.deltaMode===1?e.deltaY*33:e.deltaMode===2?e.deltaY*400:e.deltaY); },{passive:false});   // (lines or pages turned into pixels)
+  addEventListener("keydown",e=>{ if(!LASTCAM||document.body.classList.contains("fs")||e.ctrlKey||e.metaKey) return; const k=e.key;
+    if(k==="+"||k==="="){ e.preventDefault(); zoomBy(-120); } else if(k==="-"||k==="_"){ e.preventDefault(); zoomBy(120); } });
   camButtons(); }
 /* the free view: two sliders, the picture repainted when one is let go */
 $("st-zreset").onclick=()=>{ ST.zoom=""; ST.panx=""; ST.pany=""; ST.yaw=""; ST.pitch=""; ST.view=""; go(SEED); };
 for(const [id,k,def] of [["st-yaw","yaw",0],["st-pitch","pitch",15]]){ const el=$(id), lab=$(id+"v");
   el.oninput=()=>{ lab.textContent=el.value+"°"; }; el.onchange=()=>{ ST[k]=String(el.value); ST.view="free"; go(SEED); }; }
+for(const r of document.querySelectorAll("#studio .trow:not(.views)")){ const d=document.createElement("div"); d.className="tb"; for(const b of [...r.querySelectorAll(":scope > button")]) d.appendChild(b); r.appendChild(d); }   // (see .tb: rows that wrap)
 for(const r of document.querySelectorAll("#studio .trow[data-k]")) for(const b of r.querySelectorAll("button")) b.onclick=()=>{ ST[r.dataset.k]=b.dataset.v; go(SEED); };
+// Sun → Free and Candle → By hand open the placing view on the picture (nothing is painted until "Paint this light")
+document.querySelector('[data-k="sun"] button[data-v="free"]').onclick=()=>lightMode("sun"); document.querySelector('[data-k="candle"] button[data-v="free"]').onclick=()=>lightMode("candle");
 $("st-sigvar").onclick=()=>{ ST.sigvar=String((+ST.sigvar||0)+1); go(SEED); };
-$("st-new").onclick=()=>go(newSeed()); $("st-prev").onclick=()=>travel(-1); $("st-next").onclick=()=>travel(1);
+const newScene=()=>{ if(ST.view==="free"||ST.zoom||ST.panx||ST.pany){ ST.view=""; ST.yaw=""; ST.pitch=""; ST.zoom=""; ST.panx=""; ST.pany=""; } go(newSeed()); };   // (a new scene is seen from the auto view, not the free view left from the last)
+$("st-new").onclick=newScene; $("st-prev").onclick=()=>travel(-1); $("st-next").onclick=()=>travel(1);
 $("st-save").onclick=save;
-if(VIEW) VIEW.addEventListener("click",()=>{ if(isFs()) exitFs(); });   // (a click on the picture used to paint a new one: now only N or "New scene" does)
+if(VIEW) VIEW.addEventListener("click",e=>{ if(!isFs()) return;   // (a click on the picture used to paint a new one: now only N or "New scene" does; in full screen it goes in close)
+  const r=VIEW.getBoundingClientRect(), fx=clamp((e.clientX-r.left)/r.width,0,1), fy=clamp((e.clientY-r.top)/r.height,0,1), z=FSZ.z;
+  const x0=clamp(FSZ.cx-0.5/z,0,1-1/z), y0=clamp(FSZ.cy-0.5/z,0,1-1/z), ix=x0+fx/z, iy=y0+fy/z, nz=z<1.5?2:z<3?4:1;
+  FSZ.z=nz; FSZ.cx=nz===1?0.5:clamp(ix-fx/nz+0.5/nz,0.5/nz,1-0.5/nz); FSZ.cy=nz===1?0.5:clamp(iy-fy/nz+0.5/nz,0.5/nz,1-0.5/nz);   // (the point clicked stays under the pointer)
+  VIEW.classList.toggle("zmax",nz===4);
+  const a={...FSZA}, t0=performance.now(), id=++fsGlide;
+  const step=()=>{ if(id!==fsGlide) return; const u=Math.min(1,(performance.now()-t0)/260), k=u*u*(3-2*u), lz=Math.log(a.z)+(Math.log(FSZ.z)-Math.log(a.z))*k;
+    FSZA.z=Math.exp(lz); FSZA.cx=a.cx+(FSZ.cx-a.cx)*k; FSZA.cy=a.cy+(FSZ.cy-a.cy)*k;
+    if(FSZA.z>1.001) fsZoomDraw(); else { FSZA.z=1; refreshView(); } if(u<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step); });
 addEventListener("keydown",e=>{ const k=e.key.toLowerCase();
   if(k==="escape"){ exitFs(); return; } if(k==="f"){ if(isFs()) exitFs(); else enterFs(); return; }
   if(isFs()&&(k==="n"||k===" ")){ e.preventDefault(); return; }
-  if(k==="n"||k===" "){ e.preventDefault(); go(newSeed()); }
+  if(k==="n"||k===" "){ e.preventDefault(); newScene(); }
   else if(k==="s") save(); else if(k==="i") toggleLabel(); else if(k==="m") $("studio").classList.toggle("closed");
   else if(k==="arrowleft") travel(-1); else if(k==="arrowright") travel(1); });
-window.__nm={flowerSpec, generate, go, ST, objs:()=>OBJS, lights:()=>LIGHTS, objD, soft:softShadow, cam:()=>({EYE,FWD,RT,UPV,TW,TH,XC,YC,WALLZ}), shade:(o,x,y,z)=>objMat(o,x,y,z), scene:(sd,q)=>{ rand=makeRng(sd); CURSEED=sd; URLQ=q||''; initNoise(); buildScene(); return OBJS.map(o=>o.kind); }, dbg:()=>({objs:OBJS.concat(GLASS).map(o=>o.kind+' '+o.box.map(v=>v.toFixed(2)).join(',')), cam:{TW,TH,XC,YC,EYE}, times:TIMES})};
+window.__nm={flowerSpec, generate, go, camPreview, trace, objMat, ST, objs:()=>OBJS, lights:()=>LIGHTS, objD, soft:softShadow, cam:()=>({EYE,FWD,RT,UPV,TW,TH,XC,YC,WALLZ}), shade:(o,x,y,z)=>objMat(o,x,y,z), scene:(sd,q)=>{ rand=makeRng(sd); CURSEED=sd; URLQ=q||''; initNoise(); buildScene(); return OBJS.map(o=>o.kind); }, dbg:()=>({objs:OBJS.concat(GLASS).map(o=>o.kind+' '+o.box.map(v=>v.toFixed(2)).join(',')), cam:{TW,TH,XC,YC,EYE}, times:TIMES})};
 go(SEED);
 } else {
   /* worker: rebuild the scene exactly as the main thread does, then trace the bands asked for */

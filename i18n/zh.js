@@ -70,6 +70,7 @@ ui: {
 "shop.your-painting": "你的画",
 "shop.nothing-painted-yet": "还没有画",
 "shop.reference": "编号",
+"shop.in-development": "开发中",
 "shop.new-painting": "换一幅",
 "shop.full-screen": "全屏",
 "shop.your-own-arrangement": "由你摆布",

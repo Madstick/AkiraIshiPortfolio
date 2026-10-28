@@ -70,6 +70,7 @@ ui: {
 "shop.your-painting": "Tu cuadro",
 "shop.nothing-painted-yet": "Todavía no hay nada pintado",
 "shop.reference": "Referencia",
+"shop.in-development": "En desarrollo",
 "shop.new-painting": "Cuadro nuevo",
 "shop.full-screen": "Pantalla completa",
 "shop.your-own-arrangement": "Tu propio montaje",
