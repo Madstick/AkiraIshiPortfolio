@@ -309,9 +309,9 @@ a {
 }
 
 .hero-figure img {
+  display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
+  height: auto;          /* the picture whole, in its own format: nothing is cut */
 }
 
 .hero-figure figcaption {
@@ -356,9 +356,9 @@ a {
 }
 
 .shop-card-figure img {
+  display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+  height: auto;
 }
 
 .shop-platform {
@@ -690,7 +690,7 @@ html.atelier-noscroll .atelier { transform: none !important; transition: none !i
 .atelier-poster img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;   /* the whole painting, on the dark of the stage: nothing is cut */
   opacity: 0.55;
 }
 
