@@ -370,12 +370,18 @@ function createProjectCard(source, index, isFeatured = false) {
     
     const l2Tag = project.l2 ? `<span class="chronicle-l2">${project.l2}</span>` : '';
     const onchainTag = project.onchain ? `<span class="chronicle-onchain">${project.onchain}</span>` : '';
-    
+
+    // A project can carry a short looping video (webm) in place of its still image
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const media = project.videoUrl && !reduceMotion
+        ? `<video src="${project.videoUrl}" poster="${imageUrl}" class="chronicle-image chronicle-video" aria-label="${project.title}" autoplay muted loop playsinline preload="metadata"></video>`
+        : `<img src="${imageUrl}" alt="${project.title}" class="chronicle-image" loading="lazy" decoding="async">`;
+
     card.innerHTML = `
         <div class="chronicle-image-container">
             ${featuredBanner}
             ${statusBanner}
-            <img src="${imageUrl}" alt="${project.title}" class="chronicle-image" loading="lazy" decoding="async">
+            ${media}
         </div>
         <div class="chronicle-content">
             <div class="chronicle-tags">
@@ -647,7 +653,24 @@ function openProjectModal(source) {
     let imageUrl = project.imageUrl;
     
     // Populate modal content
-    document.getElementById('modal-image').src = imageUrl;
+    const modalImage = document.getElementById('modal-image');
+    const modalVideo = document.getElementById('modal-video');
+    modalImage.src = imageUrl;
+    if (modalVideo) {
+        const playVideo = project.videoUrl && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        if (playVideo) {
+            modalVideo.poster = imageUrl;
+            modalVideo.src = project.videoUrl;
+            modalVideo.style.display = 'block';
+            modalImage.style.display = 'none';
+            modalVideo.play().catch(() => {});
+        } else {
+            modalVideo.pause();
+            modalVideo.removeAttribute('src');
+            modalVideo.style.display = 'none';
+            modalImage.style.display = '';
+        }
+    }
     document.getElementById('modal-title').textContent = project.title;
     document.getElementById('modal-category').textContent = project.chain || project.category;
     
@@ -715,6 +738,8 @@ function closeModal() {
     const modal = document.getElementById('project-modal');
     modal.classList.remove('active');
     document.body.style.overflow = '';
+    const modalVideo = document.getElementById('modal-video');
+    if (modalVideo) modalVideo.pause();
 }
 
 /* ============================================
@@ -2092,21 +2117,23 @@ function initProvenanceTree() {
         // Row 1: Four Seasons, the root of everything
         { id: '80979178', title: 'Four Seasons', children: '128 children', image: 'images/tree/4seasonstree.webp', link: 'https://gamma.io/ordinals/collections/four-seasons', row: 1, col: 0, isRoot: true },
 
-        // Row 2: Akira Seal (centre) and Völker Seal, parked above the Technosignatures branch on the right
+        // Row 2: Akira Seal (centre) and Völker Seal, which sits straight above the Technosignatures Main Code
         { id: '83979554', title: 'Akira Ishi Artist Seal', image: 'images/tree/akira seal.webp', link: 'https://ordinals.com/inscription/83979554', row: 2, col: 0, parentId: '80979178' },
-        { id: '84070307', title: 'Völker Artist Seal', image: 'images/tree/volker.webp', link: 'https://ordinals.com/inscription/84070307', row: 2, col: 3, isRoot: true },
+        { id: '84070307', title: 'Völker Artist Seal', image: 'images/tree/volker.webp', link: 'https://ordinals.com/inscription/84070307', row: 2, col: 4, isRoot: true },
 
-        // Row 3: branches of the Akira seal, left to right - galleries, prints, 1/1, Beaties,
-        // then the whole Technosignatures structure kept on the far right so Beaties stays clear
-        { id: 'galleries', title: 'Galleries', row: 3, col: -7, parentId: '83979554', isCategory: true, noId: true },
+        // Row 3: branches of the Akira seal, left to right - galleries, prints, 1/1, Ossuary, Beaties,
+        // then the Technosignatures Main Code (also a child of the Völker seal) on the right.
+        // Each family is separated from the next by an empty column so no two families touch.
+        { id: 'galleries', title: 'Galleries', row: 3, col: -8, parentId: '83979554', isCategory: true, noId: true },
         { id: '90172797', title: 'Prints (Editions)', image: 'images/tree/prints.webp', link: 'https://ordinals.com/inscription/90172797', row: 3, col: -4, parentId: '83979554' },
         { id: '106846686', title: '1/1', image: 'images/tree/oneone.webp', link: 'https://ordinals.com/inscription/106846686', row: 3, col: -1, parentId: '83979554' },
         { id: 'c08fc18bd7bf9d7045e1c9272739bee611efe9197fafbb2ac09171320899dfc5i0', title: 'Beaties', image: 'images/tree/beaties.webp', link: 'https://ordinals.com/inscription/c08fc18bd7bf9d7045e1c9272739bee611efe9197fafbb2ac09171320899dfc5i0', row: 3, col: 1, parentId: '83979554' },
-        { id: '85153943', title: 'Technosignatures Main Code', image: '', link: 'https://ordinals.com/inscription/85153943', row: 3, col: 3, parentIds: ['83979554', '84070307'], isCode: true },
+        { id: 'ae0af2358c4ece4cdedd703a2348dd92cfb1ea8568def2c41a2e85dfcf1457c4i0', title: 'The Ossuary', children: '666 delegated', childrenBelow: true, image: 'images/tree/ossuary.webp', link: 'https://ordinals.com/inscription/ae0af2358c4ece4cdedd703a2348dd92cfb1ea8568def2c41a2e85dfcf1457c4i0', row: 3, col: 0, parentId: '83979554' },
+        { id: '85153943', title: 'Technosignatures Main Code', image: '', link: 'https://ordinals.com/inscription/85153943', row: 3, col: 4, parentIds: ['83979554', '84070307'], isCode: true },
 
         // Row 4: the collection galleries (the new ordinals way of gathering a collection)
-        { id: 'b92bd0c6e260a5bbeceebfbe597b9cc4cbc00988a73476d47b5b564f0a1847b8i0', title: 'Four Seasons Gallery', image: 'images/tree/four-seasons-gallery.webp', link: 'https://ordinals.com/inscription/b92bd0c6e260a5bbeceebfbe597b9cc4cbc00988a73476d47b5b564f0a1847b8i0', row: 4, col: -8, parentId: 'galleries', isGallery: true },
-        { id: '94821c4059562600ecd3982c53da3cc0efbeb3be601775a2e2be55e5dbd2512bi0', title: 'Technosignatures Gallery', image: 'images/tree/technosignatures-gallery.webp', link: 'https://ordinals.com/inscription/94821c4059562600ecd3982c53da3cc0efbeb3be601775a2e2be55e5dbd2512bi0', row: 4, col: -6, parentId: 'galleries', isGallery: true },
+        { id: 'b92bd0c6e260a5bbeceebfbe597b9cc4cbc00988a73476d47b5b564f0a1847b8i0', title: 'Four Seasons Gallery', image: 'images/tree/four-seasons-gallery.webp', link: 'https://ordinals.com/inscription/b92bd0c6e260a5bbeceebfbe597b9cc4cbc00988a73476d47b5b564f0a1847b8i0', row: 4, col: -9, parentId: 'galleries', isGallery: true },
+        { id: '94821c4059562600ecd3982c53da3cc0efbeb3be601775a2e2be55e5dbd2512bi0', title: 'Technosignatures Gallery', image: 'images/tree/technosignatures-gallery.webp', link: 'https://ordinals.com/inscription/94821c4059562600ecd3982c53da3cc0efbeb3be601775a2e2be55e5dbd2512bi0', row: 4, col: -7, parentId: 'galleries', isGallery: true },
 
         // Row 4: children of Prints (left) + Pumpkin (child of 1/1)
         { id: '90186667', title: 'Navigating the Trenches', image: 'images/tree/navigatingtree.webp', link: 'https://ordinals.com/inscription/90186667', row: 4, col: -5, parentId: '90172797' },
@@ -2117,16 +2144,16 @@ function initProvenanceTree() {
         { id: 'beaties-children', title: 'Beaties', children: '200 children', image: 'images/tree/beatieschildren.webp', link: 'https://beaties.xyz', row: 4, col: 1, parentId: 'c08fc18bd7bf9d7045e1c9272739bee611efe9197fafbb2ac09171320899dfc5i0', noId: true },
 
         // Technosignatures (child of Main Code)
-        { id: '85158696', title: 'Technosignatures', children: '128 delegated', image: 'images/tree/technosignaturestree.webp', link: 'https://technosignatures.xyz', row: 4, col: 3, parentId: '85153943' },
+        { id: '85158696', title: 'Technosignatures', children: '128 delegated', image: 'images/tree/technosignaturestree.webp', link: 'https://technosignatures.xyz', row: 4, col: 4, parentId: '85153943' },
 
-        // Row 5: 4 Pioneers (children of Main Code)
-        { id: '86357837', title: 'Pioneer', image: 'images/tree/pioneer86357837.webp', link: 'https://ordinals.com/inscription/86357837', row: 5, col: 4, parentIds: [ '85153943','85158696'] },
-        { id: '86312943', title: 'Pioneer', image: 'images/tree/pioneer86312943.webp', link: 'https://ordinals.com/inscription/86312943', row: 5, col: 5, parentIds: [ '85153943','85158696'] },
-        { id: '86187846', title: 'Pioneer', image: 'images/tree/pioneer86187846.webp', link: 'https://ordinals.com/inscription/86187846', row: 5, col: 6, parentIds: [ '85153943','85158696'] },
-        { id: '86291765', title: 'Pioneer', image: 'images/tree/pioneer86291765.webp', link: 'https://ordinals.com/inscription/86291765', row: 5, col: 7, parentIds: [ '85153943','85158696'] },
+        // Row 5: 4 Pioneers (children of Main Code and Technosignatures), two each side of the Main Code column
+        { id: '86357837', title: 'Pioneer', image: 'images/tree/pioneer86357837.webp', link: 'https://ordinals.com/inscription/86357837', row: 5, col: 2, parentIds: ['85153943', '85158696'] },
+        { id: '86312943', title: 'Pioneer', image: 'images/tree/pioneer86312943.webp', link: 'https://ordinals.com/inscription/86312943', row: 5, col: 3, parentIds: ['85153943', '85158696'] },
+        { id: '86187846', title: 'Pioneer', image: 'images/tree/pioneer86187846.webp', link: 'https://ordinals.com/inscription/86187846', row: 5, col: 5, parentIds: ['85153943', '85158696'] },
+        { id: '86291765', title: 'Pioneer', image: 'images/tree/pioneer86291765.webp', link: 'https://ordinals.com/inscription/86291765', row: 5, col: 6, parentIds: ['85153943', '85158696'] },
 
-        // Row 6: Special Tribute (child of all 4 pioneers + main code)
-        { id: '87721327', title: 'Special Tribute', image: 'images/tree/specialinscriptiontree.webp', link: 'https://ordinals.com/inscription/87721327', row: 6, col: 8, parentIds: ['85153943', '86357837', '86312943', '86187846', '86291765'] }
+        // Row 6: Special Tribute (child of all 4 pioneers + main code), back on the Main Code column
+        { id: '87721327', title: 'Special Tribute', image: 'images/tree/specialinscriptiontree.webp', link: 'https://ordinals.com/inscription/87721327', row: 6, col: 4, parentIds: ['85153943', '86357837', '86312943', '86187846', '86291765'] }
     ];
     
     // Calculate grid bounds - center around col 0
@@ -2134,13 +2161,8 @@ function initProvenanceTree() {
     const maxCol = Math.max(...nodes.map(n => n.col));
     const maxRow = Math.max(...nodes.map(n => n.row));
     
-    // Calculate columns needed on each side of center (col 0)
-    const colsLeft = Math.abs(minCol);
-    const colsRight = maxCol;
-    // Use the larger side to make grid symmetric around center
-    const maxSide = Math.max(colsLeft, colsRight);
-    const totalCols = maxSide * 2 + 1; // Equal columns on both sides + center
-    const centerCol = maxSide + 1; // 1-indexed center column
+    // The grid is exactly as wide as the tree; the scroll is centred on the root afterwards
+    const totalCols = maxCol - minCol + 1;
     
     // Build grid HTML with SVG for branches - use CSS custom properties for responsive sizing
     // Add extra row at top for title
@@ -2157,7 +2179,7 @@ function initProvenanceTree() {
         const codeClass = node.isCode ? ' code-node' : '';
         const galleryClass = node.isGallery ? ' gallery-node' : '';
         const categoryClass = node.isCategory ? ' category-node' : '';
-        const gridCol = node.col + centerCol; // col 0 maps to centerCol
+        const gridCol = node.col - minCol + 1; // 1-indexed grid column
         // Support both single parentId and multiple parentIds
         const parentData = node.parentIds ? node.parentIds.join(',') : (node.parentId || '');
         // held back until the tree scrolls into view (see the observer below)
@@ -2170,7 +2192,7 @@ function initProvenanceTree() {
                 <div class="node-info">
                     <span class="node-title">${node.title}</span>
                     ${node.noId ? '' : `<span class="node-id">#${shortId(node.id)}</span>`}
-                    ${node.children ? `<span class="node-children">${node.children}</span>` : ''}
+                    ${node.children ? `<span class="node-children${node.childrenBelow ? ' below' : ''}">${node.children}</span>` : ''}
                 </div>
             </div>
         `;
@@ -2228,14 +2250,19 @@ function initProvenanceTree() {
         });
     }
     
+    // Scroll sideways so the root (Four Seasons) sits in the middle of the view
+    function centreOnRoot() {
+        const rootEl = container.querySelector('.tree-node.root');
+        if (!rootEl || container.scrollWidth <= container.clientWidth) return;
+        const c = container.getBoundingClientRect();
+        const r = rootEl.getBoundingClientRect();
+        container.scrollLeft += (r.left + r.width / 2) - (c.left + c.width / 2);
+    }
+    
     // Draw branches after layout and on resize
     setTimeout(() => {
         drawBranches();
-        // Center the scrollbar horizontally
-        const scrollWidth = container.scrollWidth - container.clientWidth;
-        if (scrollWidth > 0) {
-            container.scrollLeft = scrollWidth / 2;
-        }
+        centreOnRoot();
     }, 100);
     let branchResizeTimer;
     window.addEventListener('resize', () => {
@@ -2252,11 +2279,7 @@ function initProvenanceTree() {
             });
             setTimeout(() => {
                 drawBranches();
-                // Center the scrollbar horizontally
-                const scrollWidth = container.scrollWidth - container.clientWidth;
-                if (scrollWidth > 0) {
-                    container.scrollLeft = scrollWidth / 2;
-                }
+                centreOnRoot();
             }, 50);
         }
     }, { threshold: 0, rootMargin: '300px 0px' });

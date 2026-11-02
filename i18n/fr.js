@@ -314,6 +314,20 @@ ui: {
 
 },
 projects: {
+13: {
+  description: "The Ossuary est un visage humain inscrit sur Bitcoin, qui meurt une seule fois. Chaque pièce est quelqu'un de différent, dessiné en code qui tombe, et dès son mint son horloge est la chaîne elle-même : bloc après bloc, il avance vers sa fin. Il commence comme un visage vivant qui cligne des yeux, respire, regarde autour de lui, sourit, chuchote et bâille. Puis l'heure vient, la chair tombe facette par facette, et il ne reste que le crâne, qui continue de vous regarder depuis ses orbites. Rien ne revient jamais.",
+  features: [
+    "Un visage unique par pièce : homme ou femme, forme du visage, cheveux, barbe, yeux, nez, lèvres, verrues, cicatrices, taches de rousseur, tatouages, boucles d'oreilles",
+    "L'heure vient 3 heures à 3 jours après le mint pour 7 pièces sur 10, jusqu'à un mois pour les autres, et la pièce ne dit jamais quand",
+    "La chair tombe en 3 jours à 3 semaines, et le visage continue de cligner jusqu'à la toute dernière facette",
+    "Puis le crâne se délite : 10 à 30 jours pour 6 pièces sur 10, environ deux ans pour 2 sur 10, 3 à 10 ans pour les autres",
+    "45 % à 80 % du crâne reste pour toujours on-chain ; les orbites et la mâchoire tiennent le plus longtemps",
+    "Tous les délais sont comptés en blocs Bitcoin (144 par jour) à partir du bloc où la pièce a été inscrite",
+    "Ouvrez les traits et faites glisser la barre d'archive pour voir n'importe quel moment de sa vie, ou un aperçu de ce qu'il deviendra",
+    "Sur les bords, des lettres d'une écriture inconnue surgissent et s'effacent. Elles écrivent quelque chose"
+  ],
+  conclusion: "Entièrement on-chain. Vit et meurt au rythme de la chaîne Bitcoin. Rien n'est jamais défait. Toute chair est temporaire. Ce qui reste demeure."
+},
 12: {
   description: "Beaties, c'est un groupe de poche qui joue sans fin. Neuf petits personnages, neuf instruments, scellés sur Bitcoin en un seul système vivant : on remonte le mécanisme et il joue un morceau sans fin, écrit sur le moment à partir d'un hash de bloc. Rien n'est samplé, rien n'est stocké : la musique et l'image se fabriquent en direct dans le navigateur à chaque ouverture du jouet, chaque écoute est donc un original. Sous le plastique de console des années 90 se cache une vraie écriture musicale : des mélodies tenues dans la gamme de chaque genre, des voix qui s'appellent et se répondent, des morceaux qui montent et qui cassent.",
   features: [

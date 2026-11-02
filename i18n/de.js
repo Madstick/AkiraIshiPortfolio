@@ -314,6 +314,20 @@ ui: {
 
 },
 projects: {
+13: {
+  description: "The Ossuary ist ein menschliches Gesicht, auf Bitcoin inskribiert, das nur ein einziges Mal stirbt. Jedes Stück ist jemand anderes, gezeichnet in fallendem Code, und ab dem Mint ist die Chain selbst seine Uhr: Block für Block bewegt es sich auf sein Ende zu. Es beginnt als lebendiges Gesicht, das blinzelt, atmet, sich umsieht, lächelt, flüstert und gähnt. Dann kommt die Stunde, das Fleisch fällt Facette für Facette ab, und nur der Schädel bleibt, der aus seinen Höhlen weiter auf dich blickt. Nichts kommt jemals zurück.",
+  features: [
+    "Ein einzigartiges Gesicht pro Stück: Mann oder Frau, Gesichtsform, Haare, Bart, Augen, Nase, Lippen, Warzen, Narben, Sommersprossen, Tattoos, Ohrringe",
+    "Die Stunde kommt bei 7 von 10 Stücken 3 Stunden bis 3 Tage nach dem Mint, bei den übrigen bis zu einem Monat, und das Stück verrät nie, wann",
+    "Das Fleisch fällt in 3 Tagen bis 3 Wochen ab, und das Gesicht blinzelt bis zur allerletzten Facette",
+    "Dann zerfällt der Schädel: 10 bis 30 Tage bei 6 von 10, etwa zwei Jahre bei 2 von 10, 3 bis 10 Jahre bei den übrigen",
+    "45 % bis 80 % des Schädels bleiben für immer on-chain; Augenhöhlen und Kiefer halten am längsten",
+    "Alle Zeiten werden in Bitcoin-Blöcken gezählt (144 pro Tag), ab dem Block, in dem das Stück inskribiert wurde",
+    "Öffne die Traits und ziehe den Archivbalken, um jeden Moment seines Lebens zu sehen, oder eine Vorschau darauf, was es werden wird",
+    "An den Rändern tauchen Buchstaben einer unbekannten Schrift auf und verblassen. Sie schreiben etwas"
+  ],
+  conclusion: "Vollständig on-chain. Lebt und stirbt im Takt der Bitcoin-Chain. Nichts wird je rückgängig gemacht. Alles Fleisch ist vergänglich. Was bleibt, bleibt."
+},
 12: {
   description: "Beaties ist eine Band für die Hosentasche, die ewig weiterspielt. Neun kleine Figuren, neun Instrumente, als ein lebendiges System auf Bitcoin versiegelt: einmal aufziehen, und sie spielt ein Stück ohne Ende, im Moment geschrieben aus einem Block-Hash. Nichts ist gesampelt und nichts gespeichert — Musik und Bild entstehen bei jedem Öffnen live im Browser, jede Aufführung ist also ein Original. Unter der Plastikoberfläche eines 90er-Handhelds steckt echte Komposition: Melodien innerhalb der Tonleiter des jeweiligen Genres, Stimmen, die sich rufen und antworten, Songs, die aufbauen und abreißen.",
   features: [

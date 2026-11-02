@@ -37,6 +37,27 @@ const projects = [
     link: "https://gamma.io/ordinals/prints/5addbcf2beb3f10a0d0c263585d65041d770bd4c9ddd3a18bd6050479b8f73a9i0"
   },
   {
+    id: 13,
+    title: "The Ossuary",
+    category: "bitcoin",
+    onchain: "On-chain",
+    videoUrl: "images/projects/ossuary.webm",
+    imageUrl: "images/projects/ossuary.webp",
+    description: "The Ossuary is a human face inscribed on Bitcoin that dies once. Every piece is someone different, drawn in falling code, and from the moment it is minted its clock is the chain itself: block by block, it moves toward its end. It starts as a living face that blinks, breathes, looks around, smiles, whispers and yawns. Then the hour comes, the flesh falls away facet by facet, and only the skull remains, still watching from its sockets. Nothing ever comes back.",
+    features: [
+      "A unique face per piece: man or woman, face shape, hair, beard, eyes, nose, lips, warts, scars, freckles, tattoos, earrings",
+      "The hour comes 3 hours to 3 days after mint for 7 in 10 pieces, up to a month for the rest, and the piece never says when",
+      "The flesh falls in 3 days to 3 weeks, and the face keeps blinking until the very last facet drops",
+      "Then the skull rots: 10 to 30 days for 6 in 10, about two years for 2 in 10, 3 to 10 years for the rest",
+      "45% to 80% of the skull remains forever on-chain; the eye sockets and the jaw hold out longest",
+      "All times are counted in Bitcoin blocks (144 a day) from the block the piece was inscribed in",
+      "Open the traits and drag the archive bar to see any moment of its life, or a preview of what it will become",
+      "Along the edges, letters in an unknown script surface and fade. They spell something"
+    ],
+    conclusion: "Fully on-chain. Lives and dies by the Bitcoin chain. Nothing is ever undone. All flesh is temporary. What remains stays.",
+    link: "https://ord-dropz.xyz/marketplace/listing_1793486870975"
+  },
+  {
     id: 12,
     title: "Beaties",
     category: "bitcoin",

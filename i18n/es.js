@@ -314,6 +314,20 @@ ui: {
 
 },
 projects: {
+13: {
+  description: "The Ossuary es un rostro humano inscrito en Bitcoin que muere una sola vez. Cada pieza es alguien distinto, dibujado con código que cae, y desde su mint su reloj es la propia cadena: bloque a bloque, avanza hacia su final. Empieza como un rostro vivo que parpadea, respira, mira a su alrededor, sonríe, susurra y bosteza. Luego llega la hora, la carne se desprende faceta a faceta y solo queda el cráneo, que sigue mirándote desde sus cuencas. Nada vuelve jamás.",
+  features: [
+    "Un rostro único por pieza: hombre o mujer, forma de la cara, pelo, barba, ojos, nariz, labios, verrugas, cicatrices, pecas, tatuajes, pendientes",
+    "La hora llega entre 3 horas y 3 días después del mint en 7 de cada 10 piezas, y hasta un mes en el resto, y la pieza nunca dice cuándo",
+    "La carne cae en 3 días a 3 semanas, y el rostro sigue parpadeando hasta que cae la última faceta",
+    "Después el cráneo se degrada: 10 a 30 días en 6 de cada 10, unos dos años en 2 de cada 10, 3 a 10 años en el resto",
+    "Del 45 % al 80 % del cráneo permanece para siempre on-chain; las cuencas y la mandíbula resisten más",
+    "Todos los plazos se cuentan en bloques de Bitcoin (144 al día) desde el bloque en que se inscribió la pieza",
+    "Abre los rasgos y arrastra la barra de archivo para ver cualquier momento de su vida, o una vista previa de lo que llegará a ser",
+    "En los bordes, letras de una escritura desconocida surgen y se desvanecen. Escriben algo"
+  ],
+  conclusion: "Totalmente on-chain. Vive y muere al ritmo de la cadena de Bitcoin. Nada se deshace jamás. Toda carne es temporal. Lo que queda permanece."
+},
 12: {
   description: "Beaties es una banda de bolsillo que toca sin parar. Nueve personajes pequeños, nueve instrumentos, sellados en Bitcoin como un solo sistema vivo: le das cuerda y suena una canción sin final, escrita en el momento a partir del hash de un bloque. Nada está sampleado y nada está guardado: la música y la imagen se construyen en vivo en el navegador cada vez que abres el juguete, así que cada interpretación es un original. Bajo el plástico de consola noventera hay composición de verdad: melodías dentro de la escala de cada género, voces que se llaman y se responden, canciones que suben y rompen.",
   features: [

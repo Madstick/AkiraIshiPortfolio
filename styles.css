@@ -728,6 +728,12 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   transform: scale(1.05);
 }
 
+/* Portrait video thumbnails are shown whole, on black, rather than cropped to the square */
+.chronicle-video {
+  object-fit: contain;
+  background: #000;
+}
+
 .chronicle-content {
   padding: 1.5rem;
 }
@@ -1919,6 +1925,15 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   top: 50%;
   transform: translateX(100%) translateY(-50%);
   white-space: nowrap;
+}
+
+/* For a node squeezed between two neighbours: the count sits under the node instead */
+.node-children.below {
+  right: auto;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  margin-top: 4px;
 }
 
 

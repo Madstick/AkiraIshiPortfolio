@@ -135,7 +135,7 @@
         <div class="trow" data-k="books"><span>Books</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">Without</button></div>
       </div>
       <button class="sec" data-sec="sx-flower">Flowers</button>
-      <div class="secbox things" id="sx-flower"><div class="trow" data-k="flowers"><span>Flowers</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">None</button></div><div class="sub" style="margin-top:6px"><i>which · tap: with · again: without</i></div><div class="chips" id="st-flower"></div></div>
+      <div class="secbox things" id="sx-flower"><div class="trow" data-k="flowers"><span>Flowers</span><button data-v="">Auto</button><button data-v="1">With</button><button data-v="0">None</button></div><div class="trow" data-k="bouquet" style="margin-top:4px"><span>Bouquet</span><button data-v="" title="packed tight, with flowers filling the gaps so no stems show">Compact</button><button data-v="normal" title="looser, the stems showing">Normal</button></div><div class="sub" style="margin-top:6px"><i>which · tap: with · again: without</i></div><div class="chips" id="st-flower"></div></div>
       <button class="sec" data-sec="sx-fruit">Fruit <i>· up to 5</i></button>
       <div class="secbox things" id="sx-fruit"><div class="trow seven" data-k="fruitn"><span>Fruit</span><button data-v="">Auto</button><button data-v="none" title="no fruit at all">None</button><button data-v="1">1</button><button data-v="3">3</button><button data-v="6">6</button><button data-v="10">10</button><button data-v="15">15</button></div><div class="sub" style="margin-top:6px"><i>which · tap: with · again: without</i></div><div class="chips" id="st-fruit"></div></div>
       <button class="sec" data-sec="sx-veg">Nuts and vegetables</button>
@@ -843,15 +843,15 @@ function addLeaf(x,z,ang,kind){
 /* =============================================================================
    FLOWERS — seven kinds (rose, tulip, daisy, sunflower, peony, lily, poppy), put in the vases, after the flower painters:
    heads as big as the painters make them, solid and soft-edged, one colour to a bouquet. A tulip is a closed egg of six
-   petals; a peony a loose ball of crumpled petals in a ring of broad guard petals; a poppy an open crinkled bowl with its
-   black blotch; a rose a tight spiralled heart in a few opened petals; daisies, lilies and sunflowers rings of petals,
+   petals; a peony a full globe of many ruffled petals, ring inside ring, on broad open guard petals, gold flecks in its deep; a poppy an open crinkled bowl with its
+   black blotch; a rose few broad smooth petals rolling back outside, wrapped tight into a high heart inside; daisies, lilies and sunflowers rings of petals,
    each petal tipped its own way. Poppies come with a few blue spires among them. Everything is drawn from the flower's
    own stream: a picture that has none is exactly the picture the seed always gave.
    ========================================================================== */
 const FLOWER_KINDS={rose:3,tulip:2.2,daisy:1.5,sunflower:1.2,peony:1.8,lily:1.5,poppy:1.6};
 const FLOWER_NAMES={rose:["a rose","roses"],tulip:["a tulip","tulips"],daisy:["a daisy","daisies"],sunflower:["a sunflower","sunflowers"],
   peony:["a peony","peonies"],lily:["a lily","lilies"],poppy:["a poppy","poppies"]};
-const FLOWER_N={rose:[5,8],tulip:[3,6],daisy:[7,11],sunflower:[6,9],peony:[4,6],lily:[3,5],poppy:[8,12]};   // as many as in the paintings
+const FLOWER_N={rose:[5,8],tulip:[3,6],daisy:[7,11],sunflower:[6,9],peony:[6,8],lily:[3,5],poppy:[8,12]};   // as many as in the paintings
 const FLOWER_COLS={rose:["red","pink","white","yellow","apricot"],tulip:["red","yellow","pink","white","purple","orange"],daisy:["white","pink-tipped"],
   sunflower:["",""],peony:["pink","white","coral","crimson"],lily:["white","orange","pink"],poppy:["red","orange","pink"]};
 const FLOWER_VW={rose:[3,3,2,1,1],tulip:[3,2,2,1,2,2],daisy:[5,1.2],sunflower:[1,1],peony:[3,3,1.5,1.2],lily:[3,1.5,1.5],poppy:[5,1.5,1.2]};   // the colour a bouquet is, most often as painted
@@ -859,8 +859,8 @@ const PS={t:0,q:0,hw:0,surf:0,thl:0};
 /* u along the petal (0..L), w across it, v through it */
 function petalSheet(u,w,v,L,W,th,pt,cup,bend,fr,fa){
   // (pt < 0: a strap, as a daisy's ray: narrow at the foot, then even, the end rounded off)
-  const t=u<0?0:u>L?1:u/L, s=Math.sin(Math.PI*t), hw=(pt<0?W*Math.pow(Math.min(1,t/0.2),0.55)*(t>0.8?Math.pow(Math.max(0,1-((t-0.8)/0.2)**2),0.35):1):W*(Math.sqrt(s)*(1-pt)+s*pt))+1e-4, q=Math.min(1,Math.abs(w)/hw);
-  const surf=cup*w*w/W+bend*u*u+(fr?fr*q*q*Math.sin(u*fa+w*fa*0.8):0), thl=th*(1-0.5*t);
+  const t=u<0?0:u>L?1:u/L, t4=t*(1-t), s=16*t4/(5-4*t4), hw=(pt<0?W*Math.pow(Math.min(1,t/0.2),0.55)*(t>0.8?Math.pow(Math.max(0,1-((t-0.8)/0.2)**2),0.35):1):W*(Math.sqrt(s)*(1-pt)+s*pt))+1e-4, q=Math.min(1,Math.abs(w)/hw);
+  const surf=cup*w*w/W+bend*u*u+(fr&&q>0.15?fr*q*q*Math.sin(u*fa+w*fa*0.8):0), thl=th*(1-0.5*t);
   PS.t=t; PS.q=q; PS.hw=hw; PS.surf=surf; PS.thl=thl;
   return Math.max(Math.abs(v-surf)-thl, Math.abs(w)-hw, -u, u-L);
 }
@@ -872,38 +872,49 @@ function tuck(u,w,v,L,hw,surf,thl,gap,K){ return Math.max(Math.abs(w)-hw,-u,u-L,
    neighbours alike (a slow wave round the ring); lift: the whole ring raised off the one below along the petals' own
    normal; sway, twist, wav: each petal bent a little sideways, twisted along its length and rippled, so none is a stiff
    flat blade. Two neighbours in a ring, and a ring and the one under it, overlap only by tucking (above) */
-function ringOf(o){ const r=Object.assign({n:5,ph:0,r0:0.02,y0:0,L:0.15,W:0.07,th:0.006,tau:60,tj:0,lift:0,sway:0,twist:0,wav:0,bj:0,cup:0,bend:0,pt:0,fr:0,fa:30,lv:0.28,seed:0,part:"petal"},o), a=r.tau*Math.PI/180;
+function ringOf(o){ const r=Object.assign({n:5,ph:0,r0:0.02,y0:0,L:0.15,W:0.07,th:0.006,tau:60,tj:0,lift:0,sway:0,twist:0,wav:0,bj:0,cup:0,bend:0,pt:0,fr:0,fa:30,lv:0.28,seed:0,part:"petal",fk:0.65},o), a=r.tau*Math.PI/180;
   r.c=2*Math.PI/r.n; r.ct=Math.cos(a); r.st=Math.sin(a); if(r.layer===undefined) r.layer=r.lift+r.y0;
   const m=0.04+Math.abs(r.bend)*r.L*r.L*(1+r.bj)+Math.abs(r.cup)*r.W+r.fr+r.L*Math.sin(r.tj*Math.PI/360)+r.lift+(r.sway+r.wav)*r.L;
-  r.yh=r.y0+Math.max(0,r.L*r.st)+r.W*0.6+m; r.yl=r.y0+Math.min(0,r.L*r.st)-r.W*0.6-m; r.rh=r.r0+Math.max(0,r.L*r.ct)+r.W*0.9+m; return r; }
+  r.yh=r.y0+Math.max(0,r.L*r.st)+r.W*0.6+m; r.yl=r.y0+Math.min(0,r.L*r.st)-r.W*0.6-m; r.rh=r.r0+Math.max(0,r.L*r.ct)+r.W*0.9+m;
+  // the ring's profile in (radius, height), and how far any of its petals can stray from it: a point well off this band is nowhere near the ring
+  const Lx=r.L*(1+r.lv/2), bn=Math.abs(r.bend); r.pr=[]; for(let i=0;i<4;i++){ const u=Lx*i/3, off=r.lift+r.bend*u*u; r.pr.push(r.r0+u*r.ct-off*r.st, r.y0+u*r.st+off*r.ct); }
+  r.m2=0.02+bn*Lx*Lx*(r.bj+0.02)+Math.abs(r.cup)*r.W+r.fr+Lx*Math.sin(r.tj*0.93*Math.PI/180)+(r.wav+0.3*r.sway)*Lx+r.twist*r.W*1.3+Math.min(r.W*1.25,r.W*r.W/(r.r0+0.3*r.L)); return r; }
+function ringGap(R,ro,y){ const p=R.pr; let m=1e9; for(let i=0;i<6;i+=2){ const ax=p[i], ay=p[i+1], bx=p[i+2]-ax, by=p[i+3]-ay, px=ro-ax, py=y-ay, t=Math.max(0,Math.min(1,(px*bx+py*by)/(bx*bx+by*by+1e-12))), ex=px-bx*t, ey=py-by*t, e=ex*ex+ey*ey; if(e<m) m=e; } return Math.sqrt(m)-R.m2; }
 /* (dev: when PDBG is an array, every petal looked at pushes its id and its own distance, for the clipping probe) */
 let PDBG=null;
-const RC=[]; for(let i=0;i<16;i++) RC.push({d:0,u:0,w:0,v:0,L:0,hw:0,surf:0,thl:0,t:0,q:0,jj:0,jm:0,hv:0,k:0,R:null,cut:false});
+const RC=[]; for(let i=0;i<16;i++) RC.push({d:0,u:0,w:0,v:0,L:0,hw:0,surf:0,thl:0,t:0,q:0,jj:0,jm:0,hv:0,k:0,R:null,cut:false,out:0});
+function petalOver(A,B){ if(B.R.part==="sepal") return false; if(B.k===A.k){ const lo=A.i===0?(A.sg>0?A.jm:B.jm):(A.sg>0?B.jm:A.jm); return (A.R.tab[lo].up?lo:((lo+1)%A.R.n))===B.jm; } return B.R.layer>A.R.layer; }   // (neighbours: which of the pair lies on top is the petal's own, each pair decided once)
 /* the nearest petal of any ring: distance, and which ring / where on the petal for its colour */
-function evalRings(rings,x,y,z,O){ const ro=Math.hypot(x,z), al=Math.atan2(z,x); let best=1e9, nc=0;
+function evalRings(rings,x,y,z,O){ const ro=Math.hypot(x,z), al=Math.atan2(z,x); let best=1e9, nc=0, nb_=-1, sk=0;
+  // first only the rings that could be the nearest; beside a petal, the others within reach of a tuck as well
+  for(let pass=0;pass<2;pass++){ if(pass&&(best>0.0078||!sk)&&!PDBG) break;
   for(let k=0;k<rings.length;k++){ const R=rings[k];
-    const dr=Math.max(0,ro-R.rh), dy=Math.max(R.yl-y,y-R.yh,0); if(0.5*Math.hypot(dr,dy)>=Math.max(best,0.06*R.L/0.15)) continue;
+    if(pass===0&&!PDBG){ if(ringGap(R,ro,y)*R.fk>=best){ sk|=1<<k; continue; } } else if(pass&&PDBG) continue; else if(pass&&!(sk>>k&1)) continue;
+    if(pass||PDBG){ const dr=Math.max(0,ro-R.rh), dy=Math.max(R.yl-y,y-R.yh,0); if(0.5*Math.hypot(dr,dy)>=Math.max(best,0.06*R.L/0.15)) continue; }
     const a0=al-R.ph, j0=Math.round(a0/R.c), a=a0-j0*R.c, sg=a>=0?1:-1;
     if(!R.tab){ R.tab=[];   // each petal's own tilt, length, sway, twist and bend, worked out once (not at every step of every ray)
       for(let jm=0;jm<R.n;jm++){ let ct=R.ct, st=R.st; if(R.tj){ const ta=(R.tau+R.tj*(0.85*Math.sin(jm/R.n*6.283*2+R.seed)*0.5+0.6*noise3(jm*0.9+R.seed,k*3.7,0.5)+0.15*(hash3i(jm+R.seed,k,9)-0.5)))*Math.PI/180; ct=Math.cos(ta); st=Math.sin(ta); }
-        R.tab.push({ct,st,hv:1-R.lv/2+R.lv*hash3i(jm+R.seed,k,7),h2:hash3i(jm+R.seed,k,11)-0.5,h3:hash3i(jm+R.seed,k,13)-0.5,bf:1+R.bj*(hash3i(jm+R.seed,k,15)-0.5)*2,up:hash3i(jm+R.seed,k,21)<0.5}); } }
-    for(let i=0;i<2;i++){ const aa=i?a-sg*R.c:a, jj=j0+(i?sg:0), jm=((jj%R.n)+R.n)%R.n, T_=R.tab[jm], hv=T_.hv, ct=T_.ct, st=T_.st;
-      const p=ro*Math.cos(aa), w0=ro*Math.sin(aa), u0=p-R.r0, v0=y-R.y0, u=u0*ct+v0*st; let v=-u0*st+v0*ct-R.lift, w=w0;
+        const ax=R.ph+jm*R.c; R.tab.push({cp:Math.cos(ax),sp:Math.sin(ax),ct,st,hv:1-R.lv/2+R.lv*hash3i(jm+R.seed,k,7),h2:hash3i(jm+R.seed,k,11)-0.5,h3:hash3i(jm+R.seed,k,13)-0.5,bf:1+R.bj*(hash3i(jm+R.seed,k,15)-0.5)*2,up:hash3i(jm+R.seed,k,21)<0.5}); } }
+    for(let i=0;i<2;i++){ const jj=j0+(i?sg:0), jm=((jj%R.n)+R.n)%R.n, T_=R.tab[jm], hv=T_.hv, ct=T_.ct, st=T_.st;
+      const p=x*T_.cp+z*T_.sp, w0=-x*T_.sp+z*T_.cp, u0=p-R.r0, v0=y-R.y0, u=u0*ct+v0*st; let v=-u0*st+v0*ct-R.lift, w=w0;
       const L=R.L*hv, tt=clamp(u/L,0,1);
+      { const rim=R.W*1.3+(R.sway*L+0.012), gap=Math.max(Math.abs(w0)-rim,u-L-0.03,-u-0.03)-0.02; if(nc>0&&gap*0.65>best) continue; }   // (a petal plainly further off than one already found: not worked out; it can cut nothing here either)
       if(R.sway||R.twist||R.wav){ w-=R.sway*2*T_.h2*L*tt*tt; v-=R.twist*2*T_.h3*w*tt+R.wav*L*Math.sin(tt*5.5+T_.h3*9)*tt; }
       const C=RC[nc++]; C.d=petalSheet(u,w,v,L,R.W*(0.9+0.2*hv),R.th,R.pt,R.cup,R.bend*T_.bf,R.fr,R.fa);
-      C.u=u;C.w=w;C.v=v;C.L=L;C.hw=PS.hw;C.surf=PS.surf;C.thl=PS.thl;C.t=PS.t;C.q=PS.q;C.jj=jj;C.jm=jm;C.hv=hv;C.k=k;C.R=R;C.i=i;C.sg=sg;
-      if(C.d*0.65<best) best=C.d*0.65; } }
-  // the tucks: each petal cut by every petal lying over it (its neighbour on the upper side, the petals of the ring above)
+      C.u=u;C.w=w;C.v=v;C.L=L;C.hw=PS.hw;C.surf=PS.surf;C.thl=PS.thl;C.t=PS.t;C.q=PS.q;C.out=Math.max(Math.abs(w)-PS.hw,-u,u-L);C.jj=jj;C.jm=jm;C.hv=hv;C.k=k;C.R=R;C.i=i;C.sg=sg;
+      if(C.d*R.fk<best){ best=C.d*R.fk; nb_=nc-1; } } } }
+  // not yet right beside a petal: the tucks only ever take material away, so the distance found is safe as it is, and they need not be worked out
+  if(best>0.0078&&nb_>=0&&!PDBG){ const A=RC[nb_]; O.k=A.k; O.t=A.t; O.q=A.q; O.w=A.w; O.v=A.v; O.j=A.jj; O.hv=A.hv; O.part=A.R.part; return best; }
+  // the tucks: each petal cut by every petal lying over it (its neighbour on the upper side, the petals of the ring above).
+  // A petal is only cut by one that is itself there: where B hides under C and A under B, A stays, or that spot would be
+  // cut from both and a hole would show right through the flower. (B.out: outside B's outline it can cut nothing)
+  for(let a=0;a<nc;a++){ const A=RC[a]; A.cut=false; if(A.R.part==="sepal"||A.d>=0.05*A.R.L/0.15) continue;
+    for(let b=0;b<nc;b++){ if(b===a) continue; const B=RC[b]; if(B.out>=-A.d||!petalOver(A,B)) continue; if(-tuck(B.u,B.w,B.v,B.L,B.hw,B.surf,0,0.2*B.thl,B.L*0.3)>A.d){ A.cut=true; break; } } }
   best=1e9;
-  for(let a=0;a<nc;a++){ const A=RC[a]; if(A.R.part==="sepal"){ const d=A.d*0.65; if(d<best){ best=d; O.k=A.k; O.t=A.t; O.q=A.q; O.w=A.w; O.v=A.v; O.j=A.jj; O.hv=A.hv; O.part=A.R.part; } continue; }
+  for(let a=0;a<nc;a++){ const A=RC[a]; if(A.R.part==="sepal"){ const d=A.d*A.R.fk; if(d<best){ best=d; O.k=A.k; O.t=A.t; O.q=A.q; O.w=A.w; O.v=A.v; O.j=A.jj; O.hv=A.hv; O.part=A.R.part; } continue; }
     let d=A.d;
-    if(d<0.05*A.R.L/0.15) for(let b=0;b<nc;b++){ if(b===a) continue; const B=RC[b]; if(B.R.part==="sepal") continue; let over=false;
-      if(B.k===A.k){ // neighbours: which of the pair lies on top is the petal's own (each pair decided once)
-        const lo=A.i===0?(A.sg>0?A.jm:B.jm):(A.sg>0?B.jm:A.jm); over=(A.R.tab[lo].up?lo:((lo+1)%A.R.n))===B.jm; }
-      else over=B.R.layer>A.R.layer;
-      if(over){ const c=tuck(B.u,B.w,B.v,B.L,B.hw,B.surf,0,0.2*B.thl,B.L*0.3); if(-c>d) d=-c; } }
-    d*=0.65; if(PDBG) PDBG.push(A.k*1000+A.jm,d/0.65);
+    if(A.cut) for(let b=0;b<nc;b++){ if(b===a) continue; const B=RC[b]; if(B.cut||B.out>=-d||!petalOver(A,B)) continue; const c=tuck(B.u,B.w,B.v,B.L,B.hw,B.surf,0,0.2*B.thl,B.L*0.3); if(-c>d) d=-c; }
+    d*=A.R.fk; if(PDBG) PDBG.push(A.k*1000+A.jm,d/A.R.fk);
     if(d<best){ best=d; O.k=A.k; O.t=A.t; O.q=A.q; O.w=A.w; O.v=A.v; O.j=A.jj; O.hv=A.hv; O.part=A.R.part; } }
   return best; }
 /* cellular noise in 3-D: nearest and second-nearest distance, and the nearest cell */
@@ -1008,22 +1019,22 @@ function flowerSpec(kind,s,V,Hh){
       let c=mixc(C(204,112,10),C(246,186,26),smooth(0,0.6,O.t)); c=mixc(c,C(252,210,70),O.q*0.3*(V%2?0.5:1)); c=c.map(v=>v*(0.94+0.08*O.hv)); return M(c,{ks:0.1,gl:14,wrap:0.5,ss:0.55}); };
   }
   else if(kind==="peony"){
-    // a ball of crumpled petals (cells of a 3-D cellular noise, each swelling) in a ring of broad, cupped guard petals
-    const cy=0.17*s, ra=0.27*s, rb=0.21*s;
-    sp.rings.push(RO({n:7,ph:H(1)*6,r0:0.09*s,y0:0.02*s,L:0.23*s,W:0.2*s,th:0.011*s,tau:22,tj:14,sway:0.08,twist:0.5,wav:0.03,bj:0.4,cup:0.8,bend:0.9,pt:0,fr:0.012,fa:28,seed:23,part:"guard"}));
-    sp.head=(x,y,z,O)=>{ let d=evalRings(sp.rings,x,y,z,O);
-      const px=x/ra, py=(y-cy)/rb, pz=z/ra, b=sdEllipsoid(x,y-cy,z,ra,rb,ra);
-      if(b<0.08*s){ const wq=noise3(px*2+off,py*2,pz*2)*0.3, vr=voronoi3(px*1.15+off+wq,py*1.8,pz*1.15-wq,7), e=vr.f2-vr.f1, crk=noise3(px*5+off,py*5,pz*5);
-        const f=smooth(0,0.8,e), ball=(b-0.05*s*Math.sqrt(f)+0.006*s*crk)*0.65;   // each cell a petal's rounded crest; a fold where two meet
-        if(ball<d){ d=ball; O.part="ball"; O.e=e; O.j=vr.id; O.t=clamp(py*0.5+0.5,0,1); } }
-      else if(b<d){ d=b; O.part="ball"; O.e=0.3; O.j=0; O.t=0.5; }
-      return d; };
-    sp.Rb=0.4*s; sp.yc=0.16*s; sp.stemR=0.02; sp.leaf={type:"peony",n:2,len:0.2,wid:0.075}; sp.leafC=C(62,94,48);
-    const pal=[[C(206,106,142),C(250,204,216)],[C(220,206,192),C(254,250,244)],[C(218,98,84),C(250,178,152)],[C(140,24,64),C(212,80,124)]][V%4];
-    sp.mat=(O)=>{ let c;
-      if(O.part==="guard") c=mixc(pal[0],pal[1],0.25+0.55*smooth(0.1,1,O.t));
-      else { const crest=smooth(0.0,0.5,O.e), h=hash3i(O.j,3,5); c=mixc(pal[0],pal[1],0.45+0.45*crest*(0.75+0.25*h)+0.1*O.t); c=mixc(c,pal[0],smooth(0.08,0,O.e)*0.3); }   // soft: pale crests, the folds only a little deeper }   // deep in the folds, pale on the crests
-      return M(c,{ks:0.08,gl:12,wrap:0.75,ss:0.85}); };
+    // after the paintings: a full globe of many ruffled petals, ring inside ring, broad open guard petals outside, each ring
+    // nearer upright and curling further in over the heart, tips and edges pale, folds deep, some petals with a lilac cast,
+    // a warm golden glow low in the middle. No two cross (the rings tuck, as every petalled flower here)
+    const op=H(2), B=s/1.4, Tr=[[6,0.105,-0.03,0.25,0.2,20,0.9,0.024],[8,0.1,-0.01,0.27,0.165,22,1.3,0.02],[9,0.09,0.01,0.245,0.14,38,1.9,0.018],[9,0.075,0.025,0.22,0.125,52,2.5,0.016],[9,0.115,0.195,0.135,0.082,46,1.3,0.019],[9,0.095,0.215,0.125,0.07,56,1.5,0.018],[8,0.075,0.232,0.105,0.058,64,1.5,0.016],[7,0.058,0.245,0.085,0.044,70,1.2,0.013]];   // (the last four come up through the top of the heart, a ruff of small petals round the pistil)
+    Tr.forEach((t,k)=>{ const [n,r0,y0,L,W,tau,bn,fr]=t; sp.rings.push(RO({n,ph:H(10+k)*6.283,r0:r0*s,y0:y0*s,L:L*s*(k>4?1.12-0.12*op:1),W:W*s,th:0.0065*s,tau:tau-(k>0?10*op:0),tj:k?19:24,lift:k*0.004*s,sway:0.17,twist:0.85,wav:0.055,bj:0.6,cup:0.55,bend:bn/B*(k?1:0.3*(H(30)<0.5?-1:1)),pt:0.25,fr:fr*1.6*s,fa:38/s,lv:0.48,fk:0.76,seed:23+k*17,part:"petal"})); });
+    const crx=0.2*s, cry=0.15*s, cyy=0.12*s;   // (the heart of the flower: solid, so the petals lie on a full globe and no hollow shows through them)
+    sp.head=(x,y,z,O)=>{ let d=evalRings(sp.rings,x,y,z,O); const e=(sdEllipsoid(x,y-cyy,z,crx,cry,crx)+0.012*s*noise3(x*22/s+off,y*22/s,z*22/s))*0.7; if(e<d){ d=e; O.part="core"; O.t=clamp((y-cyy)/cry,0,1); } return d; };
+    sp.lit=O=>O.part==="core"?0.07+0.2*smooth(0.75,0.95,O.t):O.k>=Tr.length-2?0.035+0.11*(1-smooth(0,0.4,O.t)):0.035+0.045*(1-O.t);   // (the gold at the very middle lit from within, or the small petals round it would hide it in shadow)
+    sp.Rb=0.5*s; sp.yc=0.13*s; sp.stemR=0.02; sp.leaf={type:"peony",n:2,len:0.2,wid:0.075}; sp.leafC=C(62,94,48);
+    const [deep,mid,pale,lil,gold]=[[C(176,36,96),C(226,92,146),C(250,190,208),C(150,84,176),C(244,170,74)],[C(190,140,132),C(234,212,198),C(254,250,244),C(196,178,206),C(240,200,110)],[C(200,60,60),C(238,116,100),C(254,196,172),C(214,110,130),C(248,184,84)],[C(104,8,48),C(170,26,80),C(226,92,136),C(104,30,100),C(214,120,64)]][V%4], NR=Tr.length-1;
+    sp.mat=(O)=>{ if(O.part==="core"){ const fk=smooth(0.22,0.42,noise3(O.x*46/s+off,O.y*46/s,O.z*46/s)); return M(mixc(mixc(deep,mid,0.6),gold,smooth(0.78,0.95,O.t)*(0.35+0.65*fk)),{ks:0.06,gl:10,wrap:0.7,ss:0.6}); }   // (the stamens: only a hint of gold, right in the middle)
+      const k=O.k, dp=k/NR, h=hash3i(O.j|0,k,5), h2=hash3i(O.j|0,k,8), st=noise3((O.w||0)*46/s+h*9,O.t*3.2,k*2.3);   // how far in, this petal's own, the veins running up it
+      let c=mixc(deep,mid,smooth(0.0,0.42+0.3*dp,O.t)); c=mixc(c,pale,clamp(smooth(0.45,1,O.t)*(0.8-0.45*dp)+0.3*O.q*O.q*smooth(0.3,0.8,O.t),0,1));   // deep at the foot, pale at the tip and along the edge
+      c=mixc(c,lil,smooth(0.62,1,h2)*0.3); c=c.map(v=>v*(0.93+0.13*h)); c=mixc(c,st>0?pale:deep,Math.abs(st)*0.32);
+      if(k>=NR-1) c=mixc(c,gold,(1-smooth(0.0,0.35,O.t))*(k===NR?0.55:0.3));                         // a touch of gold caught at the foot of the innermost
+      return M(c,{ks:0.08,gl:12,wrap:0.7,ss:0.8}); };
   }
   else if(kind==="lily"){
     // the long trumpet of a white lily: six tepals on a bell that flares at its mouth, the three inner ones a little smaller and
@@ -1103,50 +1114,26 @@ function flowerSpec(kind,s,V,Hh){
     const pal=[[C(60,52,150),C(116,104,206)],[C(110,60,150),C(170,120,210)]][V%2];
     sp.mat=(O)=>{ let c=mixc(pal[0],pal[1],0.3+0.5*noise3(O.x*80/s,O.y*80/s,O.z*80/s)); c=mixc(c,C(120,140,80),smooth(0.75,1,O.t)*0.6); return M(c,{ks:0.1,wrap:0.5,ss:0.5}); };
   }
-  else{ // rose: a full, open garden rose, built like the tulip: each ring of petals is a shell (a shallow bowl, y = a + b·ρ²),
-    // the inner rings higher AND steeper than the one outside them, so two rings can never cross; a petal is a rounded sector
-    // of its ring's bowl, overlapping its neighbours a little (each a hair higher or lower, so their edges show); the two
-    // outer rings roll back at the rim, away from the rings inside; a small spiralled heart in the middle
-    const RR=[[6,0.30,0.0,0.11,1.3],[6,0.25,0.035,0.17,0.7],[5,0.19,0.065,0.21,0],[5,0.13,0.09,0.235,0],[4,0.08,0.105,0.245,0]], th=0.008*s, phR=H(1)*6.283;
-    // (as a real rose is: no two petals alike, each a little off its even place, wider or narrower, longer or shorter, its rim
-    // uneven; the inner rings wound as a spiral, each petal tucked under the next all the way round, and set a little off
-    // centre, more so toward the middle; the outer petals each rolled back by their own amount)
-    const sw0=H(3)<0.5?1:-1;
-    const RG=RR.map(([n,R,a,h,roll],k)=>{ const Rs=R*s, A=a*s, B=(h-a)*s/(Rs*Rs); const P=[], hr_=q=>hash3i(Hh,k*7+3,190+q);
-      for(let j=0;j<n;j++){ const hh=q=>hash3i(Hh,k*11+j,80+q);
-        P.push({R:Rs*(0.84+0.28*hh(1)), e:k>=2?sw0*((j+0.5)/n-0.5)*0.014*s+0.002*s*(hh(2)-0.5):(j%2?1:-1)*0.004*s+0.003*s*(hh(2)-0.5), tl:(hh(3)-0.5)*0.35, off:(hh(4)-0.5)*0.34, hw:0.54+0.22*hh(5), ro:0.55+0.9*hh(6), wob:hh(7)*6.283}); }
-      const ec=0.011*s*k/4; return {n,c:2*Math.PI/n,ph:phR+k*2.39996+(hr_(1)-0.5)*0.4,A,B,Rs,roll:roll*s,P,ox:(hr_(2)-0.5)*2*ec,oz:(hr_(3)-0.5)*2*ec}; });
+  else{ // rose: a full garden rose, built as the peony is (rings that tuck, on a solid heart) but its own flower: few, broad,
+    // smooth round petals, no ruffle; the outer ones opening and rolling back at the tip, each ring tipped and turned its own
+    // way so nothing lines up in circles, the inner ones wrapping tight into a high, off-centre heart
+    const Tr=[[5,0.075,0.0,0.225,0.17,4,-1.0,10],[5,0.075,0.012,0.205,0.15,27,-0.5,10],[5,0.078,0.025,0.185,0.125,48,0.8,9],[4,0.08,0.035,0.165,0.11,64,0.9,6],[4,0.076,0.042,0.145,0.092,76,0.9,4]], NR=Tr.length-1, B=s/1.4;   // (the rings far enough apart in tilt that no petal's own tilt, twist or cup reaches the next ring: they never cross)
+    Tr.forEach((t,k)=>{ const [n,r0,y0,L,W,tau,bn,tj]=t; sp.rings.push(RO({n,ph:H(10+k)*6.283+k*2.39996,r0:r0*s,y0:y0*s,L:L*s,W:W*s,th:0.0075*s,tau,tj,lift:k*0.004*s,sway:0.1,twist:0.2,wav:0.012,bj:0.3,cup:0.3,bend:bn/B,pt:0,fr:0.003*s,fa:16/s,lv:0.4,fk:0.88,seed:61+k*19,part:"petal"})); });
     sp.rings.push(RO({n:5,ph:H(2)*6,r0:0.02*s,y0:-0.012*s,L:0.15*s,W:0.04*s,th:0.006*s,tau:-34,tj:20,bend:-0.5,pt:0.9,seed:97,part:"sepal"}));
-    const cy=0.115*s, ra=0.06*s, rb=0.055*s, sw=sw0, RQ=[{},{},{}], cox=(H(6)-0.5)*0.012*s, coz=(H(7)-0.5)*0.012*s;
-    sp.head=(x,y,z,O)=>{ let d=evalRings(sp.rings,x,y,z,O); const rho=Math.hypot(x,z), al=Math.atan2(z,x);
-      if(rho>0.34*s||y<-0.06*s||y>0.26*s) return Math.min(d,Math.max(rho-0.33*s,-0.05*s-y,y-0.25*s,0.01));
-      for(let k=0;k<RG.length;k++){ const G=RG[k]; const rx=x-G.ox, rz=z-G.oz, rho=Math.hypot(rx,rz); if(rho>G.Rs*1.2) continue;
-        const a0=Math.atan2(rz,rx)-G.ph, j0=Math.round(a0/G.c);
-        for(let ii=0;ii<3;ii++){ const jj=j0+ii-1, jm=((jj%G.n)+G.n)%G.n, Pp=G.P[jm], dl=a0-(jj+Pp.off)*G.c, hw=G.c*Pp.hw;
-          const rl=G.roll*Pp.ro, rr=Math.max(0,rho-G.Rs*0.68), surf=G.A+G.B*rho*rho+Pp.e+Pp.tl*0.02*s*Math.cos(dl/hw*1.57)-rl*rr*rr/Math.max(1e-4,G.Rs);
-          const slope=2*G.B*rho+2*rl*rr/Math.max(1e-4,G.Rs), f=y-surf, fn=f/Math.sqrt(1+slope*slope), sh=Math.abs(fn)-th;
-          const qa=Math.abs(dl)/hw, rmax=Pp.R*(0.7+0.3*Math.sqrt(Math.max(0,1-qa*qa)))*(1+0.05*Math.sin(dl/hw*4+Pp.wob)+0.03*Math.sin(dl/hw*9+Pp.wob*2));   // (the rim uneven)
-          const Q=RQ[ii]; Q.e=Math.max(sh,(Math.abs(dl)-hw)*rho,rho-rmax); Q.c=Math.max((Math.abs(dl)-hw)*rho,rho-rmax,-(fn+0.2*th),fn-0.06*s); Q.hi=Pp.e; Q.jm=jm; Q.dl=dl; Q.f=f; Q.qa=qa; Q.rmax=rmax; Q.rho=rho; }
-        // petals that overlap: the lower tucks under the higher, never through it
-        for(let a_=0;a_<3;a_++) for(let b_=0;b_<3;b_++){ if(a_===b_) continue; const A_=RQ[a_], B_=RQ[b_]; if(B_.hi>A_.hi&&-B_.c>A_.e) A_.e=-B_.c; }
-        for(let ii=0;ii<3;ii++){ const Q=RQ[ii], jm=Q.jm, dl=Q.dl, f=Q.f, qa=Q.qa, rmax=Q.rmax, rho=Q.rho, e=Q.e*0.7; if(PDBG) PDBG.push(100+k*1000+jm,e/0.7);
-          if(e<d){ d=e; O.part="petal"; O.ring=k; O.j=jm; O.t=clamp(rho/rmax,0,1); O.q=clamp(qa,0,1); O.v=f; O.hv=0.9+0.2*hash3i(Hh,k,jm); O.dl=dl; } } }
-      const bx_=x-cox, bz_=z-coz, b=sdEllipsoid(bx_,y-cy,bz_,ra,rb,ra);
-      if(b<d+0.02*s){ const rh=Math.hypot(bx_,bz_)/ra, phi=Math.atan2(bz_,bx_)*sw, v=rh*(1.3+0.7*rh)+phi/6.283+0.22*noise3(phi*1.1+off,rh*1.5,1.7), f2=fract(v),   /* (a spiral wound unevenly, not a clock-spring) */ top=smooth(cy-rb*0.3,cy+rb*0.9,y), gr=smooth(0.22,0.0,f2)*top*(0.7+0.3*rh);
-        const core=(b+0.012*s*gr)*0.75; if(core<d){ d=core; O.part="core"; O.gr=gr; O.t=clamp((y-cy+rb)/(2*rb),0,1); } }
-      return d; };
-    sp.Rb=0.36*s; sp.yc=0.1*s; sp.stemR=0.018; sp.face=0.6; sp.leaf={type:"rose",n:3,len:0.11,wid:0.07}; sp.leafC=C(44,74,36);
+    // the heart: not petals (one that wide, that near the axis, would straddle it and could not be kept from crossing) but a tight solid bud, wound in an uneven spiral, inside the last ring
+    const crx=0.068*s, cry=0.085*s, cyy=0.12*s, cox=(H(6)-0.5)*0.012*s, coz=(H(7)-0.5)*0.012*s, sw=H(3)<0.5?1:-1;
+    sp.head=(x,y,z,O)=>{ let d=evalRings(sp.rings,x,y,z,O); const bx=x-cox, bz=z-coz, b=sdEllipsoid(bx,y-cyy,bz,crx,cry,crx);
+      if(b<d+0.02*s){ const rh=Math.hypot(bx,bz)/crx, phi=Math.atan2(bz,bx)*sw, v=rh*(1.3+0.7*rh)+phi/6.283+0.22*noise3(phi*1.1+off,rh*1.5,1.7), f2=fract(v), top=smooth(cyy-cry*0.3,cyy+cry*0.9,y), gr=smooth(0.22,0,f2)*top*(0.7+0.3*rh), e=(b+0.012*s*gr)*0.75;
+        if(e<d){ d=e; O.part="core"; O.gr=gr; O.t=clamp((y-cyy+cry)/(2*cry),0,1); } } return d; };
+    sp.lit=O=>O.part==="sepal"?0:O.part==="core"?0.05:0.03+0.04*(1-O.t);
+    sp.Rb=0.42*s; sp.yc=0.1*s; sp.stemR=0.018; sp.face=0.45; sp.leaf={type:"rose",n:3,len:0.11,wid:0.07}; sp.leafC=C(44,74,36);
     const pal=[[C(110,6,22),C(170,22,40),C(214,70,80)],[C(214,70,140),C(236,150,176),C(250,214,222)],[C(232,214,180),C(246,238,224),C(253,250,244)],[C(226,150,40),C(244,206,110),C(252,238,190)],[C(226,110,90),C(246,176,150),C(252,222,204)]][V%5];
     sp.mat=(O)=>{ if(O.part==="sepal") return M(sepalC,{ks:0.12,wrap:0.3,ss:0.2});
-      let c; if(O.part==="core"){ c=mixc(pal[0],pal[1],0.3+0.4*O.t); c=mixc(c,pal[0].map(v=>v*0.6),O.gr*0.7); }
-      else { const inner=(O.ring||0)/4, hj=hash3i(O.j+31*(O.ring||0),Hh,67), hk=hash3i(O.j,(O.ring||0)+7,Hh);
-        c=mixc(pal[1],pal[0],inner*0.7*(1-0.4*O.t)+0.18*(hj-0.5)); c=c.map(v=>v*(0.9+0.2*hk));
-        c=mixc(c,c.map(v=>v*0.74),smooth(0.6,1,O.q)*(1-smooth(0.75,0.97,O.t))*0.5);        // the sides tucked under the next petal (softly: a painter's fold, not a cut)
-        c=mixc(c,c.map(v=>v*0.7),smooth(0.35,0,O.t)*0.5);                                 // deep in the cup
-        c=mixc(c,pal[2],smooth(0.72,1,O.t)*(0.6-0.25*inner));                              // the rolled rim catching the light
-        if(O.v<0) c=mixc(c,pal[0],0.22).map(v=>v*0.88);                                   // the back of a petal
-        c=c.map(v=>v*(1-0.07*noise3(O.dl*9+off,O.t*3,(O.ring||0)*1.7))); }               // the brush's broken colour along the petal
-      return M(c,{ks:0.12,gl:16,wrap:0.75,ss:0.9}); };
+      if(O.part==="core") return M(mixc(mixc(pal[0],pal[1],0.35+0.45*O.t),pal[0].map(v=>v*0.65),O.gr*0.75),{ks:0.08,gl:12,wrap:0.72,ss:0.7});   // (the spiral's fold deep)
+      const k=O.k, dp=k/NR, h=hash3i(O.j|0,k,5), h2=hash3i(O.j|0,k,8), st=noise3((O.w||0)*30/s+h*9,O.t*2.6,k*2.3);   // how far in, this petal's own, the brush's colour running up it
+      let c=mixc(pal[0],pal[1],smooth(0.0,0.5+0.3*dp,O.t)+0.18*(h-0.5)); c=mixc(c,pal[2],clamp(smooth(0.5,1,O.t)*(0.7-0.5*dp)+0.2*O.q*O.q*smooth(0.3,0.8,O.t),0,1));   // deep at the foot, the rim catching the light; the heart deeper
+      c=c.map(v=>v*(0.92+0.14*h2)); c=mixc(c,st>0?pal[2]:pal[0],Math.abs(st)*0.25);
+      return M(c,{ks:0.12,gl:16,wrap:0.72,ss:0.85}); };
   }
   return sp;
 }
@@ -1159,6 +1146,7 @@ function flowerPath(P,sub){ const out=[];
   out.push(P[P.length-1]); return out; }
 const FLOWER_DROOP={grass:0.1,green:0.05,sunflower:0.12,peony:0.08,poppy:0.06,daisy:0.06,rose:0.04,lily:0.04,tulip:0.02,spire:0.0};
 /* one stem: a curve from the vase's mouth to the head, the head on the end of it, leaves along the stem */
+let BQID=0;
 function addFlowerStem(kind,mouth,head,dirHint,s,V,seedN,opt){
   opt=opt||{};
   const Hh=seedN*977+13, spc=flowerSpec(kind,s,V,Hh), HASH=k=>hash3i(Hh,k,71);
@@ -1267,11 +1255,14 @@ function addFlowerStem(kind,mouth,head,dirHint,s,V,seedN,opt){
   const yc=spc.yc, Rb=spc.Rb, stemC=spc.stemC, leafC=spc.leafC, wither=opt.wither||0, hc=[head[0],head[1],head[2]];
   const finish=(r,x,y,z)=>{ if(wither) r.c=WITHER(r.c,wither,x,y,z); return r; };
   const part=(box,sdf,mat,fpart)=>{ const bd=Math.max(...box.map((v,i)=>Math.abs(v-hc[i%3])))+0.05;
-    return addObj({kind:"flower",flower:kind,fpart,stemOf:seedN,thinHit:fpart!=="stem",midHit:fpart==="head",cx:head[0],cy:head[1],cz:head[2],m,bound:bd,box,sdf,mat,wither}); };
+    return addObj({kind:"flower",flower:kind,fpart,stemOf:seedN,bq:opt.lying?null:BQID,thinHit:fpart!=="stem",midHit:fpart==="head",cx:head[0],cy:head[1],cz:head[2],m,bound:bd,box,sdf,mat,wither}); };
   // the head
+  let li=0, liFor=null;
   const hr=Rb*1.3+0.1, o=part([head[0]-hr,head[1]-hr,head[2]-hr,head[0]+hr,head[1]+hr,head[2]+hr],
     (x,y,z)=>{ const dh=Math.hypot(x,y-yc,z)-Rb; return dh>0.08?dh:spc.head(x,y,z,O); },
-    (x,y,z)=>{ spc.head(x,y,z,O); O.x=x;O.y=y;O.z=z; return finish(spc.mat(O),x,y,z); },"head");
+    (x,y,z)=>{ spc.head(x,y,z,O); O.x=x;O.y=y;O.z=z; const m0=spc.mat(O);
+      if(spc.lit){ if(liFor!==LIGHTS){ liFor=LIGHTS; li=0; for(const L of LIGHTS){ lightAt(L,head[0],head[1],head[2],LTB); li+=L.kind==="candle"?Math.min(LTB[3],3):LTB[3]; } } const g=spc.lit(O)*li+AMB; m0.glow=[g,g*0.86,g*0.92]; }   // (light carried through thin petals: the folds stay coloured, never black)
+      return finish(m0,x,y,z); },"head");
   // the stem, with the stalks of compound leaves; its segments culled by their bounding spheres
   const SEG=[]; for(let i=0;i<L.length-1;i++){ const A=L[i],B=L[i+1], r=sr*(1-0.2*i/NP); SEG.push([A[0],A[1],A[2],B[0],B[1],B[2],r,(A[0]+B[0])/2,(A[1]+B[1])/2,(A[2]+B[2])/2,Math.hypot(B[0]-A[0],B[1]-A[1],B[2]-A[2])/2+r]); }
   for(const S of stalks){ const A=S[0],B=S[1]; SEG.push([A[0],A[1],A[2],B[0],B[1],B[2],S[2],(A[0]+B[0])/2,(A[1]+B[1])/2,(A[2]+B[2])/2,Math.hypot(B[0]-A[0],B[1]-A[1],B[2]-A[2])/2+S[2]]); }
@@ -1329,24 +1320,27 @@ function addBouquets(){
     let p=null; try{ p=placeExtra(0.6,false,true); }finally{ DR=k; }
     if(p){ ownStream("flowervase2",()=>addJug(p[0],p[1],p[2],{scale:rr(1.0,1.3),noHandle:true,style:pick(["faience","greenglaze","stoneware"])})); vases.push(OBJS.filter(o=>o.kind==="jug").slice(-1)[0]); } }
   let nb=0; const usedV=new Set();
+  // a bouquet is compact unless Normal is chosen: gathered tight, with flowers set wherever a stem would show
+  const CM=Q_.get("bouquet")!=="normal";
   const HR={rose:0.24,tulip:0.2,daisy:0.28,sunflower:0.42,peony:0.34,lily:0.36,poppy:0.27};   // a head's radius at s = 1
   const SZ={rose:1.45,tulip:1.6,daisy:1.4,sunflower:1.2,peony:1.4,lily:1.5,poppy:1.3};      // and how much larger they are painted
   const DY=DYING;   // the dying pictures: the flowers past their best
-  for(const v of vases){ const o0=OBJS.length;
+  for(const v of vases){ const o0=OBJS.length; BQID++;
     if(want!=="1"&&FR()>0.9&&THEME!=="flowers") continue;
     let kind=pickKind(); if(THEME==="flowers"&&!only) for(let t=0;t<8&&usedV.size&&[...usedV].some(u=>u.startsWith(kind));t++) kind=pickKind();   // a flower piece: another kind in each vase
-    const [a,b]=FLOWER_N[kind], n=Math.round(fr(a,b+0.49)), V=pickV(kind,usedV); usedV.add(kind+V);   // one colour to a bouquet, another for the next
+    const [a,b]=FLOWER_N[kind], n0_=Math.round(fr(a,b+0.49)), n=CM&&kind!=="peony"?Math.round(n0_*1.35):n0_, V=pickV(kind,usedV); usedV.add(kind+V);   // one colour to a bouquet, another for the next
     const mouth=[v.cx,v.vTop,v.cz], rim=v.vRim, heads=[];
     const sBase=fr(0.92,1.1)*SZ[kind];
     const hr=HR[kind]*sBase, room=Math.max(0.7,4.2-v.vTop);
     // the heads massed over the mouth: a few at the top, most round the sides, one or two spilling over the lip.
     // Tulips and lilies stand taller and looser on long stems; daisies and poppies fill out wide
-    const tall=kind==="tulip"||kind==="lily"||kind==="sunflower", Rd=Math.min(room*0.7,hr*(1.0+0.36*Math.sqrt(n))*(tall?0.95:kind==="daisy"?0.85:1.05)),   /* (a meadow bunch is gathered tight) */ lift=Math.min(room-Rd*0.6,(tall?0.75:0.4)+Rd*0.5);
+    const tall=!CM&&(kind==="tulip"||kind==="lily"||kind==="sunflower"), Rd=Math.min(room*0.7,hr*(1.0+0.36*Math.sqrt(n))*(tall?0.95:kind==="daisy"?0.85:1.05)),   /* (a meadow bunch is gathered tight) */ lift0=Math.min(room-Rd*0.6,(tall?0.75:0.4)+Rd*0.5), PK=kind==="peony"||CM, Rd1=CM?hr*(0.95+0.45*Math.sqrt(n)):PK?hr*(1.05+0.16*Math.sqrt(n)):Rd, lift=PK?hr*0.5:lift0;   // peonies: a low dome packed head to head on the mouth of the vase, no bare stem
     const cen=[mouth[0]+fr(-0.08,0.08),mouth[1]+lift,mouth[2]+fr(-0.05,0.05)], thMax=tall?1.0:1.3, ga=2.39996, ph0=fr(0,6.283), spill=n>=5&&!tall?(FR()<0.65?1:0)+(FR()<0.3?1:0)+(kind==="daisy"?1:0):0;
+    const reach=Rd1+hr*(CM?0.8:1.5), tooFar=(k,h)=>PK&&k!=="grass"&&k!=="green"&&Math.hypot(h[0]-cen[0],h[1]-cen[1],h[2]-cen[2])>reach;   // (a gathered bouquet: a flower that finds no room near the others is left out, never pushed away from them)
     // NO FLOWER RUNS INTO ANOTHER: tried in place against every flower already there (its head against their heads, stems
     // and leaves; its stem and leaves against their heads). Where it would touch, it is taken out again, moved a little out
     // from the bouquet and up, and tried again; one that finds no room is left out
-    const place=(kind,head,ssc,V,myN,bx,bz,wob,ex,hr,TR=12)=>{ const others=OBJS.filter(o=>o.kind==="flower"&&!o.hidden); let ok=false;
+    const place=(kind,head,ssc,V,myN,bx,bz,wob,ex,hr,TR=PK?24:12)=>{ const others=OBJS.filter(o=>o.kind==="flower"&&!o.hidden); let ok=false;
       for(let tr=0;tr<TR&&!ok;tr++){
         // the stem crosses the lip toward its head (resting on the rim when it leans far)
         const hd=norm3([head[0]-mouth[0],0.0001,head[2]-mouth[2]]), lean=Math.min(1,Math.hypot(head[0]-mouth[0],head[2]-mouth[2])/Math.max(0.2,head[1]-mouth[1]));
@@ -1354,26 +1348,39 @@ function addBouquets(){
         const tangent=norm3([head[0]-via[0],head[1]-via[1],head[2]-via[2]]);
         const base=[mouth[0]+bx,mouth[1]-0.55,mouth[2]+bz], n0=OBJS.length, q0=OBJSEQ;
         addFlowerStem(kind,mouth,head,tangent,ssc,V,myN,Object.assign({via,base,wob},ex));
-        const mine=OBJS.slice(n0); ok=!mine.some(a=>a.fpart!=="leaf"&&others.some(b=>(a.fpart==="head"||b.fpart==="head")&&!b.hidden&&solidsTouch(a,b)));   // (its head and stem decide whether it fits; a leaf of its that would touch is left off, below)
+        const mine=OBJS.slice(n0); ok=!mine.some(a=>a.fpart!=="leaf"&&others.some(b=>(PK?a.fpart==="head"&&b.fpart==="head":a.fpart==="head"||b.fpart==="head")&&!b.hidden&&solidsTouch(a,b)));   // (its head and stem decide whether it fits; a leaf of its that would touch is left off, below)
         // a leaf that would run into another flower's leaf or stem is left off (two leaves passing through each other shaded each other in bands)
         if(ok) for(const a of mine) if(a.fpart==="leaf"&&others.some(b=>!b.hidden&&(a.flower!=="grass"||b.fpart==="head")&&solidsTouch(a,b))) a.hidden=true;   // (grass blades may cross other blades and stems, as grass does; never a flower)
-        if(!ok){ OBJS.length=n0; OBJSEQ=q0; const out=norm3([head[0]-cen[0]+1e-4,0,head[2]-cen[2]]); head[0]+=out[0]*hr*0.22; head[1]+=hr*0.12; head[2]=clamp(head[2]+out[2]*hr*0.12,0.12,ZW-0.35); } }
+        if(!ok){ OBJS.length=n0; OBJSEQ=q0; const out=norm3([head[0]-cen[0]+1e-4,0,head[2]-cen[2]]); const st=PK?0.45:1; head[0]+=out[0]*hr*0.22*st; head[1]+=hr*0.12*st; head[2]=clamp(head[2]+out[2]*hr*0.12*st,0.12,ZW-0.35); if(tooFar(kind,head)) break; } }   // (peonies: small steps, so each stops at the first place it touches nothing)
       return ok; };
     for(let i=0;i<n;i++){
-      const t=(i+0.5)/n; let th=Math.acos(1-t*(1-Math.cos(thMax))), phi=ph0+i*ga+fr(-0.2,0.2), Rr=Rd*fr(0.8,1.1);
-      if(i>=n-spill){ th=fr(1.45,1.85); Rr=Rd*fr(0.95,1.2); }                                           // over the lip, hanging
-      let head=[cen[0]+Rr*Math.sin(th)*Math.cos(phi)*1.15, cen[1]+Rr*Math.cos(th)*(tall?1.3:1)+(tall?fr(-0.15,0.2):0), cen[2]+Rr*Math.sin(th)*Math.sin(phi)*0.85];
+      const t=(i+0.5)/n; let th=PK?0.4+1.1*t:Math.acos(1-t*(1-Math.cos(thMax))), phi=ph0+i*ga+fr(-0.2,0.2), Rr=Rd1*fr(0.8,1.1);
+      if(i>=n-spill){ th=fr(1.45,1.85); Rr=Rd1*fr(0.95,1.2); }                                           // over the lip, hanging
+      let head=[cen[0]+Rr*Math.sin(th)*Math.cos(phi)*1.15, cen[1]+Rr*Math.cos(th)*(tall?1.3:1)+(tall?fr(-0.15,0.2):0), cen[2]+Rr*Math.sin(th)*Math.sin(phi)*(PK?1:0.85)];
       head[2]=clamp(head[2],0.12,ZW-0.35);
-      if(kind==="sunflower"){ const SH=makeRng(String(CURSEED)+"~sunh"+nb+"_"+i); head[1]+=Rd*(SH()*1.1-0.45); }   // sunflowers stand at many heights, some low among the leaves, some high above (their own stream)
-      const mn=hr*(kind==="daisy"||kind==="poppy"?1.5:kind==="tulip"?1.9:1.65);
+      if(kind==="sunflower"&&!CM){ const SH=makeRng(String(CURSEED)+"~sunh"+nb+"_"+i); head[1]+=Rd*(SH()*1.1-0.45); }   // sunflowers stand at many heights, some low among the leaves, some high above (their own stream)
+      const mn=hr*(CM?1.6:kind==="daisy"||kind==="poppy"?1.5:kind==="tulip"?1.9:PK?1.3:1.65);
       for(let k=0;k<14;k++){ let moved=false; for(const h of heads){ const dd=Math.hypot(head[0]-h[0],head[1]-h[1],head[2]-h[2]);
           if(dd<mn){ const q=(mn-dd)/(dd+1e-6); head[0]+=(head[0]-h[0])*q*0.6; head[1]+=(head[1]-h[1])*q*0.6+0.015; head[2]+=(head[2]-h[2])*q*0.4; moved=true; } } if(!moved) break; }
       head[1]=Math.max(head[1],mouth[1]+hr*0.7);
+      if(tooFar(kind,head)&&i<n-spill){ const q=reach/Math.hypot(head[0]-cen[0],head[1]-cen[1],head[2]-cen[2]); head[0]=cen[0]+(head[0]-cen[0])*q; head[1]=Math.max(cen[1]+(head[1]-cen[1])*q,mouth[1]+hr*0.7); head[2]=clamp(cen[2]+(head[2]-cen[2])*q,0.12,ZW-0.35); }   // (pushed clear of its neighbours, it stays with them)
       // past their best: the heads hang, the stems bow under them
       let droopHead=null, sag=0, wither=0;
       if(DY){ wither=fr(0.45,0.95); sag=fr(0.1,0.35); const out=norm3([head[0]-mouth[0],0.001,head[2]-mouth[2]]); droopHead=[out[0]*1.2,-fr(1.0,2.2),out[2]*1.2-0.3]; head[1]-=fr(0.1,0.3)*Rd; }
       const bx=fr(-0.05,0.05), bz=fr(-0.05,0.05), ssc=sBase*fr(0.88,1.12), myN=++nb, wob=fr(0.04,0.12)*(kind==="daisy"?1.8:1);   // (drawn once, in the order they always were; a daisy's wiry stem wanders more)
       if(place(kind,head,ssc,V,myN,bx,bz,wob,{droopHead,sag,wither},hr)) heads.push(head); }
+    // COMPACT: seen from the front, wherever a stem still shows between the mouth and its head, another flower is set in
+    // front of it, the lowest gap first (its own stream; a place where none fits is passed over)
+    if(CM&&!DY){ const G=makeRng(String(CURSEED)+"~bouquetfill"+nb), passed=[], rc=hr*0.85;
+      // first the dome itself: any free place on it takes a flower, until the bouquet has its number
+      for(let t=0;t<60&&heads.length<n;t++){ const th=0.15+1.35*G(), phi=G()*6.283, head=[cen[0]+Rd1*Math.sin(th)*Math.cos(phi)*1.1,Math.max(cen[1]+Rd1*Math.cos(th),mouth[1]+hr*0.7),clamp(cen[2]+Rd1*Math.sin(th)*Math.sin(phi),0.12,ZW-0.35)];
+        if(heads.some(o=>Math.hypot(o[0]-head[0],o[1]-head[1],o[2]-head[2])<hr*1.5)) continue; const myN=++nb;
+        if(place(kind,head,sBase*(0.88+0.24*G()),V,myN,(G()-0.5)*0.1,(G()-0.5)*0.1,0.05,{},hr,5)) heads.push(head); else nb--; }
+      for(let added=0,t=0;added<7&&t<30;t++){ let gap=null;
+        for(const h of heads) for(let q=0.12;q<0.95;q+=0.11){ const px=mouth[0]+(h[0]-mouth[0])*q, py=mouth[1]+(h[1]-mouth[1])*q; if(py<mouth[1]+0.04) continue;
+          if(heads.some(o=>Math.hypot(o[0]-px,o[1]-py)<rc)||passed.some(o=>Math.hypot(o[0]-px,o[1]-py)<rc*0.5)) continue; if(!gap||py<gap[1]) gap=[px,py]; }
+        if(!gap) break; const head=[gap[0],Math.max(gap[1],mouth[1]+hr*0.45),clamp(mouth[2]-rim*0.4-hr*0.5,0.12,ZW-0.35)], myN=++nb;
+        if(place(kind,head,sBase*(0.85+0.2*G()),V,myN,(G()-0.5)*0.1,(G()-0.5)*0.1,0.05,{},hr)){ heads.push(head); added++; } else { passed.push(gap); nb--; } } }
     // A MEADOW BUNCH: daisies are picked with the field round them: many small daisies among the big ones, grasses with their
     // seed spikes and long arching blades, leafy green stems (their own stream: the rest of the bouquet is as it was)
     if(kind==="daisy"&&!DY){ const G=makeRng(String(CURSEED)+"~meadow"+nb), g=(a,b)=>a+(b-a)*G();
@@ -2710,6 +2717,7 @@ function fruitCount(N,kinds){ if(!N) return;
   const ks=kinds.filter(k=>k!=="grapes"&&k!=="cherry"); if(!ks.length) ks.push("apple");
   let have=items.length;
   for(let t=0;t<120&&have<N;t++){ const k=ks[t%ks.length], n=Math.min(N-have,ri(1,3)), got=cluster(k,n,rr(-2.6,2.6),rr(0.4,1.5),0.6,[]); have+=got.length; } }
+let NOFRUIT=[];   // the fruit refused in the studio
 function runPhysics(){ const B=BODIES, n=B.length;
   for(const b of B){ b.side="in"; for(const w of BOWLS) if(Math.hypot(b.x-w.x,b.z-w.z)>w.Rr) b.side="out"; }
   for(let it=0;it<240;it++){
@@ -2759,7 +2767,7 @@ function settleLow(){ for(const b of BODIES) for(const w of BOWLS) if(Math.hypot
     // and filled: while the lowest place left is still down in the bowl (a gap, not the top of the heap), a fruit goes into it:
     // of the kinds already in the bowl first, then of the picture's other fruit, then of the common ones (within each kind's limit)
     { const SMALL=["grapes","cherry","walnut","blackberry","blueberry"], cnt=k=>BODIES.filter(o=>o.kind===k).length, cap=k=>FRUIT_MAX[k]||5;
-      const pool=[...new Set(inB.map(b=>b.kind))].concat([...new Set(BODIES.map(b=>b.kind))]).concat(["apple","orange","pear","lemon","peach","plum","quince"]).filter((k,i,a)=>a.indexOf(k)===i&&FRUIT[k]&&!SMALL.includes(k)&&k!=="pineapple"&&k!=="melon"&&k!=="banana");
+      const pool=[...new Set(inB.map(b=>b.kind))].concat([...new Set(BODIES.map(b=>b.kind))]).concat(["apple","orange","pear","lemon","peach","plum","quince"]).filter((k,i,a)=>a.indexOf(k)===i&&FRUIT[k]&&!SMALL.includes(k)&&k!=="pineapple"&&k!=="melon"&&k!=="banana"&&!NOFRUIT.includes(k));   // (never a fruit refused in the studio)
       for(let n=0;n<40;n++){ const k=pool.find(q=>cnt(q)<cap(q)); if(!k) break; const [r0,r1]=FRUIT[k].r, rr_=rr(r0,r1), probe={kind:k,r:rr_,side:"in",links:[]};
         // the lowest place that is either on the bowl's floor (a gap) or, on the fruit, within a dome highest in the middle (the heap,
         // each fruit in a hollow of the layer below); none left: the bowl is full
@@ -2771,7 +2779,7 @@ function settleLow(){ for(const b of BODIES) for(const w of BOWLS) if(Math.hypot
         const nb=body(k,bx,bz,{y:best}); nb.r=rr_; nb.y=best; nb.side="in"; if(BODIES.includes(nb)){ all.push(nb); B.push(nb); } else break; }
       // the gaps left between them, too small for another of the same size, as in a real bowl: smaller fruit tucked into
       // them (plums, apricots, figs, limes, mandarins, walnuts), then berries into the last chinks; each where it rests on the bowl
-      for(const P2 of [["plum","apricot","fig","lime","mandarin","walnut"],["blueberry","blackberry"]]){ const pool2=P2.slice().sort((a,b)=>cnt(a)-cnt(b));
+      for(const P2 of [["plum","apricot","fig","lime","mandarin","walnut"],["blueberry","blackberry"]]){ const pool2=P2.filter(k=>!NOFRUIT.includes(k)).sort((a,b)=>cnt(a)-cnt(b));
         for(let n=0;n<40;n++){ const k=pool2.find(q=>cnt(q)<cap(q)); if(!k) break; const [r0,r1]=FRUIT[k].r, rr_=rr(r0,r1), probe={kind:k,r:rr_,side:"in",links:[]};
           let found=null; for(const [x,z] of cand2){ const y=supportY(probe,x,z); if(y===null) continue; const keep=all; all=[]; const yb=supportY(probe,x,z); all=keep; if(yb!==null&&y<=yb+0.01&&(!found||y<found[2])) found=[x,z,y]; }
           if(!found) break; const nb=body(k,found[0],found[1],{y:found[2]}); nb.r=rr_; nb.y=found[2]; nb.side="in"; if(BODIES.includes(nb)){ all.push(nb); B.push(nb); } else break; } } }
@@ -2834,7 +2842,7 @@ function noPassThrough(){ for(const [A,B] of passThrough()){ if(A.hidden||B.hidd
 const CANDLE_OK=new Set(["insect","string","tendril","seeds","flame","sand","wine","water"]);
 // a lit flame wants a clear hand's breadth round it: a fruit right against it was lit to a glare, white specks on its bloom
 const flameClear=(fl,others)=>!fl||others.every(q=>q.kind==="candlestick"||q.kind==="candle"&&Math.hypot(q.cx-fl.cx,q.cz-fl.cz)<0.05||objD(q,fl.cx,fl.cy,fl.cz)>0.3);
-function placeCandle(){ const Q_=new URLSearchParams(URLQ); let cm=Q_.get("candle");
+function placeCandle(){ const Q_=new URLSearchParams(URLQ); let cm=Q_.get("candle"); if((Q_.get("without")||"").split(".").includes("candlestick")) return;   // (turned off in the studio: off, wherever it was to go)
   const lit=LIGHTMODE==="candlelight"||LSTRICT==="both", near=(o,x,z)=>Math.hypot(o.cx-x,o.cz-z)<0.05;
   let cs=OBJS.filter(o=>o.kind==="candlestick"&&!o.hidden), C0=cs.find(o=>CANDLES.some(c=>Math.hypot(c[0]-o.cx,c[2]-o.cz)<0.05))||cs[0];
   if(!["left","centre","right","front","back","free"].includes(cm)){   // not placed in the studio: a lit candle is only moved when it stands among things (in a raised bowl of fruit, say)
@@ -3000,7 +3008,7 @@ function buildScene(){
     if(CLOTH.x0<-2.8) CLOTH.x0=-6; if(CLOTH.x1>2.8) CLOTH.x1=6; }
   // fruit kinds for this picture
   const kinds=[]; const nk=clamp((COMP==="banquet"?ri(3,4):COMP==="chaos"?ri(4,5):+wpick({1:2,2:3,3:2}))+BUSY,1,5);
-  const NOF=(OV("nofruit")||"").split("."), fw=Object.fromEntries(Object.entries(FRUIT).map(([k,v])=>[k,NOF.includes(k)?0:v.w*(SCHOOL==="Charcoal"&&["quince","lemon","pomegranate","orange"].includes(k)?2.5:1)]));   // (a fruit refused in the studio is never drawn)
+  const NOF=(OV("nofruit")||"").split("."); NOFRUIT=NOF; const fw=Object.fromEntries(Object.entries(FRUIT).map(([k,v])=>[k,NOF.includes(k)?0:v.w*(SCHOOL==="Charcoal"&&["quince","lemon","pomegranate","orange"].includes(k)?2.5:1)]));   // (a fruit refused in the studio is never drawn)
   while(kinds.length<nk){ const k=wpick(fw); if(!kinds.includes(k)) kinds.push(k); }
   { const i=kinds.indexOf("pineapple"); if(i>=0){ const R=makeRng(String(CURSEED)+"~nopine"), alt=["apple","pear","orange","quince","pomegranate","lemon","peach"].filter(k=>!kinds.includes(k)&&!NOF.includes(k));   // (the pineapple is gone: another fruit in its place, from its own stream)
     if(alt.length) kinds[i]=alt[Math.floor(R()*alt.length)]; else kinds.splice(i,1); } }
@@ -3136,7 +3144,7 @@ function buildScene(){
   leavesClear();         // (and once more: no leaf through a fallen flower or the game)
   placeCandle();         // the candle where the studio asks for it
   if(CLOSE) closeUp();
-  makeTable();
+  makeTable(); TOPSRC=null;
 }
 
 /* =============================================================================
@@ -3348,7 +3356,20 @@ function sceneDist(x,y,z,near){ const T_=TABLE, yb=T_.block?T_.floor:-T_.tt, xc=
   let d=Math.min(sdBox(x-xc,y-yb/2,z-WALLZ/2,hx,-yb/2,WALLZ/2,0), y-T_.floor, WALLZ-z);
   const cd=clothD(x,y,z); if(cd<d)d=cd;
   for(const o of near){ const e=objD(o,x,y,z); if(e<d)d=e; } return d; }
-function nearObjs(x,y,z,r){ const out=[]; for(const o of OBJS){ if(o.emissive) continue; const b=o.box; const dx=Math.max(b[0]-x,0,x-b[3]),dy=Math.max(b[1]-y,0,y-b[4]),dz=Math.max(b[2]-z,0,z-b[5]); if(dx*dx+dy*dy+dz*dz<r*r) out.push(o); } return out; }
+/* a bouquet is some two hundred pieces (every stem in lengths, every leaf), most of them never touched by a given ray: they
+   are gathered, flower by flower inside bouquet by bouquet, each group with a box round it, so a ray that misses the box
+   skips them all at one test */
+let TOPSRC=null, TOPN=-1, TOP=[], AOR=0.7;
+function unionBox(L){ const b=[1e9,1e9,1e9,-1e9,-1e9,-1e9]; for(const o of L){ const e=o.box; for(let i=0;i<3;i++){ if(e[i]<b[i]) b[i]=e[i]; if(e[i+3]>b[i+3]) b[i+3]=e[i+3]; } } return b; }
+function topList(){ if(TOPSRC===OBJS&&TOPN===OBJS.length) return TOP; TOPSRC=OBJS; TOPN=OBJS.length; const T=[], G=new Map();
+  for(const o of OBJS){ if(o.kind==="flower"&&o.stemOf!=null&&!o.emissive){ const k=o.bq==null?"s"+o.stemOf:"b"+o.bq; if(!G.has(k)) G.set(k,new Map()); const F=G.get(k); if(!F.has(o.stemOf)) F.set(o.stemOf,[]); F.get(o.stemOf).push(o); } else T.push(o); }
+  for(const F of G.values()){ const kids=[...F.values()].map(L=>({kids:L,box:unionBox(L)})); T.push({kids,box:unionBox(kids)}); }
+  AOR=G.size?0.26:0.7; TOP=T; return T; }
+// the things a ray can meet: (mode 0: the eye's ray, flames and all; 1: a shadow ray, tLim its length)
+function gather(L,ox,oy,oz,dx,dy,dz,pad,tLim,skip,mode,out){ for(const o of L){ if(o.kids){ const s=slab(o,ox,oy,oz,dx,dy,dz,pad); if(s&&s[0]<tLim) gather(o.kids,ox,oy,oz,dx,dy,dz,pad,tLim,skip,mode,out); continue; }
+    if(mode&&(o.emissive||o===skip||o===SELF_)) continue; const s=slab(o,ox,oy,oz,dx,dy,dz,pad); if(s&&s[0]<tLim) out.push(o,mode?s[0]:Math.max(0,s[0]),s[1]); } return out; }
+function nearInto(L,x,y,z,r,out){ for(const o of L){ if(o.emissive) continue; const b=o.box, dx=Math.max(b[0]-x,0,x-b[3]), dy=Math.max(b[1]-y,0,y-b[4]), dz=Math.max(b[2]-z,0,z-b[5]); if(dx*dx+dy*dy+dz*dz>=r*r) continue; if(o.kids) nearInto(o.kids,x,y,z,r,out); else out.push(o); } return out; }
+function nearObjs(x,y,z,r){ return nearInto(topList(),x,y,z,r,[]); }
 /* thin things (a leaf, an insect's wing, a knife, a string) have only rough distance fields: good enough to say whether
    a ray hits them, not to shape a wide penumbra — which used to print their outlines on the wall as arcs and spikes by
    candlelight. Their shadows are kept crisp instead. */
@@ -3356,7 +3377,7 @@ const THINKIND=new Set(["leaf","insect","knife","string","tendril","seeds","pipe
 function softShadow(px,py,pz,lx,ly,lz,maxT,k,rL,skip){ rL=rL||1e9;
   if(py<-0.002&&ly>0){ const t=-py/ly, x=px+lx*t, z=pz+lz*t; if(z>=0&&z<=WALLZ&&x>=TABLE.xl&&x<=TABLE.xr){ const e=Math.min(x-TABLE.xl,TABLE.xr-x,z); return 0.32*(1-smooth(0,1.6,e)); } }   // under the table top: dark, a little light creeping in near its edges
   const cand=[], pad=Math.min(0.45,maxT/k,rL);   // an object shades softly out to (distance / k) from it: its box is widened by that, or the penumbra is cut off along the box's edges
-  for(const o of OBJS){ if(o.emissive||o===skip||o===SELF_) continue; const s=slab(o,px,py,pz,lx,ly,lz,pad); if(s&&s[1]>0) cand.push(o,s[0],s[1]); }
+  gather(topList(),px,py,pz,lx,ly,lz,pad,1e9,skip,1,cand);
   const hasCloth=CLOTH&&ly<0.99; let res=1, t=0.03, ph=1e9, ps=0, hf=false;
   if(!cand.length && !CLOTH) return 1;
   for(let i=0;i<200&&t<maxT;i++){ const x=px+lx*t,y=py+ly*t,z=pz+lz*t; let h=1e9, hb=1e9, hs=1e9;
@@ -3379,14 +3400,14 @@ function candleShadow(L,px,py,pz,lx,ly,lz,mt){ if(L.kind!=="candle") return soft
   const w=L.owner?smooth(0.5,1.3,Math.hypot(px-L.p[0],pz-L.p[2])):0;
   const a=w<1?softShadow(px,py,pz,lx,ly,lz,mt,L.k,0.075):0, b=w>0?softShadow(px,py,pz,lx,ly,lz,mt,L.k,0.075,L.owner):0; return a*(1-w)+b*w; }
 function fastShadow(px,py,pz,lx,ly,lz,maxT){ if(py<-0.002&&ly>0){ const t=-py/ly, x=px+lx*t, z=pz+lz*t; if(z>=0&&z<=WALLZ&&x>=TABLE.xl&&x<=TABLE.xr) return 0.25; }   // under the table top
-  const cand=[]; for(const o of OBJS){ if(o.emissive||o===SELF_) continue; const s=slab(o,px,py,pz,lx,ly,lz); if(s&&s[1]>0&&s[0]<maxT) cand.push(o,s[0],s[1]); }
+  const cand=gather(topList(),px,py,pz,lx,ly,lz,0,maxT,null,1,[]);
   const hasCloth=CLOTH&&ly<0.99; if(!cand.length&&!hasCloth) return 1; let t=0.02;
   for(let i=0;i<90&&t<maxT;i++){ const x=px+lx*t,y=py+ly*t,z=pz+lz*t; let h=1e9, hb=1e9, thin=false;
     if(hasCloth&&y<0.25){ const e=clothD(x,y,z); if(e<h) h=e; }
     for(let q=0;q<cand.length;q+=3){ if(t<cand[q+1]){ hb=Math.min(hb,cand[q+1]-t); continue; } if(t>cand[q+2]) continue; const o=cand[q], e=objD(o,x,y,z); if(e<h){ h=e; thin=!!o.thinHit; } }
     if(h<0.003) return 0; const st=Math.min(h,hb); if(st>1e8) break; t+=Math.max(st,thin?0.008:0.025); }   // (a petal, a stem, a leaf is thinner than the old 0.04 stride: in a mirror they cast no shadow at all)
   return 1; }
-function aoAt(px,py,pz,nx,ny,nz){ const near=nearObjs(px,py,pz,0.7); let occ=0,sc=1;
+function aoAt(px,py,pz,nx,ny,nz){ topList(); const near=nearObjs(px,py,pz,AOR); let occ=0,sc=1;   // (AOR: its five samples reach 0.16: among flowers, what lies further than that only cost time)
   for(let i=0;i<5;i++){ const h=0.02+0.14*i/4; const d=sceneDist(px+nx*h,py+ny*h,pz+nz*h,near); occ+=(h-d)*sc; sc*=0.72; }
   return clamp(1-2.4*occ,0,1); }
 /* the room outside the picture: dark, with the bright window */
@@ -3529,7 +3550,8 @@ function trace(ox,oy,oz,dx,dy,dz,px,idOnly,depth){ depth=depth||0;
   if(dy<0){ const t=(FY-oy)/dy, z=oz+dz*t; if(z<=WALLZ&&t<tP){ tP=t; pid=6; } }                                                       // the floor
   if(dz>0){ const tw=(WALLZ-oz)/dz; if(tw<tP && oy+dy*tw>FY){ tP=tw; pid=0; } }                                                       // the wall, down to the floor
   const cand=[]; let tmin=1e9, tmax=0;
-  for(const o of (idOnly?OBJS.concat(GLASS):OBJS)){ const s=slab(o,ox,oy,oz,dx,dy,dz); if(s && s[0]<tP){ cand.push(o,Math.max(0,s[0]),s[1]); tmin=Math.min(tmin,s[0]); tmax=Math.max(tmax,s[1]); } }
+  gather(topList(),ox,oy,oz,dx,dy,dz,0,tP,null,0,cand); if(idOnly) gather(GLASS,ox,oy,oz,dx,dy,dz,0,tP,null,0,cand);
+  for(let k=0;k<cand.length;k+=3){ if(cand[k+1]<tmin) tmin=cand[k+1]; if(cand[k+2]>tmax) tmax=cand[k+2]; }
   let clothRange=null; if(CLOTH){ const bx=[CLOTH.x0-0.1,-CLOTH.hang-0.3,-0.35,CLOTH.x1+0.1,0.1,CLOTH.zb+0.05]; const s=slab({box:bx},ox,oy,oz,dx,dy,dz); if(s){ clothRange=s; tmin=Math.min(tmin,s[0]); tmax=Math.max(tmax,s[1]); } }
   let hit=null, t=Math.max(0,tmin); const tEnd=Math.min(tP,tmax);
   if(cand.length||clothRange){
@@ -5066,7 +5088,7 @@ function isLite(){ const q=new URLSearchParams(URLQ).get("lite"); if(q!=null) re
   const mem=navigator.deviceMemory||8, cores=navigator.hardwareConcurrency||4, touch=matchMedia&&matchMedia("(pointer:coarse)").matches, small=Math.min(screen.width,screen.height)<=900;
   return mem<=4||cores<=4||(touch&&small); }
 /* ---- studio: two choices (how it is made, how fine), then paint ---- */
-const ST={style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:"",sig:"",sigcol:"",sigpos:"",sigvar:"",flowers:"",flower:"",noflower:"",nofruit:"",theme:"",focus:"",zoom:"",panx:"",pany:"",impasto:"",jug:"",jugshape:"",table:"",sun:"",sunh:"",sunyaw:"",sunpitch:"",win:"",bowl:"",bowlsize:"",bowlstyle:"",wall:"",wallcol:"",candle:"",candlepos:"",sunI:"",candleI:"",suntgt:"",yaw:"",pitch:"",close:"",view:"",relief:""};   // school..haze: URL only; sig*: the signature, local studio only
+const ST={style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:"",sig:"",sigcol:"",sigpos:"",sigvar:"",flowers:"",bouquet:"",flower:"",noflower:"",nofruit:"",theme:"",focus:"",zoom:"",panx:"",pany:"",impasto:"",jug:"",jugshape:"",table:"",sun:"",sunh:"",sunyaw:"",sunpitch:"",win:"",bowl:"",bowlsize:"",bowlstyle:"",wall:"",wallcol:"",candle:"",candlepos:"",sunI:"",candleI:"",suntgt:"",yaw:"",pitch:"",close:"",view:"",relief:""};   // school..haze: URL only; sig*: the signature, local studio only
 for(const k in ST) ST[k]=Q.get(k)||"";
 if(ST.shade==="new") ST.shade="blended"; else if(ST.shade!=="blended") ST.shade="";   // older links: new = blended, old/between = rough
 if(!SKEYS[ST.style]) ST.style="acrylic";   // acrylic unless another way is chosen
