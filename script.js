@@ -8,8 +8,8 @@ const trProject = (project) => (window.AkiraI18n ? window.AkiraI18n.project(proj
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
-    // Ensure page starts at top
-    window.scrollTo(0, 0);
+    // Ensure page starts at top (unless the visitor followed a link to a section)
+    if (!location.hash) window.scrollTo(0, 0);
     
     initNavigation();
     initDescendButton();
@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initMasterScrollHandler();
     initRevealObserver(); // Intersection Observer for reveals
     initVisibilityHandler(); // Pause animations when tab hidden
+    initAnimationBudget(); // Pause decorative animations that are off screen
     initFAQ(); // FAQ accordion
     // Ambient extras: pure decoration, so they are skipped for reduced motion
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -82,7 +83,7 @@ function initParticles() {
     }
     
     // Desktop: create particles
-    const particleCount = 15;
+    const particleCount = 9;
     
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
@@ -143,8 +144,10 @@ function initNavigation() {
     // Smooth scroll for nav links
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            e.preventDefault();
             const targetId = this.getAttribute('href');
+            // A link to another page (the portfolio) just navigates
+            if (!targetId || targetId.charAt(0) !== '#') return;
+            e.preventDefault();
             const targetSection = document.querySelector(targetId);
             
             if (targetSection) {
@@ -1082,18 +1085,27 @@ function initFairyDust() {
     // Create canvas overlay
     const canvas = document.createElement('canvas');
     canvas.id = 'fairy-dust-canvas';
-    canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+    canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none;';
     document.body.appendChild(canvas);
     
     const ctx = canvas.getContext('2d');
     
+    // A full-screen canvas is a big layer: it is only sized, shown and painted while sparkles are alive,
+    // and its pixel density is capped (sparkles are soft, 1.5x is plenty)
+    let canvasLive = false;
+    const canvasScale = () => Math.min(window.devicePixelRatio || 1, 1.5);
+
     function resize() {
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = window.innerWidth * dpr;
-        canvas.height = window.innerHeight * dpr;
+        if (!canvasLive) return;
+        const dpr = canvasScale();
+        canvas.width = Math.round(window.innerWidth * dpr);
+        canvas.height = Math.round(window.innerHeight * dpr);
     }
-    resize();
-    window.addEventListener('resize', resize);
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resize, 150);
+    }, { passive: true });
     
     const particles = [];
     let isAnimating = false;
@@ -1210,7 +1222,7 @@ function initFairyDust() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Scale for retina displays
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = canvasScale();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         
         // Update targetRect each frame to follow scroll (both mobile and desktop)
@@ -1233,6 +1245,10 @@ function initFairyDust() {
             isAnimating = false;
             targetElement = null;
             targetRect = null;
+            // nothing left to draw: give the canvas back
+            canvasLive = false;
+            canvas.style.display = 'none';
+            canvas.width = canvas.height = 0;
         }
     }
     
@@ -1267,6 +1283,11 @@ function initFairyDust() {
             }, i * 30);
         }
         
+        if (!canvasLive) {
+            canvasLive = true;
+            canvas.style.display = '';
+            resize();
+        }
         if (!isAnimating) {
             isAnimating = true;
             render();
@@ -1497,24 +1518,19 @@ function initRevealObserver() {
    ============================================ */
 
 function initVisibilityHandler() {
+    // One class on <html>; the stylesheet pauses every animation under it
     document.addEventListener('visibilitychange', () => {
-        const particles = document.getElementById('particles');
-        const animatedElements = document.querySelectorAll('.shimmer-text, .banner-wave, .particle');
-        
-        if (document.hidden) {
-            // Pause all animations when tab is hidden
-            animatedElements.forEach(el => {
-                el.style.animationPlayState = 'paused';
-            });
-            if (particles) particles.style.display = 'none';
-        } else {
-            // Resume animations when tab is visible
-            animatedElements.forEach(el => {
-                el.style.animationPlayState = 'running';
-            });
-            if (particles) particles.style.display = 'block';
-        }
+        document.documentElement.classList.toggle('tab-hidden', document.hidden);
     });
+}
+
+/* Decorative animations only run while they can be seen: the rule for .anim-off is in styles.css */
+function initAnimationBudget() {
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => entry.target.classList.toggle('anim-off', !entry.isIntersecting));
+    }, { rootMargin: '80px 0px' });
+    document.querySelectorAll('.shimmer-text, .glow-border, .torch-glow, .rune-circle, .banner-wave').forEach(el => observer.observe(el));
 }
 
 /* ============================================
@@ -1761,6 +1777,9 @@ function initMusicPlayer() {
    ============================================ */
 
 function initKnight() {
+    // Nothing chases anything behind shut doors
+    const gateIsOpen = () => !window.AkiraGate || window.AkiraGate.isOpen();
+    const whenGateOpen = (cb) => (window.AkiraGate ? window.AkiraGate.whenOpen(cb) : cb());
     const isMobile = window.matchMedia('(hover: none)').matches || window.innerWidth <= 768;
     
     // Create knight element
@@ -1949,7 +1968,7 @@ function initKnight() {
         showKnight();
         
         // Start wandering after a short delay
-        setTimeout(startWanderCycle, 1000);
+        whenGateOpen(() => setTimeout(startWanderCycle, 1000));
         
         return; // Exit early for mobile
     }
@@ -1960,7 +1979,7 @@ function initKnight() {
         cursorX = e.clientX;
         cursorY = e.clientY;
         
-        if (!cursorMoved && state === 'idle') {
+        if (!cursorMoved && state === 'idle' && gateIsOpen()) {
             cursorMoved = true;
             startCycle();
         }
@@ -2011,7 +2030,7 @@ function initKnight() {
             if (cursorMovedAfterPose || elapsed >= maxWaitTime) {
                 startCycle();
             } else {
-                requestAnimationFrame(checkCursorMoved);
+                setTimeout(checkCursorMoved, 100); // a cheap poll, not a frame loop
             }
         }
         checkCursorMoved();

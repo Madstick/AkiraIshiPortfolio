@@ -38,8 +38,14 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://akiraishi.com/reliquary.html">
     
+    <!-- The doors are the first paint: fetch them with the stylesheet -->
+    <link rel="preload" as="image" href="images/desktop-icons/reliquary/door1.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="images/desktop-icons/reliquary/door2.webp" fetchpriority="high">
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="doors.css">
+    <noscript><style>.gate { display: none; }</style></noscript>
     <link rel="stylesheet" href="i18n.css">
     <script src="i18n.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,6 +53,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- The doors: shut on arrival, scroll down to open them, scroll back up at the top to close them -->
+    <div class="gate" id="gate" role="presentation">
+        <div class="doors" id="doors" aria-hidden="true">
+            <img src="images/desktop-icons/reliquary/door1.webp" alt="" class="door door-left" fetchpriority="high" decoding="async">
+            <img src="images/desktop-icons/reliquary/door2.webp" alt="" class="door door-right" fetchpriority="high" decoding="async">
+        </div>
+        <div class="invitation" id="invitation">
+            <p class="invitation-title" data-i18n="gates.the-gates-of-the-reliquary">⚜ The Gates of the Reliquary ⚜</p>
+            <p class="invitation-text" data-i18n="gates.scroll-down-to-open-the-doors">Scroll down to open the doors</p>
+            <div class="invitation-arrow"></div>
+            <p class="invitation-hint" data-i18n="gates.scroll-back-up-to-close-them">(scroll back up to close them)</p>
+        </div>
+    </div>
+
     <!-- Scroll Progress Bar -->
     <div class="scroll-progress" id="scroll-progress"></div>
     
@@ -80,7 +100,7 @@
                     <span data-i18n="rel.lineage">Lineage</span>
                 </a>
                 <div class="logo-container">
-                    <a href="portes.html" class="logo-frame banner-wave" title="Return to the Gates" data-i18n-title="rel.return-to-the-gates">
+                    <a href="#sanctum" class="logo-frame banner-wave" title="The Reliquary">
                         <span class="logo-text shimmer-text" data-i18n="rel.the-reliquary">⚜ The Reliquary ⚜</span>
                     </a>
                 </div>
@@ -99,6 +119,10 @@
                 <a href="#faq" class="nav-link" data-section="faq">
                     <img src="images/desktop-icons/reliquary/notes_a.webp" alt="" class="nav-icon" decoding="async">
                     <span data-i18n="rel.faq">FAQ</span>
+                </a>
+                <a href="index.html" class="nav-link nav-portfolio" title="Portfolio" data-i18n-title="rel.portfolio">
+                    <img src="images/desktop-icons/reliquary/internet_a.webp" alt="" class="nav-icon" decoding="async">
+                    <span data-i18n="rel.portfolio">Portfolio</span>
                 </a>
             </nav>
             <div class="header-ornament right"></div>
@@ -662,7 +686,7 @@ They are currently developing an ambitious long-term project that is already tak
                         <span data-i18n="rel.visit-the-online-shops">Visit the Online Shops</span>
                         <span class="btn-ornament">❧</span>
                     </a>
-                    <a href="portes.html" class="cta-button secondary" data-i18n="rel.return-to-the-gates">Return to the Gates</a>
+                    <a href="index.html" class="cta-button secondary" data-i18n="rel.portfolio">Portfolio</a>
                 </div>
                 <span class="crossing-ornament">❧</span>
             </div>
@@ -674,9 +698,9 @@ They are currently developing an ambitious long-term project that is already tak
             <div class="footer-content">
                 <p class="footer-text" data-i18n="rel.the-reliquary">⚜ The Reliquary ⚜</p>
                 <nav class="footer-links">
-                    <a href="portes.html" data-i18n="rel.return-to-the-gates">Return to the Gates</a>
-                    <span class="footer-sep">❧</span>
                     <a href="shop.html" data-i18n="rel.online-shops">Online Shops</a>
+                    <span class="footer-sep">❧</span>
+                    <a href="index.html" data-i18n="rel.portfolio">Portfolio</a>
                 </nav>
                 <p class="footer-copyright" data-i18n="rel.2026-akira-ishi-all-artifacts-preserved">© 2026 Akira Ishi. All artifacts preserved.</p>
             </div>
@@ -726,6 +750,7 @@ They are currently developing an ambitious long-term project that is already tak
         </div>
     </div>
 
+    <script defer src="doors.js"></script>
     <script defer src="data.js"></script>
     <script defer src="script.js"></script>
 </body>

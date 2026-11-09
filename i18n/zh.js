@@ -5,7 +5,9 @@ ui: {
 
 /* ---------- 门 ---------- */
 "gates.page-title": "Akira Ishi | 门",
-"gates.page-description": "生成艺术家 Akira Ishi。两扇门：线上商店，售卖版画与实体作品；圣物匣，收藏 Bitcoin、Ethereum 等链上的数字艺术。",
+"gates.page-description": "生成艺术家 Akira Ishi。门后是圣物匣：铭刻在 Bitcoin、Ethereum 等链上的数字艺术。",
+"gates.generative-artist-mdash-the-reliquary": "生成艺术家 —— 圣物匣",
+"gates.every-work-hides-a-secret": "每件作品都藏着一个秘密",
 "gates.generative-artist-mdash-choose-your-path": "生成艺术家 —— 请选择你的路",
 "gates.online-shops": "线上商店",
 "gates.prints-amp-physical-works": "版画 &amp; 实体作品",
@@ -200,6 +202,7 @@ ui: {
 "rel.facet-line": "这里的每件作品都是人性的一个侧面,每一件都藏着一个秘密。",
 "rel.portfolio-link": "以作品集的方式浏览 →",
 "rel.work-page": "在作品页面查看",
+"rel.portfolio": "作品集",
 "rel.contact": "联系",
 "rel.faq": "常见问题",
 "rel.digital-artisan-blockchain-bard": "数字匠人 &amp; 链上吟游诗人",

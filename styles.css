@@ -139,9 +139,9 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   left: 0;
   right: 0;
   z-index: 1000;
-  background: linear-gradient(180deg, rgba(26, 15, 5, 0.98) 0%, rgba(26, 15, 5, 0.9) 100%);
+  /* nearly opaque instead of blurred: a backdrop blur re-filters the header's backdrop on every scroll frame */
+  background: linear-gradient(180deg, rgba(26, 15, 5, 0.98) 0%, rgba(26, 15, 5, 0.95) 100%);
   border-bottom: 2px solid var(--gold-dark);
-  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -321,8 +321,7 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   position: relative;
   padding: 4rem;
   border: 2px solid var(--gold-dark);
-  background: rgba(26, 15, 5, 0.6);
-  backdrop-filter: blur(5px);
+  background: rgba(26, 15, 5, 0.72);
 }
 
 .corner-ornament {
@@ -3431,7 +3430,6 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 3s linear infinite;
-  will-change: background-position;
 }
 
 /* Glowing Border */
@@ -3453,10 +3451,13 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   opacity: 0;
   transition: opacity 0.3s ease;
   animation: gradientShift 3s ease infinite;
+  /* invisible until hovered, so it does not animate (and repaint a blur) until then */
+  animation-play-state: paused;
 }
 
 .glow-border:hover::after {
   opacity: 1;
+  animation-play-state: running;
 }
 
 @keyframes gradientShift {
@@ -3687,6 +3688,26 @@ video::-webkit-media-controls-toggle-closed-captions-button,
    Ambient effects are decoration; switch them off when
    the visitor asks for less movement (and save the work).
    ============================================ */
+
+/* ============================================
+   ANIMATION BUDGET
+   Decorative loops pause when they are off screen (.anim-off, set by script.js),
+   when the tab is hidden, and while the doors are still shut.
+   ============================================ */
+
+.anim-off,
+.anim-off::before,
+.anim-off::after,
+html.tab-hidden *,
+html.tab-hidden *::before,
+html.tab-hidden *::after,
+html.gate-closed .particle,
+html.gate-closed .shimmer-text,
+html.gate-closed .banner-wave,
+html.gate-closed .torch-glow::after,
+html.gate-closed .rune-circle::before {
+  animation-play-state: paused !important;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

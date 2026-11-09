@@ -5,7 +5,9 @@ ui: {
 
 /* ---------- 門 ---------- */
 "gates.page-title": "Akira Ishi | 門",
-"gates.page-description": "ジェネラティブアーティスト Akira Ishi。扉はふたつ。プリントや実物作品を扱うオンラインショップと、Bitcoin や Ethereum などに刻まれたデジタル作品を収める聖遺物の間。",
+"gates.page-description": "ジェネラティブアーティスト Akira Ishi。扉の向こうは聖遺物の間。Bitcoin や Ethereum などに刻まれたデジタル作品を収めています。",
+"gates.generative-artist-mdash-the-reliquary": "ジェネラティブアーティスト — 聖遺物の間",
+"gates.every-work-hides-a-secret": "すべての作品に秘密が隠されています",
 "gates.generative-artist-mdash-choose-your-path": "ジェネラティブアーティスト — 進む道をお選びください",
 "gates.online-shops": "オンラインショップ",
 "gates.prints-amp-physical-works": "プリント &amp; 実物作品",
@@ -200,6 +202,7 @@ ui: {
 "rel.facet-line": "ここにあるすべての作品は人間性の一面であり、それぞれに秘密が隠されています。",
 "rel.portfolio-link": "作品集として見る →",
 "rel.work-page": "作品ページで見る",
+"rel.portfolio": "作品集",
 "rel.contact": "問い合わせ",
 "rel.faq": "よくある質問",
 "rel.digital-artisan-blockchain-bard": "デジタルの職人 &amp; チェーンの吟遊詩人",

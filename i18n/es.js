@@ -5,7 +5,9 @@ ui: {
 
 /* ---------- Las Puertas ---------- */
 "gates.page-title": "Akira Ishi | Las Puertas",
-"gates.page-description": "Akira Ishi, artista generativo. Dos puertas: las tiendas online, con láminas y obra física, o El Relicario, con arte digital en Bitcoin, Ethereum y más allá.",
+"gates.page-description": "Akira Ishi, artista generativo. Tras las puertas, El Relicario: arte digital inscrito en Bitcoin, Ethereum y más allá.",
+"gates.generative-artist-mdash-the-reliquary": "Artista generativo — el Relicario",
+"gates.every-work-hides-a-secret": "Cada obra esconde un secreto",
 "gates.generative-artist-mdash-choose-your-path": "Artista generativo — elige tu camino",
 "gates.online-shops": "Tiendas online",
 "gates.prints-amp-physical-works": "Láminas &amp; obra física",
@@ -200,6 +202,7 @@ ui: {
 "rel.facet-line": "Cada obra aquí es una faceta de la humanidad, y cada una esconde un secreto.",
 "rel.portfolio-link": "Ver la obra como portfolio →",
 "rel.work-page": "En la página de obras",
+"rel.portfolio": "Portfolio",
 "rel.contact": "Contacto",
 "rel.faq": "FAQ",
 "rel.digital-artisan-blockchain-bard": "Artesano digital &amp; bardo de las cadenas",

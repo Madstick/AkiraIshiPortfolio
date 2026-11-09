@@ -5,7 +5,9 @@ ui: {
 
 /* ---------- Das Tor ---------- */
 "gates.page-title": "Akira Ishi | Das Tor",
-"gates.page-description": "Akira Ishi, generativer Künstler. Zwei Türen: die Online-Shops mit Drucken und physischen Arbeiten, oder Das Reliquiar mit digitaler Kunst auf Bitcoin, Ethereum und darüber hinaus.",
+"gates.page-description": "Akira Ishi, generativer Künstler. Hinter den Türen, Das Reliquiar: digitale Kunst auf Bitcoin, Ethereum und darüber hinaus.",
+"gates.generative-artist-mdash-the-reliquary": "Generativer Künstler — das Reliquiar",
+"gates.every-work-hides-a-secret": "Jedes Werk birgt ein Geheimnis",
 "gates.generative-artist-mdash-choose-your-path": "Generativer Künstler — wähle deinen Weg",
 "gates.online-shops": "Online-Shops",
 "gates.prints-amp-physical-works": "Drucke &amp; physische Arbeiten",
@@ -200,6 +202,7 @@ ui: {
 "rel.facet-line": "Jedes Werk hier ist eine Facette der Menschheit, und jedes birgt ein Geheimnis.",
 "rel.portfolio-link": "Das Werk als Portfolio ansehen →",
 "rel.work-page": "Auf der Werkseite",
+"rel.portfolio": "Portfolio",
 "rel.contact": "Kontakt",
 "rel.faq": "FAQ",
 "rel.digital-artisan-blockchain-bard": "Digitaler Handwerker &amp; Barde der Blockchains",

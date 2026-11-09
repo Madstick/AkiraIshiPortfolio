@@ -11,8 +11,8 @@ EMAIL = 'leakiraishi@gmail.com'
 X_URL = 'https://x.com/leAkira_Ishi'
 X_HANDLE = '@leAkira_Ishi'
 
-# The doors page now lives at portes.html; it stays the way into the Reliquary.
-RELIQUARY_ENTRY = 'portes.html'
+# The Reliquary opens with its own doors (doors.js), so the nav links straight to it.
+RELIQUARY_ENTRY = 'reliquary.html'
 
 NAME = 'Akira Ishi'
 
