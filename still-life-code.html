@@ -151,7 +151,7 @@
       <button class="sec" data-sec="sx-tbl">Table</button>
       <div class="secbox things" id="sx-tbl"><div class="trow four" data-k="table"><span>Table</span><button data-v="">Auto</button><button data-v="wood">Wood</button><button data-v="marble">Marble</button><button data-v="stone">Stone</button></div></div>
       <button class="sec" data-sec="sx-wall">Wall</button>
-      <div class="secbox" id="sx-wall"><div class="sub"><i>material</i></div><div class="chips" id="st-wall"></div><div class="sub" style="margin-top:6px"><i>colour</i></div><div class="chips" id="st-wallcol"></div></div>
+      <div class="secbox" id="sx-wall"><div class="sub"><i>material</i></div><div class="chips" id="st-wall"></div><div class="sub" style="margin-top:6px"><i>colour</i></div><div class="chips" id="st-wallcol"></div><div class="sub" style="margin-top:6px"><i>on the wall · tap: with · again: without · up to 3</i></div><div class="chips" id="st-wallobj"></div></div>
     </div>
     <button class="sec grp" data-sec="sx-gscene">Scene</button>
     <div class="secbox" id="sx-gscene">
@@ -1988,6 +1988,239 @@ function addMirror(kind,x,y){
   NAMES.push(kind==="flat"?"a mirror":"a convex mirror");
 }
 
+/* ---------- ON THE WALL: things hung behind the table (Scene → Wall: chosen, refused, or now and then by chance), from
+   their own stream after everything else, so nothing on the table moves. One of them is a painting of the picture's own
+   things: the larger ones on the table, each its own colour (taken from the thing itself), size and place, set down as a
+   small still life in a frame ---------- */
+const WALLTHINGS=["painting","pan","garlic","herbs","plate","sconce","key","map","basket"];
+const WALLNAMES={painting:"a painting on the wall",pan:"a pan on the wall",garlic:"a braid of garlic",herbs:"a bunch of dried herbs",plate:"a Delft plate on the wall",sconce:"a brass sconce",key:"keys on a nail",map:"a map on the wall",basket:"a wicker basket on the wall"};
+// each: half width, half height (for the room it takes on the wall), and how to make it centred at (x, y)
+const WALLMAKE={
+  painting:{hw:0.72,hh:0.62,make:(x,y)=>{ const up=rand()<0.3, a0=rr(0.42,0.6), cw=up?a0*rr(0.72,0.82):a0, ch=up?a0:a0*rr(0.72,0.82), fw=rr(0.06,0.12), zc=ZW-0.03, fs=pick(["gilt","gilt","ebony","slip"]), gilt=fs==="gilt", fc=gilt?C(176,132,58):C(28,22,18);
+    if(rand()<0.5) wallCord([x-cw*0.6,y+ch+fw*0.4,ZW-0.012],[x+cw*0.6,y+ch+fw*0.4,ZW-0.012],[x,y+ch+fw+rr(0.18,0.3),ZW-0.02]);
+    const frameD=(px,py,pz)=>Math.max(sdBox(px-x,py-y,pz-(ZW-0.045),cw+fw,ch+fw,0.045,0.012),-sdBox(px-x,py-y,pz-zc,cw,ch,0.2,0));
+    const canD=(px,py,pz)=>sdBox(px-x,py-y,pz-zc,cw,ch,0.012,0);
+    let SH=null;   // the things it shows, worked out when first painted (the picture is settled by then)
+    const shapes=()=>{ const F=new Set(["jug","bottle","bowl","plate","bread","cheese","pumpkin","skull","candlestick","hourglass","cup","mug"]);
+      let L=OBJS.filter(o=>!o.hidden&&!o.bg&&(FRUIT[o.kind]||F.has(o.kind))&&o.box[4]>0.05&&o.box[1]<1.5).sort((a,b)=>(b.box[3]-b.box[0])*(b.box[4]-b.box[1])-(a.box[3]-a.box[0])*(a.box[4]-a.box[1]));
+      if(!L.length) return []; const c0=L[0]; L=L.filter(o=>Math.abs(o.cx-c0.cx)<1.3).slice(0,6);   // a group, as a painter would take it: the largest thing and what stands near it
+      let x0=1e9,x1=-1e9,y1=0; for(const o of L){ x0=Math.min(x0,o.box[0]); x1=Math.max(x1,o.box[3]); y1=Math.max(y1,o.box[4]); }
+      const sc=Math.min(1.65/Math.max(0.5,x1-x0),1.25/Math.max(0.4,y1)), xm=(x0+x1)/2;
+      return L.sort((a,b)=>a.cz-b.cz).map(o=>{ let c; try{ c=objMat(o,o.cx,(o.box[1]+o.box[4])/2,o.box[2]).c; }catch(e){ c=C(150,110,70); }   // its own colour
+        const rx=Math.max(0.05,(o.box[3]-o.box[0])/2*sc*0.85), ry=Math.max(0.05,(o.box[4]-o.box[1])/2*sc*0.92);
+        return {u:(o.cx-xm)*sc, v:-0.62+((o.box[1]+o.box[4])/2)*sc, rx, ry, c, tall:o.kind==="jug"||o.kind==="bottle"||o.kind==="candlestick"}; }); };
+    const bg=SCH.wall.map(v=>v*0.45), tab=TABLE.c.map(v=>v*0.7);
+    const pic=(u,v)=>{ if(!SH) SH=shapes();
+      for(const S of SH){ const du=(u-S.u)/S.rx, dv=(v-S.v)/S.ry, w=S.tall?Math.pow(Math.abs(du),2.6):du*du, r=w+dv*dv; if(r>1) continue;   // (a jug or a bottle squarer than a fruit)
+        const nz=Math.sqrt(Math.max(0,1-r)), lum=0.38+0.75*Math.max(0,-0.55*du+0.45*dv+0.7*nz)+0.25*Math.pow(Math.max(0,-0.45*du+0.4*dv+0.8*nz),18);
+        return S.c.map(q=>Math.min(1,q*lum)); }
+      const shadow=SH.some(S=>Math.abs(u-S.u-0.08)<S.rx&&v<S.v-S.ry*0.6&&v>S.v-S.ry-0.06);
+      if(v<-0.62) return tab.map(q=>q*(0.8+0.25*(v+1)*(shadow?0.5:1)));
+      return bg.map(q=>q*(0.75+0.45*smooth(1,-0.2,Math.hypot(u+0.3,v-0.5))));   // the dark ground, lighter toward the upper left
+    };
+    const o=addObj({kind:"wallthing",wall:"painting",hang:true,cx:x,cy:y,cz:ZW-0.05,m:IDM,bound:Math.hypot(cw+fw,ch+fw)+0.1,box:[x-cw-fw-0.02,y-ch-fw-0.02,ZW-0.1,x+cw+fw+0.02,y+ch+fw+0.02,ZW],
+      sdf:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+ZW-0.05; return Math.min(frameD(px,py,pz),canD(px,py,pz)); },
+      mat:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+ZW-0.05; if(frameD(px,py,pz)<=canD(px,py,pz)+0.002){ const e=Math.max(Math.abs(lx)-cw,Math.abs(ly)-ch)/fw;
+          if(fs==="slip"&&e<0.22) return M(C(186,142,62).map(q=>q*(0.8+0.3*smooth(0,0.2,e))),{ks:0.5,gl:30});                                         // the gilt slip inside a black frame
+          const mould=fs==="ebony"?0.8+0.3*Math.abs(Math.sin(e*18)):0.75+0.4*smooth(0,0.5,e)*(1-smooth(0.6,1,e))+(gilt?0.12*Math.sin(e*30)*smooth(0.3,0.6,e):0);   // the moulding's profile: ripples on ebony, beads on gilt
+          return M(fc.map(q=>q*mould*(gilt?0.9+0.2*noise3(px*20,py*20,1):1)),{ks:gilt?0.5:fs==="ebony"?0.45:0.3,gl:gilt?30:fs==="ebony"?50:40}); }
+        const u=lx/cw, v=ly/ch, c=pic(u,v), n=noise3(lx*40,ly*40,3); return M(c.map(q=>q*(0.95+0.08*n)),{ks:0.12,gl:20,varnish:1}); }});
+    o.partId=(wx,wy,wz)=>frameD(wx,wy,wz)<canD(wx,wy,wz)?o.id+2000:o.id; }},
+  pan:{hw:0.42,hh:0.72,make:(x,y)=>{
+    // a pan hung by its handle, its inside toward us: a frying pan (shallow, a long handle) or a saucepan (deep, a short
+    // one); copper (tin-lined or not), brass or iron; by a hole in the handle or a leather loop; a little askew on its nail
+    const kind=pick(["copper","copper","copper","brass","iron"]), fry=rand()<0.55, R=fry?rr(0.27,0.35):rr(0.22,0.28), dep=fry?rr(0.05,0.07):rr(0.12,0.16), HL=fry?rr(0.42,0.56):rr(0.26,0.34);
+    const tin=kind==="copper"&&rand()<0.55, loop=rand()<0.4, th=0.011, zb=ZW-0.012, yc=y-0.24, ny=yc+R+HL+0.02, T=wallTilt(x,loop?ny+0.06:ny-0.06,rr(-0.14,0.14));
+    if(loop) wallNail(x,ny+0.06,ZW-0.04); else wallNail(x,ny-0.06,ZW-0.065);   // the nail it hangs on: through the hole in its handle, or under its loop
+    const yA=yc+R*0.94, zA=zb-dep*0.75, zN=ZW-0.02;
+    const shell=(px,py,pz)=>{ const t=clamp((zb-pz)/dep,0,1), r=Math.hypot(px-x,py-yc), Rt=R*(0.86+0.14*t);   // the walls flare a little to the rim
+      const out=Math.max(r-Rt,pz-zb,(zb-dep)-pz)-0.006, inn=Math.max(r-(Rt-th),pz-(zb-th),(zb-dep-0.02)-pz); return Math.max(out,-inn); };
+    const lip=(px,py,pz)=>Math.hypot(Math.hypot(px-x,py-yc)-R,pz-(zb-dep))-0.013;
+    const handle=(px,py,pz)=>{ const e=sdCapsule(px,py,pz,x,yA,zA,x,ny-0.03,zN-0.015,fry?0.022:0.019); const hole=loop?1:Math.hypot(px-x,py-(ny-0.06))-0.018; return Math.max(e,-hole); };
+    const strap=loop?(px,py,pz)=>Math.min(sdCapsule(px,py,pz,x-0.02,ny-0.07,zN-0.02,x,ny+0.06,ZW-0.01,0.008),sdCapsule(px,py,pz,x+0.02,ny-0.07,zN-0.02,x,ny+0.06,ZW-0.01,0.008)):()=>1e9;
+    const D=(px0,py0,pz)=>{ const [px,py]=T(px0,py0); return Math.min(shell(px,py,pz),lip(px,py,pz),handle(px,py,pz),strap(px,py,pz)); };
+    const base=kind==="brass"?[C(196,150,64),C(140,96,34)]:kind==="iron"?[C(66,60,56),C(38,34,32)]:[C(188,98,54),C(122,56,30)];
+    addObj({kind:"wallthing",wall:"pan",hang:true,cx:x,cy:y,cz:ZW-0.08,m:IDM,bound:1.2,box:[x-R-0.12,yc-R-0.1,ZW-dep-0.06,x+R+0.12,ny+0.12,ZW],
+      sdf:(lx,ly,lz)=>D(lx+x,ly+y,lz+ZW-0.08)*0.85,
+      mat:(lx,ly,lz)=>{ const [px,py]=T(lx+x,ly+y), pz=lz+ZW-0.08;
+        if(loop&&strap(px,py,pz)<Math.min(handle(px,py,pz),shell(px,py,pz))+0.002) return M(C(92,54,30),{ks:0.1,gl:10});
+        const r=Math.hypot(px-x,py-yc), inside=r<R*0.84&&pz>zb-dep+0.012&&handle(px,py,pz)>0.004, big=noise3(px*4,py*4,pz*4+7), n=noise3(px*16,py*16,pz*16), cell=voronoi3(px*20,py*20,pz*6,5);
+        let c=mixc(base[0],base[1],clamp(0.35+0.45*big+0.15*n,0,1));                                  // patches of tone: no metal is one colour
+        if(inside&&tin) c=mixc(C(170,168,160),C(110,106,100),0.4+0.3*big);                            // the tinned inside, grey and worn
+        if(kind==="copper") c=mixc(c,C(70,110,90),smooth(0.55,0.75,noise3(px*9+3,py*9,pz*9))*0.35);   // a little verdigris
+        if(kind==="iron") c=mixc(c,C(120,66,36),smooth(0.4,0.7,noise3(px*7,py*7+5,pz*7))*0.45);       // and rust
+        c=c.map(v=>v*(0.9+0.16*smooth(0,0.2,cell.f2-cell.f1)));                                        // hammered
+        return M(c,{ks:kind==="iron"?0.25:0.5,gl:kind==="iron"?14:26}); }}); }},
+  garlic:{hw:0.2,hh:0.62,make:(x,y)=>{
+    const kind=pick(["garlic","garlic","onion","shallot"]), n=5+Math.floor(rand()*5), zc=ZW-0.09, B=[], sz=kind==="onion"?1.22:kind==="shallot"?0.85:1, top=y+0.46, step=(n>6?0.085:0.1)*sz;   // (a braid as long as its bulbs, packed close)
+    for(let i=0;i<n;i++) B.push([x+(i%2?0.06:-0.06)*sz+rr(-0.02,0.02), top-0.16-i*step, zc+rr(-0.02,0.02), rr(0.075,0.095)*sz, rand()]);
+    wallNail(x,top+0.02,ZW-0.05);
+    const bulb=(px,py,pz,b)=>{ const dx=px-b[0], dy=py-b[1], dz=pz-b[2], a=Math.atan2(dz,dx), pt=kind==="shallot"?1.25:kind==="onion"?0.95:0.85; return sdEllipsoid(dx,dy,dz,b[3],b[3]*pt,b[3])+(kind==="garlic"?0.006*Math.abs(Math.sin(a*4)):0.002*Math.sin(a*14)); };
+    addObj({kind:"wallthing",wall:"garlic",hang:true,cx:x,cy:y,cz:zc,m:IDM,bound:1.1,box:[x-0.24,top-1.25,ZW-0.24,x+0.24,top+0.05,ZW],
+      sdf:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zc; let d=sdCapsule(px,py,pz,x,top,ZW-0.04,x,top-0.16-(n-1)*step,zc+0.04,0.022); for(const b of B){ const e=bulb(px,py,pz,b); if(e<d) d=e; } return d*0.85; },
+      mat:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zc; let bd=1e9, bb=null; for(const b of B){ const e=bulb(px,py,pz,b); if(e<bd){ bd=e; bb=b; } } if(bd>0.01) return M(C(176,150,100),{ks:0.05,gl:6});
+        const n=noise3(px*30,py*12,pz*30), h=bb[4]; let c;
+        if(kind==="onion") c=mixc(mixc(C(130,40,60),C(170,80,90),h),C(220,190,160),smooth(0.3,0.8,n)*0.35);   // red onions, their papery skin flaking pale
+        else if(kind==="shallot") c=mixc(mixc(C(170,96,56),C(196,128,80),h),C(120,60,40),smooth(0.2,0.7,n)*0.4);
+        else c=mixc(C(236,228,214),C(176,130,160),smooth(0.2,0.7,n)*(0.25+0.4*h));
+        return M(c,{ks:0.2,gl:16,wrap:0.3}); }}); }},
+  herbs:{hw:0.22,hh:0.55,make:(x,y)=>{
+    const kind=pick(["lavender","rosemary","wheat","bay"]), zc=ZW-0.08, top=[x,y+0.32,zc], S=[], ns=kind==="wheat"?12:9+Math.floor(rand()*4), rib=rand()<0.4, rc=pick([C(140,26,30),C(60,70,120),C(200,180,140)]);
+    for(let i=0;i<ns;i++){ const a=rr(-0.45,0.45); S.push([x+Math.sin(a)*0.24,y-0.42+rr(-0.06,0.06),zc+rr(-0.06,0.03)]); }
+    const leafs=[]; for(const e of S){ if(kind==="lavender"||kind==="wheat"){ const t=0.82; leafs.push([top[0]+(e[0]-top[0])*t,top[1]+(e[1]-top[1])*t,top[2]+(e[2]-top[2])*t,kind==="wheat"?0.032:0.024,e]); continue; }   // a head at the end of each stem
+      for(let k=0;k<4;k++){ const t=0.35+0.15*k; leafs.push([top[0]+(e[0]-top[0])*t+rr(-0.03,0.03),top[1]+(e[1]-top[1])*t,top[2]+(e[2]-top[2])*t+rr(-0.02,0.02),kind==="bay"?rr(0.035,0.05):rr(0.022,0.032),null]); } }
+    wallNail(x,y+0.56,ZW-0.04);
+    const leafD=(px,py,pz,L)=>L[4]?sdEllipsoid(px-L[0],py-L[1],pz-L[2],L[3]*0.55,L[3]*3,L[3]*0.55):kind==="bay"?sdEllipsoid(px-L[0],py-L[1],pz-L[2],L[3]*0.7,L[3]*1.5,L[3]*0.2):sdEllipsoid(px-L[0],py-L[1],pz-L[2],L[3]*0.35,L[3]*1.8,L[3]*0.35);
+    const tie=(px,py,pz)=>sdCapsule(px,py,pz,top[0],top[1]+0.02,top[2],top[0],top[1]-0.04,top[2],rib?0.04:0.033);
+    addObj({kind:"wallthing",wall:"herbs",hang:true,cx:x,cy:y,cz:zc,m:IDM,bound:1,box:[x-0.32,y-0.55,ZW-0.2,x+0.32,y+0.6,ZW],
+      sdf:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zc; let d=Math.min(sdCapsule(px,py,pz,x,y+0.55,ZW-0.03,...top,0.006),tie(px,py,pz)); for(const e of S){ const q=sdCapsule(px,py,pz,...top,...e,0.006); if(q<d) d=q; }
+        for(const L of leafs){ const q=leafD(px,py,pz,L); if(q<d) d=q; } return d*0.8; },
+      mat:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zc, n=noise3(px*20,py*20,3); if(tie(px,py,pz)<0.004) return M(rib?rc:C(170,140,96),{ks:0.1,gl:10,sheen:rib?0.3:0});
+        let lb=1e9; for(const L of leafs){ const q=leafD(px,py,pz,L); if(q<lb) lb=q; } const onLeaf=lb<0.006;
+        const c=kind==="lavender"?(onLeaf?mixc(C(110,90,150),C(140,120,180),smooth(-0.3,0.5,n)):C(120,128,92)):kind==="wheat"?mixc(C(206,170,96),C(170,130,70),smooth(-0.3,0.5,n)):kind==="bay"?(onLeaf?mixc(C(70,90,52),C(110,116,70),smooth(-0.3,0.5,n)):C(130,110,70)):mixc(C(84,100,70),C(126,120,84),smooth(-0.3,0.5,n));
+        return M(c,{ks:kind==="bay"&&onLeaf?0.3:0.06,gl:kind==="bay"?24:8,wrap:0.3}); }}); }},
+  plate:{hw:0.38,hh:0.46,make:(x,y)=>{
+    const kind=pick(["delft","delft","majolica","kraak","pewter"]), R=rr(0.27,0.36), zc=ZW-0.04, yN=y+R+rr(0.06,0.1);
+    wallCord([x-R*0.55,y+R*0.8,zc-0.012],[x+R*0.55,y+R*0.8,zc-0.012],[x,yN,ZW-0.02]);   // the wire holder, its hooks over the rim, up to a nail
+    const D=(px,py,pz)=>{ const r=Math.hypot(px-x,py-y), dish=0.02*smooth(R*0.75,0,r); return Math.max(r-R,Math.abs(pz-zc+dish)-0.014); };
+    addObj({kind:"wallthing",wall:"plate",hang:true,cx:x,cy:y,cz:zc,m:IDM,bound:R+0.1,box:[x-R-0.03,y-R-0.03,ZW-0.09,x+R+0.03,y+R+0.03,ZW],
+      sdf:(lx,ly,lz)=>D(lx+x,ly+y,lz+zc)*0.9,
+      mat:(lx,ly,lz)=>{ const r=Math.hypot(lx,ly)/R, a=Math.atan2(ly,lx);
+        if(kind==="pewter"){ const n=noise3(lx*10,ly*10,1); return M(mixc(C(150,150,146),C(100,100,98),0.4+0.3*n).map(v=>v*(r>0.78&&r<0.8?0.8:1)),{ks:0.55,gl:30}); }
+        const band=(r0,w)=>smooth(w,0,Math.abs(r-r0));
+        if(kind==="majolica"){ let c=C(238,226,196); c=mixc(c,C(220,150,40),band(0.93,0.05)); c=mixc(c,C(40,80,150),band(0.83,0.025)); c=mixc(c,C(80,130,60),(r>0.6&&r<0.78?smooth(0.3,0.05,Math.abs(Math.sin(a*5+r*3))):0)*0.8);   // ochre rim, a blue line, a green garland
+          c=mixc(c,C(200,90,30),smooth(0.32,0.2,r)*smooth(0.25,0.05,Math.abs(Math.sin(a*3)))); c=mixc(c,C(220,170,50),smooth(0.12,0.06,r)); return M(c,{ks:0.45,gl:50}); }
+        const blue=C(40,70,140); let k;
+        if(kind==="kraak"){ const pan=Math.floor((a+Math.PI)/(Math.PI/4)); k=band(0.95,0.035)+band(0.58,0.02)+(r>0.6&&r<0.94?(pan%2?smooth(0.3,0.1,Math.abs(Math.sin((a+Math.PI)*8)))*0.6:smooth(0.6,0.3,Math.abs(fract(r*9)-0.5)*2)*0.7):0)+(r<0.5?smooth(0.25,0,Math.abs(noise3(lx*9,ly*9,2)))*0.7:0);   // eight panels, alternate filled and ruled, a scene in the well
+          return M(mixc(C(240,240,234),C(36,64,150),clamp(k,0,1)*0.9),{ks:0.5,gl:55}); }
+        k=band(0.93,0.04)+band(0.82,0.025)+band(0.55,0.02)*0.9+(r>0.58&&r<0.8?smooth(0.25,0.05,Math.abs(Math.sin(a*6)))*0.85:0)+(r<0.4?smooth(0.3,0.05,Math.abs(Math.sin(a*4+r*5)))*smooth(0.4,0.1,r):0);   // Delft: rim bands, a ring of panels, a flower in the well
+        return M(mixc(C(238,236,226),blue,clamp(k,0,1)*0.85),{ks:0.45,gl:50}); }}); }},
+  sconce:{hw:0.26,hh:0.45,make:(x,y)=>{
+    const met=pick([[C(196,150,70),0.6],[C(196,150,70),0.6],[C(150,150,146),0.5],[C(54,50,48),0.3]]), two=rand()<0.35, shape=pick(["oval","round","shield"]), zc=ZW-0.02;
+    const arms=two?[-1,1]:[0], cand=arms.map(()=>({h:rr(0.1,0.32),drip:rand()<0.6,col:pick([C(236,228,206),C(240,236,224),C(226,210,170)])}));
+    const pans=arms.map(s_=>[x+s_*0.17,y-0.02,ZW-0.22]);
+    const plate=(px,py,pz)=>{ const dx=px-x, dy=py-y; let e=shape==="round"?Math.hypot(dx,dy)-0.15:shape==="shield"?Math.max(Math.abs(dx)-0.12-0.05*smooth(-0.2,0.2,dy),dy-0.22,Math.hypot(dx,(dy+0.08)*1.2)-0.2):sdEllipsoid(dx,dy,0,0.14,0.24,1); return Math.max(e,Math.abs(pz-(ZW-0.012))-0.012); };
+    const armD=(px,py,pz,i)=>sdCapsule(px,py,pz,x,y-0.12,ZW-0.02,pans[i][0],pans[i][1]-0.02,pans[i][2],0.018);
+    const dish=(px,py,pz,i)=>Math.max(Math.hypot(px-pans[i][0],pz-pans[i][2])-0.08,Math.abs(py-pans[i][1])-0.012);
+    const candle=(px,py,pz,i)=>{ const c=cand[i], p=pans[i], r=Math.hypot(px-p[0],pz-p[2]); let e=Math.max(r-0.034,Math.abs(py-(p[1]+0.012+c.h/2))-c.h/2);
+      if(c.drip) e=Math.min(e,sdCapsule(px,py,pz,p[0]+0.03,p[1]+c.h-0.01,p[2]-0.012,p[0]+0.034,p[1]+c.h*0.45,p[2]-0.016,0.008)); return e; };
+    const parts=(px,py,pz)=>{ let m=plate(px,py,pz), cd=1e9; for(let i=0;i<arms.length;i++){ m=Math.min(m,armD(px,py,pz,i),dish(px,py,pz,i)); cd=Math.min(cd,candle(px,py,pz,i)); } return [m,cd]; };
+    addObj({kind:"wallthing",wall:"sconce",hang:true,cx:x,cy:y,cz:zc,m:IDM,bound:0.8,box:[x-0.28,y-0.3,ZW-0.34,x+0.28,y+0.42,ZW],
+      sdf:(lx,ly,lz)=>{ const [m,c]=parts(lx+x,ly+y,lz+zc); return Math.min(m,c); },
+      mat:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zc, [m,c]=parts(px,py,pz); if(c<m+0.002){ const i=two&&px>x?1:0; return M(cand[i].col,{ks:0.1,gl:10,wrap:0.4,ss:0.3}); }
+        return M(met[0].map(v=>v*(0.88+0.2*noise3(px*14,py*14,pz*14))),{ks:met[1],gl:36}); }}); }},
+  key:{hw:0.16,hh:0.32,make:(x,y)=>{
+    // keys on a nail: one large key, or two to four on an iron ring, fanned as they fall; each its own bow (a plain ring,
+    // three lobes, an oval), its own shank and bit; iron or brass; now and then a ribbon tied through the ring
+    const nK=rand()<0.35?1:2+Math.floor(rand()*3), ny=y+0.24, zr=ZW-0.03, ring=nK>1?{x,y:ny-0.05,r:rr(0.04,0.055)}:null, K=[];
+    for(let k=0;k<nK;k++){ const a=nK===1?rr(-0.08,0.08):(k-(nK-1)/2)*rr(0.28,0.4)+rr(-0.06,0.06), L=rr(0.2,0.3)*(nK===1?1.2:1), top=ring?[ring.x+Math.sin(a)*ring.r,ring.y-Math.cos(a)*ring.r]:[x,ny-0.01];
+      K.push({a,L,top,z:zr-0.004-k*0.012,bow:pick(["ring","ring","trefoil","oval"]),br:rr(0.032,0.045)*(nK===1?1.2:1),bit:pick(["block","step","double"]),brass:rand()<0.25}); }
+    const ribbon=nK>1&&rand()<0.4, rc=pick([C(140,26,30),C(40,70,50),C(50,50,110)]);
+    const key=(px,py,pz,q)=>{ const c=Math.cos(q.a), s_=Math.sin(q.a), dx=px-q.top[0], dy=py-q.top[1], u=dx*c+dy*s_, v=-(-dx*s_+dy*c), w=pz-q.z;   // u across, v down the key
+      const bv=v-q.br; let bow;
+      if(q.bow==="trefoil"){ bow=1e9; for(const t of [0,2.094,4.189]){ const cx=Math.sin(t)*q.br*0.55, cy=-Math.cos(t)*q.br*0.55; bow=Math.min(bow,Math.abs(Math.hypot(u-cx,bv-cy)-q.br*0.45)-0.008); } }
+      else { const sy=q.bow==="oval"?1.4:1; bow=Math.abs(Math.hypot(u,bv/sy)*Math.min(1,sy)-q.br)-0.009; }
+      const sh=sdCapsule(u,v,0,0,q.br*2,0,0,q.L,0,0.011), y0=q.L-0.05;
+      const bit=q.bit==="block"?sdBox(u-0.03,v-(y0+0.025),0,0.026,0.026,0.008,0.003):q.bit==="step"?Math.min(sdBox(u-0.022,v-(y0+0.012),0,0.02,0.012,0.008,0.002),sdBox(u-0.035,v-(y0+0.036),0,0.032,0.012,0.008,0.002)):Math.min(sdBox(u-0.028,v-(y0+0.006),0,0.024,0.009,0.008,0.002),sdBox(u-0.028,v-(y0+0.04),0,0.024,0.009,0.008,0.002));
+      return Math.max(Math.min(bow,sh,bit),Math.abs(w)-0.008); };
+    const ringD=ring?(px,py,pz)=>Math.hypot(Math.hypot(px-ring.x,py-ring.y)-ring.r,pz-zr)-0.007:()=>1e9;
+    const nail=(px,py,pz)=>Math.min(Math.hypot(px-x,py-ny,pz-(ZW-0.035))-0.012,Math.max(Math.hypot(px-x,py-ny)-0.006,Math.abs(pz-(ZW-0.02))-0.02));
+    const rib=ribbon?(px,py,pz)=>Math.min(sdBox(px-x-0.03,py-(ny-0.11),pz-(zr-0.02),0.012,0.06,0.003,0.002),sdBox(px-x+0.02,py-(ny-0.12),pz-(zr-0.024),0.012,0.07,0.003,0.002)):()=>1e9;
+    addObj({kind:"wallthing",wall:"key",hang:true,cx:x,cy:y,cz:zr,m:IDM,bound:0.6,box:[x-0.24,y-0.32,ZW-0.1,x+0.24,ny+0.06,ZW],
+      sdf:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zr; let d=Math.min(ringD(px,py,pz),nail(px,py,pz),rib(px,py,pz)); for(const q of K){ const e=key(px,py,pz,q); if(e<d) d=e; } return d*0.85; },
+      mat:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zr; let bd=Math.min(ringD(px,py,pz),nail(px,py,pz)), bq=null; for(const q of K){ const e=key(px,py,pz,q); if(e<bd){ bd=e; bq=q; } }
+        if(rib(px,py,pz)<bd) return M(rc,{ks:0.15,gl:14,sheen:0.3,sc:rc.map(v=>v*1.5)});
+        const n=noise3(px*30,py*30,pz*30), brass=bq&&bq.brass; let c=brass?mixc(C(190,146,62),C(120,84,30),0.4+0.3*n):mixc(C(64,60,58),C(36,33,31),0.4+0.3*n);
+        if(!brass) c=mixc(c,C(110,62,34),smooth(0.3,0.7,noise3(px*14+2,py*14,pz*14))*0.4);   // rust where the hand never rubbed
+        return M(c,{ks:brass?0.55:0.35,gl:brass?30:22}); }}); }},
+  map:{hw:0.62,hh:0.55,make:(x,y)=>{
+    const kind=pick(["land","land","sea","plant"]), up=kind==="plant", cw=up?rr(0.32,0.4):rr(0.45,0.55), ch=up?cw*rr(1.3,1.45):cw*rr(0.68,0.78), fw=rr(0.03,0.05), zc=ZW-0.025, off=rand()*30, fr=pick(["black","wood","slip"]);
+    if(rand()<0.45) wallCord([x-cw*0.6,y+ch+fw*0.4,ZW-0.01],[x+cw*0.6,y+ch+fw*0.4,ZW-0.01],[x,y+ch+fw+rr(0.15,0.25),ZW-0.02]);
+    const frameD=(px,py,pz)=>Math.max(sdBox(px-x,py-y,pz-zc,cw+fw,ch+fw,0.025,0.004),-sdBox(px-x,py-y,pz-zc,cw,ch,0.2,0));
+    const paper=(px,py,pz)=>sdBox(px-x,py-y,pz-(zc+0.012),cw,ch,0.006,0);
+    const ink=C(70,50,30);
+    const o=addObj({kind:"wallthing",wall:"map",hang:true,cx:x,cy:y,cz:zc,m:IDM,bound:Math.hypot(cw,ch)+0.2,box:[x-cw-fw-0.02,y-ch-fw-0.02,ZW-0.06,x+cw+fw+0.02,y+ch+fw+0.02,ZW],
+      sdf:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zc; return Math.min(frameD(px,py,pz),paper(px,py,pz)); },
+      mat:(lx,ly,lz)=>{ const px=lx+x,py=ly+y,pz=lz+zc; if(frameD(px,py,pz)<=paper(px,py,pz)+0.002){ const e=Math.max(Math.abs(lx)-cw,Math.abs(ly)-ch)/fw;
+          return fr==="wood"?M(mixc(C(120,76,40),C(80,50,26),0.5+0.5*Math.sin(px*60+noise3(px*8,py*8,1)*3)),{ks:0.3,gl:30}):fr==="slip"&&e<0.3?M(C(186,142,62),{ks:0.5,gl:30}):M(C(26,20,16),{ks:0.3,gl:30}); }
+        const u=lx/cw, v=ly/ch; let c=C(226,212,176);
+        if(kind==="plant"){ // a botanical print: a stem, leaves in pairs, a flower, in ink washed with colour
+          const sx=0.08*Math.sin(v*3+off), st=smooth(0.035,0,Math.abs(u-sx))*(v<0.55&&v>-0.85?1:0); let lf=0;
+          for(let k=0;k<4;k++){ const vy=-0.6+k*0.3, sd=k%2?1:-1, du=(u-sx-sd*0.22)/0.22, dv=(v-vy-0.05)/0.09; lf=Math.max(lf,smooth(1,0.85,du*du+dv*dv)); }
+          const fl=Math.hypot(u-sx,(v-0.7)*1.2), petal=smooth(0.3,0.26,fl)*(0.6+0.4*Math.abs(Math.sin(Math.atan2(v-0.7,u-sx)*5)));
+          c=mixc(c,C(110,130,80),lf*0.8); c=mixc(c,C(190,80,90),petal); c=mixc(c,ink,st+smooth(0.02,0,Math.abs(fl-0.3))*0.7);
+          if(v<-0.9) c=mixc(c,ink,smooth(0.25,0.2,Math.abs(fract(u*14)-0.5))*0.5); }   // its name, lettered along the foot
+        else { const n=noise3(u*2.2+off,v*2.2,1.3)+0.5*noise3(u*5+off,v*5,2.1), lvl=kind==="sea"?0.35:0.05, land=n>lvl, coast=smooth(0.035,0,Math.abs(n-lvl));
+          c=land?mixc(C(214,196,146),C(170,176,120),smooth(0.1,0.6,noise3(u*4,v*4+off,5))*0.6):kind==="sea"?C(190,204,196):C(196,198,182); c=mixc(c,ink,coast*0.9);
+          if(!land) c=mixc(c,C(150,150,130),smooth(0.03,0,Math.abs(fract(n*9)-0.5)-0.45)*0.4);   // hatching along the shores
+          const cu=kind==="sea"?-0.2:0.65, cv=kind==="sea"?0.1:-0.55, rc=Math.hypot(u-cu,v-cv), an=Math.atan2(v-cv,u-cu);
+          if(kind==="sea") c=mixc(c,C(120,80,60),smooth(0.006,0,Math.abs(Math.sin(an*8)*rc))*0.5);   // rhumb lines out from the compass
+          c=mixc(c,C(90,60,36),smooth(0.012,0,Math.abs(rc-0.16))+smooth(0.02,0,Math.abs(Math.sin(an*4)))*smooth(0.16,0.02,rc)*0.8);
+          if(v>0.82) c=mixc(c,C(150,110,70),0.5); }
+        c=mixc(c,C(150,120,80),smooth(0.85,1,Math.max(Math.abs(u),Math.abs(v)))*0.5);   // the edges foxed
+        return M(c,{ks:0.05,gl:8}); }});
+    o.partId=(wx,wy,wz)=>frameD(wx,wy,wz)<paper(wx,wy,wz)?o.id+2000:o.id; }},
+  basket:{hw:0.38,hh:0.52,make:(x,y)=>{
+    // a wicker basket hung on the wall, its back against it: round and deep with an arched handle, or a flat oval tray on a
+    // loop; stakes up it and weavers round, over and under; a twisted rim; straw, willow or dark wicker; now and then a
+    // linen cloth spilling over its front
+    const flat=rand()<0.4, W=flat?rr(0.34,0.4):rr(0.26,0.32), Hh=flat?rr(0.1,0.13):rr(0.2,0.25), Dp=flat?rr(0.12,0.16):rr(0.2,0.24), yc=y-0.14, ytop=yc+(flat?0.04:0.06);
+    const pal=pick([[C(200,164,98),C(150,112,62)],[C(160,112,64),C(104,70,38)],[C(116,82,48),C(70,48,28)]]), cloth=rand()<0.35, ns=flat?28:22, nw=flat?7:10;
+    const yN=flat?ytop+0.265:ytop+W*0.92-0.03, T=wallTilt(x,yN,rr(-0.08,0.08));
+    wallNail(x,yN,flat?ZW-0.045:ZW-Dp*0.45-0.035);   // the nail it hangs on, just under the top of its handle or its loop
+    const weave=(px,py,pz)=>{ const a=Math.atan2(pz-ZW,px-x), u=a*ns/Math.PI, v=(ytop-py)/(Hh*2)*nw, row=Math.floor(v), over=((Math.floor(u)+row)&1)?1:-1;   // over and under
+      return {b:0.006*Math.abs(Math.sin(Math.PI*v))*(0.6+0.4*over*Math.cos(Math.PI*u)), row, g:Math.abs(Math.sin(Math.PI*v))}; };
+    const body=(px,py,pz)=>{ const e=sdEllipsoid(px-x,py-yc,pz-ZW,W,Hh,Dp); const wv=weave(px,py,pz); return Math.max(Math.abs(e)-0.013-wv.b,py-ytop,pz-ZW+0.004); };
+    const rim=(px,py,pz)=>{ const k=Math.hypot((px-x)/W,(pz-ZW)/Dp), a=Math.atan2(pz-ZW,px-x); return Math.hypot((k-Math.sqrt(Math.max(0,1-((ytop-yc)/Hh)**2)))*Math.min(W,Dp),py-ytop)-0.016-0.004*Math.sin(a*40); };   // twisted
+    const handle=flat?(px,py,pz)=>Math.min(sdCapsule(px,py,pz,x-0.06,ytop,ZW-0.02,x,ytop+0.28,ZW-0.01,0.01),sdCapsule(px,py,pz,x+0.06,ytop,ZW-0.02,x,ytop+0.28,ZW-0.01,0.01))
+      :(px,py,pz)=>Math.max(Math.hypot(Math.hypot(px-x,py-ytop)-W*0.92,pz-(ZW-Dp*0.45))-0.017-0.003*Math.sin(Math.atan2(py-ytop,px-x)*30),ytop-py);
+    const cl=cloth?(px,py,pz)=>{ const fz=ZW-Dp*Math.sqrt(Math.max(0,1-((px-x)/W)**2))*0.97;   // the cloth over the front rim, a fold of it hanging down the front
+      const lap=sdEllipsoid(px-x+0.04,py-(ytop+0.005),pz-(fz+0.03),W*0.62,0.035,0.06), hang=sdEllipsoid(px-x+0.07,py-(ytop-0.07),pz-(fz-0.012),0.09,0.085,0.022);
+      return Math.min(lap,hang)-0.008*noise3(px*12,py*12,pz*12); }:()=>1e9;
+    const D=(px0,py0,pz)=>{ const [px,py]=T(px0,py0); return Math.min(body(px,py,pz),rim(px,py,pz),handle(px,py,pz),cl(px,py,pz)); };
+    addObj({kind:"wallthing",wall:"basket",hang:true,cx:x,cy:y,cz:ZW-0.12,m:IDM,bound:0.8,box:[x-W-0.08,yc-Hh-0.08,ZW-Dp-0.1,x+W+0.08,ytop+0.4,ZW],
+      sdf:(lx,ly,lz)=>D(lx+x,ly+y,lz+ZW-0.12)*0.8,
+      mat:(lx,ly,lz)=>{ const [px,py]=T(lx+x,ly+y), pz=lz+ZW-0.12;
+        if(cloth&&cl(px,py,pz)<Math.min(body(px,py,pz),rim(px,py,pz),handle(px,py,pz))+0.002) return M(C(226,218,196).map(v=>v*(0.92+0.1*noise3(px*20,py*20,pz*20))),{ks:0.06,gl:8,wrap:0.3});
+        const wv=weave(px,py,pz), rowT=hash3i(wv.row,3,9), c=mixc(pal[0],pal[1],0.25+0.5*rowT+0.25*noise3(px*6,py*6,pz*6));   // each weaver its own shade
+        return M(c.map(v=>v*(0.72+0.34*wv.g)),{ks:0.1,gl:12,wrap:0.2}); }}); }}
+};
+// a nail in the wall, its head standing out to zTip (what hangs on it rests on its shank); a cord from two points to a nail
+function wallNail(nx,ny,zTip){ const D=(px,py,pz)=>Math.min(sdCapsule(px,py,pz,nx,ny,ZW,nx,ny,zTip,0.0065),Math.max(Math.hypot(px-nx,py-ny)-0.015,Math.abs(pz-zTip)-0.004));
+  addObj({kind:"wallthing",wall:"nail",hang:true,cx:nx,cy:ny,cz:ZW,m:IDM,bound:0.1,box:[nx-0.03,ny-0.03,zTip-0.01,nx+0.03,ny+0.03,ZW],sdf:(lx,ly,lz)=>D(lx+nx,ly+ny,lz+ZW),mat:()=>M(C(46,42,40),{ks:0.4,gl:30})}); }
+function wallCord(A,B,N){ const L=[A,B]; addObj({kind:"wallthing",wall:"cord",hang:true,cx:N[0],cy:N[1],cz:ZW,m:IDM,bound:2,box:[Math.min(A[0],B[0],N[0])-0.03,Math.min(A[1],B[1])-0.03,Math.min(A[2],B[2],N[2])-0.03,Math.max(A[0],B[0],N[0])+0.03,N[1]+0.03,ZW],
+  sdf:(lx,ly,lz)=>{ const px=lx+N[0],py=ly+N[1],pz=lz+ZW; return Math.min(...L.map(P=>sdCapsule(px,py,pz,...P,N[0],N[1],N[2],0.0045))); }, mat:()=>M(C(96,78,56),{ks:0.05,gl:8})}); wallNail(N[0],N[1]+0.004,N[2]-0.012); }
+function wallTilt(nx,ny,a){ const c=Math.cos(a), s_=Math.sin(a); return (px,py)=>{ const dx=px-nx, dy=py-ny; return [nx+dx*c+dy*s_, ny-dx*s_+dy*c]; }; }
+function addWallThings(){ const Q_=new URLSearchParams(URLQ), want=(Q_.get("wallobj")||"").split(".").filter(k=>WALLMAKE[k]).slice(0,3), no=(Q_.get("nowallobj")||"").split(".");
+  const WS=Q_.get("wallshow"); if(WS==="1"||WALLMAKE[WS]){ ownStream("wallshow",()=>{ (WALLMAKE[WS]?Array(9).fill(WS):WALLTHINGS).forEach((k,i)=>{ const W_=WALLMAKE[k], S=1.25*(WALLSIZE[k]||1), x=-2.4+(i%3)*2.4, y=4.0-Math.floor(i/3)*1.5, n0=OBJS.length; W_.make(x,y); for(let j=n0;j<OBJS.length;j++) wallScale(OBJS[j],x,y,S); NAMES.push(WALLNAMES[k]); }); }); return; }   // (dev: all twelve in a grid, to look at them)
+  ownStream("wallthings",()=>{ const list=want.slice(), pool=WALLTHINGS.filter(k=>!no.includes(k)&&!want.includes(k));
+    const r1=rand(), r2=rand(), r3=rand(), r4=rand();   // (drawn always, so a choice made in the studio leaves the rest as it was)
+    const fg=OBJS.filter(o=>!o.bg&&o.kind!=="wallthing"&&o.box[1]<2); let mn=1e9,mx=-1e9; for(const o of fg){ mn=Math.min(mn,o.cx); mx=Math.max(mx,o.cx); } if(mn>mx){ mn=-1; mx=1; }
+    const mid=(mn+mx)/2, half=Math.max(0.9,(mx-mn)/2);
+    // the wall that is taken: a mirror, a niche, a shelf, the curtain's side, and what is already hung
+    const taken=OBJS.filter(o=>!o.hidden&&o.box[5]>ZW-0.6&&o.box[4]>0.6&&(o.kind==="mirror"||o.kind==="niche"||o.kind==="shelf"||o.kind==="string")).map(o=>[o.box[0],o.box[3],o.box[1],o.box[4]]);
+    // and what stands tall in front of it (a bouquet, a jug, a bottle): a thing hung behind it would be hidden
+    const front=OBJS.filter(o=>!o.hidden&&!o.bg&&o.kind!=="wallthing"&&o.box[4]>1.15&&o.box[1]<1.6&&(o.kind==="flower"?o.fpart==="head":true)).map(o=>[o.box[0],o.box[3],o.box[4]]);   // (only where it would hide the middle of the thing: its edges may go behind)
+    const free=(x,y,w,h)=>{ if(CURTAIN){ const e=CURTAIN.side<0?Math.max(CURTAIN.xe,CURTAIN.xe+CURTAIN.side*CURTAIN.pull):Math.min(CURTAIN.xe,CURTAIN.xe+CURTAIN.side*CURTAIN.pull); if(CURTAIN.side<0?x-w<e+0.2:x+w>e-0.2) return false; }
+      return !taken.some(t=>x+w>t[0]-0.15&&x-w<t[1]+0.15&&y+h>t[2]-0.1&&y-h<t[3]+0.1)&&!front.some(f=>x+w*0.45>f[0]&&x-w*0.45<f[1]&&f[2]>y-h*0.25); };
+    // Auto: something is hung only where the wall over the group stands bare (no mirror, niche, shelf or curtain there,
+    // little rising in front of it): the share of the wall from 1.3 up to 3 over the group's width that nothing covers
+    if(!want.length&&pool.length){ const X0=mid-half-0.3, X1=mid+half+0.3, cov=new Float32Array(40);
+      for(const t of taken) for(let i=0;i<40;i++){ const xa=X0+(X1-X0)*i/40; if(xa>=t[0]&&xa<=t[1]) cov[i]=Math.max(cov[i],(Math.min(3,t[3])-Math.max(1.3,t[2]))/1.7); }
+      for(const f of front) for(let i=0;i<40;i++){ const xa=X0+(X1-X0)*i/40; if(xa>=f[0]&&xa<=f[1]) cov[i]=Math.max(cov[i],(Math.min(3,f[2])-1.3)/1.7); }
+      let used=0; for(let i=0;i<40;i++) used+=clamp(cov[i],0,1); let bare=1-used/40; if(CURTAIN) bare-=0.35; if(BACKDROP==="niche"||BACKDROP==="shelf") bare-=0.5;
+      if(bare>0.64&&r1<0.9){ list.push(pool[Math.floor(r2*pool.length)]); if(bare>0.85&&r3<0.35){ const p2=pool.filter(k=>k!==list[0]); list.push(p2[Math.floor(r4*p2.length)]); } } }   // bare: one thing, a very bare wall now and then two
+    if(!list.length) return; const S=WALLSCALE;
+    for(const k of list){ const W_=WALLMAKE[k], Sk=S*(WALLSIZE[k]||1), hw=W_.hw*Sk, hh=W_.hh*Sk; let ok=false;
+      for(let t=0;t<40&&!ok;t++){ const x=mid+(rand()*2-1)*Math.max(0.3,half+0.2-hw*0.6), y=Math.max(1.05+hh,rr(1.6,2.2)); if(!free(x,y,hw,hh)) continue;   // (over the group on the table, where the picture sees the wall)
+        const n0=OBJS.length; W_.make(x,y); for(let i=n0;i<OBJS.length;i++) wallScale(OBJS[i],x,y,Sk); taken.push([x-hw,x+hw,y-hh,y+hh]); NAMES.push(WALLNAMES[k]); ok=true; } } }); }
+// the things are made at a small size and enlarged about the point where they hang, flat against the wall (as large as such things are beside a jug)
+const WALLSCALE=1.6, WALLSIZE={sconce:1.35,key:1.25};
+function wallScale(o,x,y,S){ const f=o.sdf, g=o.mat, p=o.partId, b=o.box; o.cx=x+(o.cx-x)*S; o.cy=y+(o.cy-y)*S; o.cz=ZW+(o.cz-ZW)*S; o.bound*=S;   // (a part made about its own centre, a nail, a cord, moves out with the rest)
+  o.box=[x+(b[0]-x)*S,y+(b[1]-y)*S,ZW+(b[2]-ZW)*S,x+(b[3]-x)*S,y+(b[4]-y)*S,ZW+(b[5]-ZW)*S];
+  o.sdf=(lx,ly,lz)=>f(lx/S,ly/S,lz/S)*S; o.mat=(lx,ly,lz)=>g(lx/S,ly/S,lz/S);
+  if(p) o.partId=(wx,wy,wz)=>p(x+(wx-x)/S,y+(wy-y)/S,ZW+(wz-ZW)/S); }
+
 /* ---------- SMALL THINGS (drops, insects, pips, a tendril) — on the table or not, by chance ----------
    Drawn from a separate random stream (DR) after the arrangement is fixed, so
    switching versions keeps exactly the same composition. */
@@ -3141,6 +3374,7 @@ function buildScene(){
   addCuriosities(); addExtras(); settle(OBJS); noPassThrough(); settle(OBJS); noPassThrough(); leavesClear(); SHINYID=shinyIds();   // settled last, so every placement above is made exactly as the seed always made it
   addBouquets();         // flowers in the vases: drawn from their own stream, after everything else, so nothing above moves
   if(DYING) addDying();  // the dying pictures: rot, game, flies (their own stream too)
+  addWallThings();       // things hung on the wall (their own stream; never settled: they hang)
   leavesClear();         // (and once more: no leaf through a fallen flower or the game)
   placeCandle();         // the candle where the studio asks for it
   if(CLOSE) closeUp();
@@ -3795,6 +4029,23 @@ function upsample(){
       for(let x=0;x<W;x++){ const fx=clamp((x+0.5)*s-0.5,0,RW-1), x0=Math.floor(fx), x1=Math.min(RW-1,x0+1), tx=fx-x0;
         D[y*W+x]=(DEPF[y0*RW+x0]*(1-tx)+DEPF[y0*RW+x1]*tx)*(1-ty)+(DEPF[y1*RW+x0]*(1-tx)+DEPF[y1*RW+x1]*tx)*ty; } }
     DEPF=D; }
+  // NO LOOSE BITS OF FLOWER: a few pixels of a petal's rim seen edge on, cut off from their flower, were taken up by the
+  // brushes as specks of colour out in the air round a bouquet; and a pinhole of the dark behind, shut in by petals, as a
+  // dark speck in the flower. Any patch of flower too small to be a flower (joined to none), and any pinhole inside a
+  // flower, takes the colour, region and light of what lies round it, before a stroke is laid
+  { const FL=new Set(OBJS.filter(o=>o.kind==="flower"&&!o.hidden).map(o=>o.id));
+    if(FL.size){ const minA=Math.max(12,Math.round(80*SC*SC)), R=Math.ceil(9*SC), dep=DEPF&&DEPF.length===N;
+      const isF=i=>FL.has(IDF[i]);
+      const clean=(inSet,enclosed)=>{ const seen=new Uint8Array(N), stack=new Int32Array(N), comp=[];
+        for(let i0=0;i0<N;i0++){ if(seen[i0]||!inSet(i0)) continue; let sp=0, big=false, touch=false; comp.length=0; stack[sp++]=i0; seen[i0]=1;
+          while(sp){ const i=stack[--sp]; if(!big) comp.push(i); if(comp.length>minA) big=true; const x=i%W;
+            for(const j of [x>0?i-1:-1,x<W-1?i+1:-1,i-W,i+W]){ if(j<0||j>=N){ touch=true; continue; } if(seen[j]) continue; if(inSet(j)){ seen[j]=1; stack[sp++]=j; } else if(enclosed&&!isF(j)) touch=true; } }
+          if(big||(enclosed&&touch)) continue;   // a real flower; or a gap open to the room
+          for(const i of comp){ const x=i%W, y=(i/W)|0; let best=-1, bd=1e9;
+            for(let dy=-R;dy<=R;dy++){ const yy=y+dy; if(yy<0||yy>=H) continue; for(let dx=-R;dx<=R;dx++){ const xx=x+dx; if(xx<0||xx>=W) continue; const j=yy*W+xx, d=dx*dx+dy*dy; if(d<bd&&!inSet(j)&&(enclosed?isF(j):true)){ bd=d; best=j; } } }
+            if(best>=0){ TR[i]=TR[best]; TG[i]=TG[best]; TB[i]=TB[best]; SPEC[i]=SPEC[best]; NXF[i]=NXF[best]; NYF[i]=NYF[best]; IDF[i]=IDF[best]; if(dep) DEPF[i]=DEPF[best]; } } } };
+      clean(isF,false);                 // flower bits out in the air
+      clean(i=>!isF(i),true); } }       // pinholes shut in by flower
 }
 /* canvas weave: plain linen weave, used as the "tooth" dry paint catches on */
 function makeTooth(){ TOOTH=new Float32Array(W*H); const p=4.2*SC;
@@ -5088,7 +5339,7 @@ function isLite(){ const q=new URLSearchParams(URLQ).get("lite"); if(q!=null) re
   const mem=navigator.deviceMemory||8, cores=navigator.hardwareConcurrency||4, touch=matchMedia&&matchMedia("(pointer:coarse)").matches, small=Math.min(screen.width,screen.height)<=900;
   return mem<=4||cores<=4||(touch&&small); }
 /* ---- studio: two choices (how it is made, how fine), then paint ---- */
-const ST={style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:"",sig:"",sigcol:"",sigpos:"",sigvar:"",flowers:"",bouquet:"",flower:"",noflower:"",nofruit:"",theme:"",focus:"",zoom:"",panx:"",pany:"",impasto:"",jug:"",jugshape:"",table:"",sun:"",sunh:"",sunyaw:"",sunpitch:"",win:"",bowl:"",bowlsize:"",bowlstyle:"",wall:"",wallcol:"",candle:"",candlepos:"",sunI:"",candleI:"",suntgt:"",yaw:"",pitch:"",close:"",view:"",relief:""};   // school..haze: URL only; sig*: the signature, local studio only
+const ST={wallshow:"",wallobj:"",nowallobj:"",style:"",silk:"",detail:"",shade:"",varnish:"",ratio:"",orient:"",busy:"",skull:"",light:"",mirror:"",cloth:"",books:"",fruitn:"",fruit:"",with:"",without:"",school:"",comp:"",backdrop:"",haze:"",sig:"",sigcol:"",sigpos:"",sigvar:"",flowers:"",bouquet:"",flower:"",noflower:"",nofruit:"",theme:"",focus:"",zoom:"",panx:"",pany:"",impasto:"",jug:"",jugshape:"",table:"",sun:"",sunh:"",sunyaw:"",sunpitch:"",win:"",bowl:"",bowlsize:"",bowlstyle:"",wall:"",wallcol:"",candle:"",candlepos:"",sunI:"",candleI:"",suntgt:"",yaw:"",pitch:"",close:"",view:"",relief:""};   // school..haze: URL only; sig*: the signature, local studio only
 for(const k in ST) ST[k]=Q.get(k)||"";
 if(ST.shade==="new") ST.shade="blended"; else if(ST.shade!=="blended") ST.shade="";   // older links: new = blended, old/between = rough
 if(!SKEYS[ST.style]) ST.style="acrylic";   // acrylic unless another way is chosen
@@ -5137,6 +5388,10 @@ for(const [id,k] of [["st-sunI","sunI"],["st-candleI","candleI"]]){ const el=$(i
 const WALL_UI=[["","Auto"],["plaster","Plaster"],["stone","Stone"],["brick","Brick"],["wood","Wood boards"],["tiles","Tiles"],["panelled","Panelled"],["gold","Gold leaf"]];
 const WALLCOL_UI=[["","Auto"],["grey","Warm grey"],["white","Limewash"],["ochre","Ochre"],["umber","Umber"],["red","Red"],["olive","Olive"],["green","Green"],["blue","Blue grey"]];
 for(const [id,key,list] of [["st-wall","wall",WALL_UI],["st-wallcol","wallcol",WALLCOL_UI]]) for(const [k,t] of list){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $(id).appendChild(b); b.onclick=()=>{ ST[key]=k; go(SEED); }; }
+const WALLOBJ_UI=[["painting","Painting"],["pan","Pan"],["garlic","Garlic"],["herbs","Dried herbs"],["plate","Delft plate"],["sconce","Sconce"],["key","Keys"],["map","Map"],["basket","Basket"]];
+for(const [k,t] of WALLOBJ_UI){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $("st-wallobj").appendChild(b);
+  b.onclick=()=>{ let w=lst("wallobj"), o=lst("nowallobj"); if(w.includes(k)){ w=w.filter(x=>x!==k); o.push(k); } else if(o.includes(k)) o=o.filter(x=>x!==k); else { if(w.length>=3) return; w.push(k); }   // auto → with → without → auto
+    setLst("wallobj",w); setLst("nowallobj",o); go(SEED); }; }
 const BOWL_UI=[["","Auto"],["kraak","Blue and white"],["earthen","Earthenware"],["greenglaze","Green glaze"],["silver","Silver"],["brass","Brass"],["pewter","Pewter"],["faience","Delft"],["stoneware","Stoneware"]];
 for(const [k,t] of BOWL_UI){ const b=document.createElement("button"); b.textContent=t; b.dataset.v=k; $("st-bowlstyle").appendChild(b); b.onclick=()=>{ ST.bowlstyle=k; go(SEED); }; }
 const JSHAPE_UI=[["","Auto"],["classic","Classic"],["baluster","Baluster"],["ovoid","Ovoid"],["pitcher","Pitcher"],["bottle","Bottle"],["squat","Squat"]];
@@ -5164,6 +5419,7 @@ function syncUI(){ for(const b of $("st-manner").children) b.classList.toggle("o
   for(const b of $("st-bowlstyle").children) b.classList.toggle("on",b.dataset.v===(ST.bowlstyle||""));
   for(const b of $("st-wall").children) b.classList.toggle("on",b.dataset.v===(ST.wall||""));
   for(const b of $("st-wallcol").children) b.classList.toggle("on",b.dataset.v===(ST.wallcol||""));
+  for(const b of $("st-wallobj").children){ b.classList.toggle("on",lst("wallobj").includes(b.dataset.v)); b.classList.toggle("no",lst("nowallobj").includes(b.dataset.v)); }
   for(const [id,k] of [["st-sunI","sunI"],["st-candleI","candleI"]]){ const v=ST[k]||"100"; $(id).value=v; $(id+"v").textContent=v+"%"; }
   for(const [box,key] of [["st-jug","jug"],["st-jugshape","jugshape"]]) for(const b of $(box).children) b.classList.toggle("on",b.dataset.v===(ST[key]||""));
   for(const b of $("st-objs").children){ b.classList.toggle("on",lst("with").includes(b.dataset.v)); b.classList.toggle("no",lst("without").includes(b.dataset.v)); }

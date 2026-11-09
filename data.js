@@ -21,6 +21,7 @@ const projects = [
   {
     id: 2,
     title: "Connecting",
+    workUrl: "work/connecting.html",
     category: "bitcoin",
     onchain: "On-chain",
     imageUrl: "images/projects/connecting.webp",
@@ -39,6 +40,7 @@ const projects = [
   {
     id: 13,
     title: "The Ossuary",
+    workUrl: "work/the-ossuary.html",
     category: "bitcoin",
     onchain: "On-chain",
     videoUrl: "images/projects/ossuary.webm",
@@ -60,6 +62,7 @@ const projects = [
   {
     id: 12,
     title: "Beaties",
+    workUrl: "work/beaties.html",
     category: "bitcoin",
     onchain: "On-chain",
     status: "Upcoming",
@@ -98,6 +101,7 @@ const projects = [
   {
     id: 1,
     title: "Technosignatures",
+    workUrl: "work/technosignatures.html",
     category: "bitcoin",
     onchain: "On-chain",
     imageUrl: "images/projects/Technosignatures2.webp",
@@ -116,6 +120,7 @@ const projects = [
   {
     id: 3,
     title: "Navigating the Trenches",
+    workUrl: "work/navigating-the-trenches.html",
     category: "bitcoin",
     onchain: "On-chain",
     imageUrl: "images/projects/navigating.webp",
@@ -133,6 +138,7 @@ const projects = [
   {
     id: 4,
     title: "Four Seasons",
+    workUrl: "work/four-seasons.html",
     category: "bitcoin",
     onchain: "On-chain",
     imageUrl: "images/projects/4seasons_AkiraIshi75.gif",
@@ -150,6 +156,7 @@ const projects = [
   {
     id: 5,
     title: "Googly Rocks",
+    workUrl: "work/googly-rocks.html",
     category: "ethereum",
     l2: "Base",
     imageUrl: "images/projects/googly.webp",

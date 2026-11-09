@@ -1,192 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="gates.page-title">Akira Ishi | The Gates</title>
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="ac694020-0336-46f7-8d6a-ae7a41a5fb30"></script>
-    <!-- SEO Meta Tags -->
-    <meta name="description" data-i18n-content="gates.page-description" content="Akira Ishi, generative artist. Two doors: online shops for prints and physical works, or The Reliquary for digital art on Bitcoin, Ethereum and beyond.">
-    <meta name="keywords" content="Akira Ishi, generative art, art prints, Etsy, NFT, Bitcoin Ordinals, Ethereum, digital art">
-    <meta name="author" content="Akira Ishi">
-    <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#1a0f05">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="images/desktop-icons/reliquary/internet_a.ico">
-    <link rel="shortcut icon" type="image/x-icon" href="images/desktop-icons/reliquary/internet_a.ico">
-    <link rel="apple-touch-icon" href="images/desktop-icons/reliquary/internet_a.webp">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://akiraishi.com/">
-    <meta property="og:title" content="Akira Ishi | The Gates">
-    <meta property="og:description" content="Two doors: online shops for prints and physical works, or The Reliquary for digital art on Bitcoin, Ethereum and beyond.">
-    <meta property="og:image" content="https://akiraishi.com/images/desktop-icons/reliquary/reliquary.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:site_name" content="Akira Ishi">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@leAkira_Ishi">
-    <meta name="twitter:creator" content="@leAkira_Ishi">
-    <meta name="twitter:title" content="Akira Ishi | The Gates">
-    <meta name="twitter:description" content="Two doors: online shops for prints and physical works, or The Reliquary for digital art on Bitcoin, Ethereum and beyond.">
-    <meta name="twitter:image" content="https://akiraishi.com/images/desktop-icons/reliquary/reliquary.png">
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://akiraishi.com/">
-
-    <!-- The doors are the first paint: fetch them with the stylesheet -->
-    <link rel="preload" as="image" href="images/desktop-icons/reliquary/door1.webp" fetchpriority="high">
-    <link rel="preload" as="image" href="images/desktop-icons/reliquary/door2.webp" fetchpriority="high">
-
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="portal.css">
-    <link rel="stylesheet" href="i18n.css">
-    <script src="i18n.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var l='en';try{var s=localStorage.getItem('akira-lang');if(s==='fr'||s==='en'){l=s}else if(!s){var a=navigator.languages||[navigator.language||'en'];for(var i=0;i<a.length;i++){var c=String(a[i]).toLowerCase().slice(0,2);if(c==='fr'||c==='en'){l=c;break}}}}catch(e){}document.documentElement.lang=l})();</script>
+<title>Akira Ishi | Generative artist</title>
+<meta name="x-title-en" content="Akira Ishi | Generative artist">
+<meta name="x-title-fr" content="Akira Ishi | Artiste génératif">
+<meta name="description" content="Akira Ishi writes code to map what it is to be human - one work, multiple facets, all linked by a hidden story.">
+<meta name="author" content="Akira Ishi">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://akiraishi.com/">
+<link rel="icon" type="image/x-icon" href="/images/desktop-icons/reliquary/internet_a.ico">
+<link rel="apple-touch-icon" href="/images/desktop-icons/reliquary/internet_a.webp">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Akira Ishi">
+<meta property="og:title" content="Akira Ishi | Generative artist">
+<meta property="og:description" content="Akira Ishi writes code to map what it is to be human - one work, multiple facets, all linked by a hidden story.">
+<meta property="og:url" content="https://akiraishi.com/">
+<meta property="og:image" content="https://akiraishi.com/images/og/home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@leAkira_Ishi">
+<meta name="twitter:creator" content="@leAkira_Ishi">
+<meta name="twitter:title" content="Akira Ishi | Generative artist">
+<meta name="twitter:description" content="Akira Ishi writes code to map what it is to be human - one work, multiple facets, all linked by a hidden story.">
+<meta name="twitter:image" content="https://akiraishi.com/images/og/home.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="/site.css">
+<link rel="preload" as="image" href="/images/projects/ossuary.webp" fetchpriority="high">
+<script defer src="https://cloud.umami.is/script.js" data-website-id="ac694020-0336-46f7-8d6a-ae7a41a5fb30"></script>
 </head>
-<body class="gates-body">
-
-    <!-- Fixed stage: everything is drawn here, the page body only provides scroll distance -->
-    <div class="gates" id="gates">
-
-        <!-- What waits behind the doors -->
-        <div class="hall" id="hall">
-            <!-- A slow drift of works, glimpsed through the opening doors -->
-            <div class="hall-mosaic" id="hall-mosaic" aria-hidden="true">
-                <span class="mosaic-tile lg drift-a" style="left: 4%; top: 12%;"><img data-src="images/previews/beaties.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile md drift-b" style="left: 15%; top: 58%;"><img data-src="images/gallery/thumbs/4seasons_AkiraIshi-89.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-c" style="left: 2%; top: 72%;"><img data-src="images/previews/jardin-algorithmique.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile lg drift-b" style="left: 80%; top: 10%;"><img data-src="images/gallery/thumbs/Technosignatures.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-a" style="left: 90%; top: 46%;"><img data-src="images/previews/3dviewer.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile md drift-c" style="left: 73%; top: 74%;"><img data-src="images/gallery/thumbs/aodach22.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-c" style="left: 33%; top: 4%;"><img data-src="images/previews/googly.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile md drift-a" style="left: 60%; top: 2%;"><img data-src="images/gallery/thumbs/songe2.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-b" style="left: 45%; top: 84%;"><img data-src="images/gallery/thumbs/whatsthepoint2.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile md drift-a" style="left: 26%; top: 86%;"><img data-src="images/previews/deconstructedpumkin.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-c" style="left: 88%; top: 84%;"><img data-src="images/gallery/thumbs/hat googly rock.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-b" style="left: 10%; top: 36%;"><img data-src="images/previews/provenancetree.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile md drift-c" style="left: 22%; top: 22%;"><img data-src="images/gallery/thumbs/slc-oil.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile md drift-a" style="left: 91%; top: 24%;"><img data-src="images/gallery/thumbs/slc-vanitas.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile md drift-b" style="left: 8%; top: 88%;"><img data-src="images/gallery/thumbs/slc-apples.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-c" style="left: 60%; top: 88%;"><img data-src="images/gallery/thumbs/slc-acrylic.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-a" style="left: 22%; top: 46%;"><img data-src="images/gallery/thumbs/slc-watercolour.webp" alt="" width="240" height="240" decoding="async"></span>
-                <span class="mosaic-tile sm drift-b" style="left: 84%; top: 64%;"><img data-src="images/gallery/thumbs/slc-charcoal.webp" alt="" width="240" height="240" decoding="async"></span>
-            </div>
-            <div class="hall-glow"></div>
-
-            <header class="hall-header">
-                <h1 class="hall-title" data-i18n="gates.akira-ishi">Akira Ishi</h1>
-                <p class="hall-subtitle" data-i18n="gates.generative-artist-mdash-choose-your-path">Generative artist &mdash; choose your path</p>
-            </header>
-
-            <div class="choices" id="choices">
-
-                <!-- Choice 1 : Online shops -->
-                <a class="choice choice-shop" href="shop.html" data-choice="shop">
-                    <span class="choice-frame"></span>
-                    <span class="choice-body">
-                        <img src="images/desktop-icons/reliquary/images_a.webp" alt="" class="choice-icon" decoding="async">
-                        <span class="choice-title" data-i18n="gates.online-shops">Online Shops</span>
-                        <span class="choice-tagline" data-i18n="gates.prints-amp-physical-works">Prints &amp; physical works</span>
-                        <span class="choice-desc" data-i18n="gates.pieces-you-can-hold-framed-and">Pieces you can hold, framed and shipped from my shops.</span>
-                        <span class="choice-enter"><span data-i18n="gates.enter">Enter</span> <span class="choice-arrow">→</span></span>
-                    </span>
-
-                    <!-- Hover preview of the shop page -->
-                    <span class="preview preview-light" aria-hidden="true">
-                        <span class="preview-bar">
-                            <span class="preview-dot"></span>
-                            <span class="preview-bar-label" data-i18n="gates.shops-mdash-akira-ishi">Shops &mdash; Akira Ishi</span>
-                        </span>
-                        <span class="preview-page">
-                            <span class="preview-heading"></span>
-                            <span class="preview-grid">
-                                <img data-src="images/gallery/thumbs/slc-oil.webp" alt="" decoding="async">
-                                <img data-src="images/gallery/thumbs/slc-apples.webp" alt="" decoding="async">
-                                <img data-src="images/gallery/thumbs/slc-vanitas.webp" alt="" decoding="async">
-                                <img data-src="images/gallery/thumbs/slc-watercolour.webp" alt="" decoding="async">
-                            </span>
-                            <span class="preview-lines">
-                                <span></span><span></span><span></span>
-                            </span>
-                        </span>
-                        <span class="preview-caption" data-i18n="gates.shop-the-prints-rarr">Shop the prints &rarr;</span>
-                    </span>
-                </a>
-
-                <!-- Choice 2 : Web3 / NFTs -->
-                <a class="choice choice-web3" href="reliquary.html" data-choice="web3">
-                    <span class="choice-frame"></span>
-                    <span class="choice-body">
-                        <img src="images/desktop-icons/reliquary/network_a.webp" alt="" class="choice-icon" decoding="async">
-                        <span class="choice-title" data-i18n="gates.web3-amp-nfts">Web3 &amp; NFTs</span>
-                        <span class="choice-tagline" data-i18n="gates.the-reliquary">The Reliquary</span>
-                        <span class="choice-desc" data-i18n="gates.artifacts-inscribed-on-bitcoin-ethereum-and">Artifacts inscribed on Bitcoin, Ethereum and other chains.</span>
-                        <span class="choice-enter"><span data-i18n="gates.enter">Enter</span> <span class="choice-arrow">→</span></span>
-                    </span>
-
-                    <!-- Hover preview of the reliquary page -->
-                    <span class="preview preview-dark" aria-hidden="true">
-                        <span class="preview-bar">
-                            <span class="preview-dot"></span>
-                            <span class="preview-bar-label" data-i18n="gates.the-reliquary">The Reliquary</span>
-                        </span>
-                        <span class="preview-page">
-                            <span class="preview-heading"></span>
-                            <span class="preview-grid">
-                                <img data-src="images/previews/Technosignatures2.webp" alt="" decoding="async">
-                                <img data-src="images/previews/jardin-algorithmique.webp" alt="" decoding="async">
-                                <img data-src="images/previews/3dviewer.webp" alt="" decoding="async">
-                                <img data-src="images/previews/provenancetree.webp" alt="" decoding="async">
-                            </span>
-                            <span class="preview-lines">
-                                <span></span><span></span><span></span>
-                            </span>
-                        </span>
-                        <span class="preview-caption" data-i18n="gates.enter-the-reliquary-rarr">Enter the Reliquary &rarr;</span>
-                    </span>
-                </a>
-
-            </div>
-        </div>
-
-        <!-- The doors themselves -->
-        <div class="doors" id="doors">
-            <img src="images/desktop-icons/reliquary/door1.webp" alt="" class="door door-left" id="door-left" fetchpriority="high" decoding="async">
-            <img src="images/desktop-icons/reliquary/door2.webp" alt="" class="door door-right" id="door-right" fetchpriority="high" decoding="async">
-        </div>
-
-        <!-- Invitation to scroll, sits on the closed doors -->
-        <div class="invitation" id="invitation">
-            <p class="invitation-title" data-i18n="gates.the-gates-of-the-reliquary">⚜ The Gates of the Reliquary ⚜</p>
-            <p class="invitation-text" data-i18n="gates.scroll-down-to-open-the-doors">Scroll down to open the doors</p>
-            <div class="invitation-arrow"></div>
-            <p class="invitation-hint" data-i18n="gates.scroll-back-up-to-close-them">(scroll back up to close them)</p>
-        </div>
-
-        <!-- Language switcher -->
-        <div class="lang-mount lang-mount-gates" data-i18n-switcher></div>
-
-        <!-- Gold veil used by the entering animation -->
-        <div class="veil" id="veil"></div>
+<body>
+<a class="skip" href="#main"><span data-l="en">Skip to content</span><span data-l="fr">Aller au contenu</span></a>
+<header class="top">
+  <a class="brand" href="/">Akira Ishi</a>
+  <nav class="nav" aria-label="Main">
+    <a href="/work.html"><span data-l="en">Work</span><span data-l="fr">Œuvres</span></a><a href="/about.html"><span data-l="en">About</span><span data-l="fr">À propos</span></a><a href="/shop.html"><span data-l="en">Prints</span><span data-l="fr">Tirages</span></a><a href="/portes.html"><span data-l="en">Reliquary</span><span data-l="fr">Reliquaire</span></a>
+    <span class="lang" role="group" aria-label="Language"><button type="button" data-set-lang="en" aria-pressed="true">EN</button><span aria-hidden="true">/</span><button type="button" data-set-lang="fr" aria-pressed="false">FR</button></span>
+  </nav>
+</header>
+<main id="main">
+<div class="home">
+  <div class="home-l">
+    <div>
+      <h1 class="home-name">Akira Ishi</h1>
+      <p class="home-one"><span data-l="en">I write code to map what it is to be human - one work, multiple facets, all linked by a hidden story.</span><span data-l="fr">J&#x27;écris du code pour cartographier ce que signifie être humain - une œuvre, de multiples facettes, toutes reliées par un récit caché.</span></p>
+      <p class="home-based"><span data-l="en">Based in France. Generative work, mostly inscribed fully on-chain on Bitcoin.</span><span data-l="fr">Installé en France. Art génératif, le plus souvent inscrit entièrement on-chain sur Bitcoin.</span></p>
+      <div class="latest"><h2><span data-l="en">Latest</span><span data-l="fr">Dernières œuvres</span></h2><a href="/work/the-ossuary.html"><div><b>The Ossuary</b><span class="f"><span data-l="en">Mortality</span><span data-l="fr">La mortalité</span></span></div><span class="tag"><span data-l="en">New</span><span data-l="fr">Nouveau</span></span></a><a href="/work/beaties.html"><div><b>Beaties</b><span class="f"><span data-l="en">Banding together to build something greater</span><span data-l="fr">Se rassembler pour bâtir quelque chose de plus grand</span></span></div><span class="tag"><span data-l="en">Upcoming</span><span data-l="fr">À venir</span></span></a><a href="/work/genesis.html"><div><b>Genesis</b><span class="f"><span data-l="en">Birth</span><span data-l="fr">La naissance</span></span></div><span class="tag"><span data-l="en">In progress</span><span data-l="fr">En cours</span></span></a></div>
     </div>
-
-    <!-- Scroll runway: gives the doors something to open along -->
-    <div class="runway" aria-hidden="true"></div>
-
-    <noscript>
-        <div class="noscript-links">
-            <a href="shop.html" data-i18n="gates.online-shops">Online Shops</a>
-            <a href="reliquary.html" data-i18n="gates.web3-amp-nfts-mdash-the-reliquary">Web3 &amp; NFTs &mdash; The Reliquary</a>
-        </div>
-    </noscript>
-
-    <script defer src="portal.js"></script>
+    <div class="index"><h2><span data-l="en">The work, in three chapters</span><span data-l="fr">L&#x27;œuvre, en trois chapitres</span></h2><a href="/work.html#chapter-i"><span class="mono">I</span><span><span data-l="en">Realisation</span><span data-l="fr">Réalisation</span></span><span class="mono"><span data-l="en">3 works</span><span data-l="fr">3 œuvres</span></span></a><a href="/work.html#chapter-ii"><span class="mono">II</span><span><span data-l="en">The Expressions of Humanity</span><span data-l="fr">Les expressions de l&#x27;humanité</span></span><span class="mono"><span data-l="en">3 works</span><span data-l="fr">3 œuvres</span></span></a><a href="/work.html#chapter-iii"><span class="mono">III</span><span><span data-l="en">Universal Truths</span><span data-l="fr">Vérités universelles</span></span><span class="mono"><span data-l="en">2 works</span><span data-l="fr">2 œuvres</span></span></a></div>
+  </div>
+  <div class="sheet"><a class="cell big" href="/work/the-ossuary.html" aria-label="The Ossuary"><video src="/images/projects/ossuary.webm" poster="/images/projects/ossuary.webp" width="480" height="600" autoplay muted loop playsinline preload="metadata" aria-label="The Ossuary: a human face drawn in green falling code, slowly losing its flesh until only a skull remains" data-alt-fr="The Ossuary : un visage humain dessiné en code vert qui tombe, perdant sa chair jusqu&#x27;à ne laisser qu&#x27;un crâne" data-still="/images/projects/ossuary.webp" class=""></video><span class="tag"><span data-l="en">Latest</span><span data-l="fr">Dernière</span></span></a><a class="cell " href="/work/beaties.html" aria-label="Beaties"><img src="/images/projects/beaties.webp" width="850" height="850" alt="Beaties: a pastel 90s handheld console with nine small faces on its screen" data-alt-fr="Beaties : une console de poche pastel des années 90 avec neuf petits visages à l&#x27;écran" loading="lazy" decoding="async" class=""><span class="tag"><span data-l="en">Upcoming</span><span data-l="fr">À venir</span></span></a><a class="cell soon" href="/work/genesis.html"><span><span data-l="en">Genesis, in progress</span><span data-l="fr">Genesis, en cours</span></span></a><a class="cell " href="/work/googly-rocks.html" aria-label="Googly Rocks"><img src="/images/projects/googly.webp" width="850" height="850" alt="Googly Rocks: a grey and blue rock with two googly eyes" data-alt-fr="Googly Rocks : un rocher gris et bleu avec deux yeux globuleux" loading="lazy" decoding="async" class=""></a><a class="cell " href="/work/four-seasons.html" aria-label="Four Seasons"><img src="/images/projects/4seasons_AkiraIshi75.gif" width="1770" height="1770" alt="Four Seasons: an animated mosaic of minimal shapes in blue, red, yellow and black" data-alt-fr="Four Seasons : une mosaïque animée de formes minimales en bleu, rouge, jaune et noir" data-still="/images/work/stills/four-seasons.webp" loading="lazy" decoding="async" class=""></a><a class="cell " href="/work/technosignatures.html" aria-label="Technosignatures"><img src="/images/projects/Technosignatures2.webp" width="850" height="850" alt="Technosignatures: a grey-violet alien landscape with a sphere and tangled black lines" data-alt-fr="Technosignatures : un paysage extraterrestre gris-violet avec une sphère et des lignes noires enchevêtrées" loading="lazy" decoding="async" class=""></a><a class="cell dark" href="/work/connecting.html" aria-label="Connecting"><img src="/images/projects/connecting.webp" width="512" height="288" alt="Connecting: a living cloud of particles linked together, pulsing with the Bitcoin blockchain" data-alt-fr="Connecting : un nuage vivant de particules reliées entre elles, au rythme de la blockchain Bitcoin" data-still="/images/work/stills/connecting.webp" loading="lazy" decoding="async" class=""></a><a class="cell " href="/work/navigating-the-trenches.html" aria-label="Navigating the Trenches"><img src="/images/projects/navigating.webp" width="512" height="288" alt="Navigating the Trenches: an animated line chart with speech bubbles reacting to its ups and downs" data-alt-fr="Navigating the Trenches : un graphique animé avec des bulles de dialogue qui réagissent à ses hauts et ses bas" data-still="/images/work/stills/navigating-the-trenches.webp" loading="lazy" decoding="async" class=""></a><a class="cell cover dark" href="/shop.html" aria-label="Still Life Code"><img src="/images/atelier/slc-hero.webp" width="900" height="1125" alt="Still Life Code: a still life with sunflowers and oranges" data-alt-fr="Still Life Code : une nature morte aux tournesols et aux oranges" loading="lazy" decoding="async"><span class="tag"><span data-l="en">Prints</span><span data-l="fr">Tirages</span></span></a></div>
+</div>
+</main>
+<footer class="footer">
+  <span>&copy; 2026 Akira Ishi</span>
+  <nav aria-label="Footer">
+    <a href="https://x.com/leAkira_Ishi" target="_blank" rel="noopener">X @leAkira_Ishi</a>
+    <a href="mailto:leakiraishi@gmail.com">leakiraishi@gmail.com</a>
+    <a href="/legal-en.html" data-l="en">Legal</a><a href="/legal.html" data-l="fr">Mentions légales</a>
+  </nav>
+</footer>
+<script src="/site.js" defer></script>
 </body>
 </html>

@@ -249,6 +249,14 @@ a {
   max-width: 52ch;
 }
 
+.hero-credit {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  max-width: 52ch;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;

@@ -397,6 +397,29 @@ video::-webkit-media-controls-toggle-closed-captions-button,
   font-style: italic;
 }
 
+.hero-facet {
+  font-size: 1.2rem;
+  color: var(--gold-light);
+  font-style: italic;
+  letter-spacing: 1px;
+  margin: -1.6rem 0 1rem;
+}
+
+.hero-portfolio {
+  margin-bottom: 3rem;
+  font-size: 0.95rem;
+}
+
+.hero-portfolio a {
+  color: var(--parchment-dark);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.hero-portfolio a:hover {
+  color: var(--gold-light);
+}
+
 .hero-cta {
   display: flex;
   gap: 1.5rem;

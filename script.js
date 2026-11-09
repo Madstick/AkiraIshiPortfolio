@@ -729,6 +729,17 @@ function openProjectModal(source) {
         }
     }
     
+    // The project's sheet on the Work page, where there is one
+    const workLink = document.getElementById('modal-work-link');
+    if (workLink) {
+        if (project.workUrl) {
+            workLink.href = project.workUrl;
+            workLink.style.display = 'inline-flex';
+        } else {
+            workLink.style.display = 'none';
+        }
+    }
+
     // Show modal
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
