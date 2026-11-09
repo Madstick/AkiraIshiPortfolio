@@ -51,7 +51,7 @@ STATEMENT_LONG = [
         'unknown. The second chapter, The Expressions of Humanity, holds the traits we share: Beaties, a pocket band that plays '
         'forever, is our instinct to band together and build something greater than ourselves. The third, Universal Truths, '
         'holds what precedes us and outlasts us. The Ossuary, a face that lives, ages and dies once, with the blockchain as its '
-        'clock, is mortality. Genesis, still in progress, is birth.',
+        'clock, is death. Genesis, still in progress, is birth.',
         "Ma pratique est un long projet : une cartographie de l'humanité, dessinée une facette à la fois, en trois chapitres. "
         "Le premier, Réalisation, réunit trois découvertes sur ce que nous sommes. Googly Rocks est la perte de l'innocence, le "
         "moment où l'enfance rencontre les contradictions du monde. Four Seasons est l'humanité et la nature : d'où nous venons, "
@@ -59,7 +59,7 @@ STATEMENT_LONG = [
         "la réalité et de trouver ce qui reste inconnu. Le deuxième chapitre, Les expressions de l'humanité, rassemble les traits "
         "que nous partageons : Beaties, un groupe de poche qui joue sans fin, est notre instinct de nous rassembler pour bâtir "
         "quelque chose de plus grand que nous. Le troisième, Vérités universelles, tient ce qui nous précède et nous survit. "
-        "The Ossuary, un visage qui vit, vieillit et meurt une seule fois, avec la blockchain pour horloge, est la mortalité. "
+        "The Ossuary, un visage qui vit, vieillit et meurt une seule fois, avec la blockchain pour horloge, est la mort. "
         "Genesis, encore en cours, est la naissance.",
     ),
     (
@@ -333,7 +333,7 @@ WORKS = [
     ),
     dict(
         slug='the-ossuary', chapter='III', title='The Ossuary', year='2026',
-        facet=('Mortality', 'La mortalité'),
+        facet=('Death', 'La mort'),
         logic=None,
         tech=('Interactive, fully on-chain · Bitcoin Ordinals · 666 editions', 'Interactif, entièrement on-chain · Bitcoin Ordinals · 666 éditions'),
         status=('New', 'Nouveau'),
@@ -365,15 +365,41 @@ WORKS = [
 
 # Works that sit outside the chapters, listed on the Work page (no sheet of their own yet)
 OTHER = [
-    dict(title='Jardin Algorithmique', tech=('Generative · Ethereum / Base · 200 editions', 'Génératif · Ethereum / Base · 200 éditions'),
-         img='images/projects/jardin-algorithmique.webp', url='https://akiraishi.com/Jardin-Algorithmique',
+    dict(slug='jardin-algorithmique', title='Jardin Algorithmique', chain='ETH', status=None,
+         tech=('Generative · Ethereum / Base · 200 editions', 'Génératif · Ethereum / Base · 200 éditions'),
+         img='images/projects/jardin-algorithmique.webp', width=1188, height=1200,
+         url='https://akiraishi.com/Jardin-Algorithmique',
          alt=('Jardin Algorithmique: a green pattern of symmetric tiles', 'Jardin Algorithmique : un motif vert de tuiles symétriques')),
-    dict(title='Comics Extracts', tech=('Generative · Polkadot', 'Génératif · Polkadot'),
-         img='images/projects/comicsthumbnailc.webp', url='https://www.chaotic.art/ahp/drops/comics',
+    dict(slug='comics-extracts', title='Comics Extracts', chain='DOT', status=None,
+         tech=('Generative · Polkadot', 'Génératif · Polkadot'),
+         img='images/projects/comicsthumbnailc.webp', width=1000, height=1000,
+         url='https://www.chaotic.art/ahp/drops/comics',
          alt=('Comics Extracts: abstract comic-style panels of lines and shapes', 'Comics Extracts : des cases abstraites façon bande dessinée, faites de lignes et de formes')),
-    dict(title='Aodach', tech=('Generative · Arbitrum · 69 pieces', 'Génératif · Arbitrum · 69 pièces'),
-         img='images/projects/aodach-1.webp', url='https://opensea.io/collection/aodach-akira-ishi',
+    dict(slug='aodach', title='Aodach', chain='ETH', status=None,
+         tech=('Generative · Arbitrum · 69 pieces', 'Génératif · Arbitrum · 69 pièces'),
+         img='images/projects/aodach-1.webp', width=850, height=850,
+         url='https://opensea.io/collection/aodach-akira-ishi',
          alt=('Aodach: a yellow tartan-like pattern', 'Aodach : un motif jaune façon tartan')),
+    dict(slug='whats-the-point', title="What's the point.", chain='XTZ', status=None,
+         tech=('Generative, built with ellipses only · Tezos (fxhash)', 'Génératif, construit uniquement avec des ellipses · Tezos (fxhash)'),
+         img='images/projects/whatsthepoint.webp', width=601, height=850,
+         url='https://objkt.com/collections/fxhash/projects/27775',
+         alt=("What's the point.: an intricate composition built only from ellipses", "What's the point. : une composition complexe faite uniquement d'ellipses")),
+    dict(slug='tezos-curated-works', title='Tezos Curated Works', chain='XTZ', status=None,
+         tech=('Curated outputs · Tezos', 'Sélection de sorties · Tezos'),
+         img='images/projects/meeting%20in%20the%20middle.webp', width=602, height=850,
+         url='https://objkt.com/collections/KT1TsR4XFGnNbBVRMotagBA9PoV1uRXtWC1o',
+         alt=('Tezos Curated Works: a hand-picked output of the constraint-based algorithms', 'Tezos Curated Works : une sortie choisie à la main parmi les algorithmes sous contrainte')),
+    dict(slug='songe-d-un-soir', title="Songe d'un soir", chain='ETH', status=('Suspended', 'Suspendu'),
+         tech=('Generative, with a bilingual poem · Ethereum (fxhash)', 'Génératif, avec un poème bilingue · Ethereum (fxhash)'),
+         img='images/projects/songe.webp', width=954, height=1193,
+         url="https://www.fxhash.xyz/project/songe-d'un-soir",
+         alt=("Songe d'un soir: a misty generative night scene", "Songe d'un soir : une scène nocturne générative et brumeuse")),
+    dict(slug='art-on-solana', title='Art on Solana', chain='SOL', status=('Suspended', 'Suspendu'),
+         tech=('Moiré patterns and optical illusions · Solana (Exchange Art)', 'Moirés et illusions d’optique · Solana (Exchange Art)'),
+         img='images/projects/solana.webp', width=850, height=850,
+         url='https://exchange.art/akira-ishi/nfts',
+         alt=('Art on Solana: layered line patterns that seem to shimmer', 'Art on Solana : des motifs de lignes superposées qui semblent scintiller')),
 ]
 
 COLLABS = [
@@ -394,5 +420,15 @@ PRESS = [
          line=('Own essay on generative art under constraint', "Essai personnel sur l'art génératif sous contrainte")),
 ]
 
+# The chain each work lives on, shown after its name. (Base and Arbitrum are Ethereum layers.)
+CHAIN = {
+    'knights-of-the-round-table': 'BTC', 'googly-rocks': 'ETH', 'four-seasons': 'BTC', 'technosignatures': 'BTC',
+    'beaties': 'BTC', 'connecting': 'BTC', 'navigating-the-trenches': 'BTC', 'genesis': None, 'the-ossuary': 'BTC',
+}
+
+MORE_TO_COME = ('More to come', 'D’autres œuvres à venir')
+
 # Featured first, newest first. Change this list when something new is released.
-LATEST = ['the-ossuary', 'beaties', 'genesis']
+LATEST = ['the-ossuary', 'beaties', 'connecting', 'jardin-algorithmique', 'genesis']
+# The ones with a picture, shown large on the Work page
+LATEST_TILES = ['the-ossuary', 'beaties', 'connecting', 'jardin-algorithmique']

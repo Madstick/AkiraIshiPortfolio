@@ -4,9 +4,10 @@
    scrolling up while at the very top of the Reliquary swings them shut again.
 
    While the doors move, the page itself does not scroll: the wheel, the finger and the keys
-   drive the doors instead. Once they are fully open the page scrolls as usual, and only light
-   (passive) listeners watch for the "back up to the top" gesture, so normal scrolling is never
-   held up by this script.
+   set where the doors WANT to be, and the doors glide there one frame at a time (an eased
+   follow, so a wheel notch or a quick flick never jumps). Once they are fully open the page
+   scrolls as usual, and only light (passive) listeners watch for the "back up to the top"
+   gesture, so normal scrolling is never held up by this script.
    ============================================ */
 
 (function () {
@@ -21,24 +22,57 @@
     var invitation = gate.querySelector('.invitation');
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    var progress = 0;          // 0 = shut, 1 = wide open
+    var target = 0;            // where the doors want to be: 0 = shut, 1 = wide open
+    var shown = 0;             // where they are now, chasing the target
     var locked = null;         // null until the first state is applied
+    var raf = 0;
+    var lastFrame = 0;
     var topSince = performance.now();
     var touchY = 0;
     var touchPulled = 0;
     var openCallbacks = [];
 
+    var FOLLOW_MS = 120;       // how long the doors take to catch up with the hand
     var clamp = function (v) { return Math.min(1, Math.max(0, v)); };
     var easeOutCubic = function (t) { return 1 - Math.pow(1 - t, 3); };
-    var travel = function () { return Math.max(900, window.innerHeight * 1.9); };
+    var travel = function () { return Math.max(900, window.innerHeight * 1.6); };
 
     function render() {
-        // fully open at 85% of the travel, the rest is breathing room
-        var open = easeOutCubic(Math.min(1, progress / 0.85));
+        var open = easeOutCubic(shown);
         var shift = (open * 102).toFixed(2); // a touch past 100% so no sliver stays on screen
         left.style.transform = 'translate3d(-' + shift + '%, 0, 0)';
         right.style.transform = 'translate3d(' + shift + '%, 0, 0)';
         invitation.style.opacity = Math.max(0, 1 - open * 3.2).toFixed(3);
+    }
+
+    // The gate stays in the page until the doors have really finished swinging
+    function settle() {
+        var done = shown >= 1 && target >= 1;
+        gate.classList.toggle('is-open', done);
+        var hint = done ? 'auto' : 'transform';
+        left.style.willChange = right.style.willChange = hint;
+    }
+
+    function tick(now) {
+        raf = 0;
+        var dt = Math.min(50, now - lastFrame);
+        lastFrame = now;
+        var diff = target - shown;
+        if (Math.abs(diff) < 0.0006) {
+            shown = target;
+        } else {
+            // frame-rate independent: the same glide at 60 Hz and at 144 Hz
+            shown += diff * (1 - Math.exp(-dt / FOLLOW_MS));
+        }
+        render();
+        settle();
+        if (shown !== target) raf = requestAnimationFrame(tick);
+    }
+
+    function follow() {
+        if (raf) return;
+        lastFrame = performance.now();
+        raf = requestAnimationFrame(tick);
     }
 
     /* ---------- the two modes ---------- */
@@ -46,7 +80,7 @@
     function onWheelLocked(e) {
         if (e.ctrlKey) return; // pinch-zoom
         e.preventDefault();
-        advance(pixels(e));
+        push(pixels(e));
     }
 
     function onTouchStart(e) {
@@ -59,7 +93,7 @@
         var dy = touchY - y;
         touchY = y;
         e.preventDefault();
-        advance(dy * 2.2);
+        push(dy * 2.2);
     }
 
     // Open: only watching. Nothing here can block a scroll.
@@ -84,9 +118,7 @@
         if (next === locked) return;
         locked = next;
         if (next) {
-            gate.classList.remove('is-open');
             root.classList.add('gate-closed');
-            left.style.willChange = right.style.willChange = 'transform';
             window.removeEventListener('wheel', onWheelOpen);
             window.removeEventListener('touchmove', onTouchMoveOpen);
             window.addEventListener('wheel', onWheelLocked, { passive: false });
@@ -97,34 +129,41 @@
             window.addEventListener('wheel', onWheelOpen, { passive: true });
             window.addEventListener('touchmove', onTouchMoveOpen, { passive: true });
             root.classList.remove('gate-closed');
-            gate.classList.add('is-open');
-            left.style.willChange = right.style.willChange = 'auto';
             var cbs = openCallbacks;
             openCallbacks = [];
             cbs.forEach(function (cb) { cb(); });
         }
     }
 
-    function advance(delta) {
+    // Where the doors want to be
+    function aim(next) {
+        target = clamp(next);
+        setLocked(target < 1);
         if (reduceMotion) {
-            progress = delta > 0 ? 1 : 0;
+            shown = target;
+            render();
+            settle();
         } else {
-            progress = clamp(progress + delta / travel());
+            follow();
         }
-        render();
-        setLocked(progress < 1);
+    }
+
+    function push(delta) {
+        aim(target + delta / travel());
     }
 
     function startClosing(delta) {
-        progress = 0.999;
+        shown = target = 0.995;   // the doors are in the gap again, straight away
         render();
+        settle();
         setLocked(true);
-        advance(delta);
+        push(delta);
     }
 
     function openNow() {
-        progress = 1;
+        target = shown = 1;
         render();
+        settle();
         setLocked(false);
     }
 
@@ -153,9 +192,9 @@
         else if (UP[k] !== undefined) step = -UP[k];
         if (step === null) return;
 
-        if (progress < 1) {
+        if (target < 1) {
             e.preventDefault();
-            advance(step * travel());
+            push(step * travel());
         } else if (step < 0 && window.scrollY <= 0 && performance.now() - topSince > 350) {
             e.preventDefault();
             startClosing(step * travel());
@@ -174,22 +213,22 @@
         } else {
             atTop = false;
             // the scrollbar, an anchor or a restored position took the visitor past the doors
-            if (progress < 1) openNow();
+            if (target < 1) openNow();
         }
     }, { passive: true });
 
     // Tabbing into the page, or following an in-page link, means the visitor wants in
     window.addEventListener('focusin', function (e) {
-        if (progress < 1 && !gate.contains(e.target)) openNow();
+        if (target < 1 && !gate.contains(e.target)) openNow();
     });
     window.addEventListener('hashchange', function () {
-        if (progress < 1) openNow();
+        if (target < 1) openNow();
     });
     window.addEventListener('pageshow', function (e) {
-        if (e.persisted && window.scrollY > 0 && progress < 1) openNow();
+        if (e.persisted && window.scrollY > 0 && target < 1) openNow();
     });
     window.addEventListener('load', function () {
-        if (window.scrollY > 0 && progress < 1) openNow();
+        if (window.scrollY > 0 && target < 1) openNow();
     });
 
     /* ---------- start ---------- */
@@ -198,14 +237,15 @@
         openNow();
     } else {
         render();
+        settle();
         setLocked(true);
     }
 
     // Other scripts (the knight, the sparkles) wait for the doors
     window.AkiraGate = {
-        isOpen: function () { return progress >= 1; },
+        isOpen: function () { return target >= 1; },
         whenOpen: function (cb) {
-            if (progress >= 1) cb();
+            if (target >= 1) cb();
             else openCallbacks.push(cb);
         }
     };

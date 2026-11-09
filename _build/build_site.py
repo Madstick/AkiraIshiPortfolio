@@ -14,6 +14,7 @@ import content as C  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BY_SLUG = {w['slug']: w for w in C.WORKS}
+OTHER_BY_SLUG = {o['slug']: o for o in C.OTHER}
 CHAPTER = {c['key']: c for c in C.CHAPTERS}
 FONTS = ('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@300;400;500'
          '&display=swap')
@@ -26,6 +27,22 @@ def esc(s):
 def bi(pair):
     """A text in both languages; the page shows the one that matches <html lang>."""
     return '<span data-l="en">%s</span><span data-l="fr">%s</span>' % (esc(pair[0]), esc(pair[1]))
+
+
+def chain_html(code):
+    """The chain a work lives on, small and quiet, right after its name: (BTC)"""
+    return ' <span class="chain">(%s)</span>' % code if code else ''
+
+
+def item(slug):
+    """A work with its own page, or one of the other works (which link out)."""
+    if slug in BY_SLUG:
+        w = BY_SLUG[slug]
+        return dict(title=w['title'], chain=C.CHAIN.get(slug), line=w['facet'], status=w['status'],
+                    url=work_url(w), external=False, work=w)
+    o = OTHER_BY_SLUG[slug]
+    return dict(title=o['title'], chain=o['chain'], line=o['tech'], status=o['status'],
+                url=o['url'], external=True, other=o)
 
 
 def work_url(w):
@@ -171,10 +188,12 @@ def write(relpath, text):
 
 # ------------------------------------------------------------------ home
 def build_home():
-    latest = [BY_SLUG[s] for s in C.LATEST]
-    latest_html = ''.join(
-        '<a href="%s"><div><b>%s</b><span class="f">%s</span></div>%s</a>' % (work_url(w), esc(w['title']), bi(w['facet']), status_tag(w))
-        for w in latest)
+    latest_html = ''
+    for slug in C.LATEST:
+        it = item(slug)
+        latest_html += '<a href="%s"%s><div><b>%s%s</b><span class="f">%s</span></div>%s</a>' % (
+            it['url'], ' target="_blank" rel="noopener"' if it['external'] else '', esc(it['title']), chain_html(it['chain']),
+            bi(it['line']), '<span class="tag">%s</span>' % bi(it['status']) if it['status'] else '')
     chapters = [c for c in C.CHAPTERS if c['key'] != '0']
     index_html = ''.join(
         '<a href="/work.html#%s"><span class="mono">%s</span><span>%s</span><span class="mono">%s</span></a>' % (
@@ -189,11 +208,16 @@ def build_home():
         inner = media_tag(w, lazy=lazy)
         return '<a class="cell %s" href="%s" aria-label="%s">%s%s</a>' % (cls, work_url(w), esc(w['title']), inner, t)
 
+    jd = OTHER_BY_SLUG['jardin-algorithmique']
+    jardin_cell = ('<a class="cell" href="%s" target="_blank" rel="noopener" aria-label="%s"><img src="/%s" width="%d" height="%d" alt="%s" '
+                   'data-alt-fr="%s" loading="lazy" decoding="async"></a>') % (
+        jd['url'], esc(jd['title']), jd['img'], jd['width'], jd['height'], esc(jd['alt'][0]), esc(jd['alt'][1]))
+
     sheet = ''.join([
         cell('the-ossuary', 'big', ('Latest', 'Dernière'), lazy=False),
         cell('beaties', '', ('Upcoming', 'À venir')),
         '<a class="cell soon" href="/work/genesis.html"><span>%s</span></a>' % bi(('Genesis, in progress', 'Genesis, en cours')),
-        cell('googly-rocks'), cell('four-seasons'), cell('technosignatures'),
+        jardin_cell, cell('four-seasons'), cell('technosignatures'),
         cell('connecting', 'dark'), cell('navigating-the-trenches'),
         '<a class="cell cover dark" href="/shop.html" aria-label="Still Life Code">'
         '<img src="/images/atelier/slc-hero.webp" width="900" height="1125" alt="Still Life Code: a still life with sunflowers and oranges" '
@@ -228,8 +252,15 @@ def row_html(w):
     dark = ' dk' if is_dark(w) else ''
     thumb = media_tag(w) if w['media'] else ''
     return ('<a class="row" href="%s"><div class="no">%s</div><div class="th%s">%s</div>'
-            '<div class="ti"><span class="t">%s</span>%s%s</div><div class="fa">%s</div><div class="te">%s</div></a>') % (
-        work_url(w), number(w), dark, thumb, esc(w['title']), key_mark(), status_tag(w), bi(w['facet']), bi(w['tech']))
+            '<div class="ti"><span class="t">%s</span>%s%s%s</div><div class="fa">%s</div><div class="te">%s</div></a>') % (
+        work_url(w), number(w), dark, thumb, esc(w['title']), chain_html(C.CHAIN.get(w['slug'])), key_mark(), status_tag(w),
+        bi(w['facet']), bi(w['tech']))
+
+
+def more_row():
+    """A placeholder line: this chapter is not finished."""
+    return ('<div class="row more"><div class="no"></div><div class="th"></div>'
+            '<div class="ti"><span class="t">%s</span></div><div class="fa"></div><div class="te"></div></div>') % bi(C.MORE_TO_COME)
 
 
 def build_work():
@@ -240,18 +271,34 @@ def build_work():
         parts.append('<div class="chh%s" id="%s"><div class="label">%s</div><div>%s<p>%s</p></div></div>' % (
             cls, chapter_anchor(c), bi(label), '<h2>%s</h2>' % bi(c['name']) if c['name'] else '', bi(c['line'])))
         parts.extend(row_html(w) for w in C.WORKS if w['chapter'] == c['key'])
+        if c['key'] in ('II', 'III'):
+            parts.append(more_row())
 
-    oss, bea = BY_SLUG['the-ossuary'], BY_SLUG['beaties']
+    def lat(slug):
+        it = item(slug)
+        tag = '<span class="tag">%s</span>' % bi(it['status']) if it['status'] else ''
+        if it.get('work'):
+            w = it['work']
+            media = media_tag(w, lazy=False)
+            dark = ' dk' if is_dark(w) else ''
+            tech = w['tech']
+        else:
+            o = it['other']
+            media = ('<img src="/%s" width="%d" height="%d" alt="%s" data-alt-fr="%s" loading="lazy" decoding="async">'
+                     % (o['img'], o['width'], o['height'], esc(o['alt'][0]), esc(o['alt'][1])))
+            dark = ''
+            tech = o['tech']
+        return ('<a href="%s"%s><div class="ph%s">%s%s</div><h3>%s%s</h3><div class="f">%s</div><div class="te">%s</div></a>') % (
+            it['url'], ' target="_blank" rel="noopener"' if it['external'] else '', dark, media, tag, esc(it['title']),
+            chain_html(it['chain']), bi(it['line']) if not it['external'] else '', bi(tech))
 
-    def lat(w, tag, dark):
-        return ('<a href="%s"><div class="ph%s">%s<span class="tag">%s</span></div><h3>%s</h3><div class="f">%s</div>'
-                '<div class="te">%s</div></a>') % (work_url(w), ' dk' if dark else '', media_tag(w, lazy=False), bi(tag), esc(w['title']),
-                                                    bi(w['facet']), bi(w['tech']))
+    lat_tiles = ''.join(lat(slug) for slug in C.LATEST_TILES)
 
     other = ''.join(
         '<a href="%s" target="_blank" rel="noopener"><div class="mini"><img src="/%s" alt="%s" data-alt-fr="%s" loading="lazy" decoding="async"></div>'
-        '<div><div class="b">%s</div></div><div class="s">%s</div></a>' % (o['url'], o['img'], esc(o['alt'][0]), esc(o['alt'][1]),
-                                                                           esc(o['title']), bi(o['tech'])) for o in C.OTHER)
+        '<div><div class="b">%s%s%s</div></div><div class="s">%s</div></a>' % (
+            o['url'], o['img'], esc(o['alt'][0]), esc(o['alt'][1]), esc(o['title']), chain_html(o['chain']),
+            (' <span class="tag mute">%s</span>' % bi(o['status'])) if o['status'] else '', bi(o['tech'])) for o in C.OTHER)
     collabs = ''.join(
         ('<a href="%s" target="_blank" rel="noopener"><div class="b">%s</div><div class="s">%s</div></a>' % (c['url'], esc(c['title']), bi(c['line'])))
         if c['url'] else ('<div><div class="b">%s</div><div class="s">%s</div></div>' % (esc(c['title']), bi(c['line'])))
@@ -265,7 +312,7 @@ def build_work():
     out += '<body>\n' + header('work') + '''<main id="main">
 <section class="intro"><div class="label">%s</div><p>%s</p></section>
 <section class="lat"><div class="label">%s</div>
-  <div class="lat-two">%s%s</div>
+  <div class="lat-grid">%s</div>
 </section>
 %s
 <section class="sec" id="series"><div class="label">%s</div>
@@ -276,8 +323,8 @@ def build_work():
 <section class="sec" id="collaborations"><div class="label">%s</div><div class="plain-list noimg">%s</div></section>
 <section class="sec" id="press"><div class="label">%s</div><div class="plain-list noimg">%s</div></section>
 </main>
-''' % (bi(('Work', 'Œuvres')), bi(C.STATEMENT_SHORT), bi(('Latest', 'Dernières œuvres')), lat(oss, ('New', 'Nouveau'), True),
-       lat(bea, ('Upcoming', 'À venir'), False), '\n'.join(parts), bi(('Series', 'Série')), bi(C.SERIES_NOTE),
+''' % (bi(('Work', 'Œuvres')), bi(C.STATEMENT_SHORT), bi(('Latest', 'Dernières œuvres')), lat_tiles,
+       '\n'.join(parts), bi(('Series', 'Série')), bi(C.SERIES_NOTE),
        bi(('See the series →', 'Voir la série →')), bi(('Other works', 'Autres œuvres')), other,
        bi(('Collaborations', 'Collaborations')), collabs, bi(('Writing & press', 'Écrits & presse')), press)
     out += footer()
@@ -333,7 +380,7 @@ def build_piece(i, w):
 <section class="hero">%s</section>
 <section class="sheet-meta">
   <div>
-    <h1>%s%s%s</h1>
+    <h1>%s%s%s%s</h1>
     <p class="facet">%s</p>
     <dl class="facts">%s</dl>
   </div>
@@ -345,7 +392,7 @@ def build_piece(i, w):
 </section>
 %s%s
 </main>
-''' % (bi(('Work', 'Œuvres')), chapter_anchor(c), bi(ct), frame, esc(w['title']), key_mark(),
+''' % (bi(('Work', 'Œuvres')), chapter_anchor(c), bi(ct), frame, esc(w['title']), chain_html(C.CHAIN.get(w['slug'])), key_mark(),
        ('<span class="tag status">%s</span>' % bi(w['status'])) if w['status'] else '', bi(w['facet']), ''.join(facts), logic, desc,
        links, '<section class="extras">%s</section>' % extras if extras else '', pn)
     out += footer()

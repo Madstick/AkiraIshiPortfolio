@@ -50,6 +50,10 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
     display: inline-block; font: 400 11px 'IBM Plex Mono', monospace; letter-spacing: .04em; text-transform: uppercase;
     border: 1px solid currentColor; border-radius: 20px; padding: 1px 8px; line-height: 1.5; white-space: nowrap;
 }
+/* the chain a work lives on, quiet, right after its name */
+.chain { font: 400 .62em 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace; color: var(--faint); letter-spacing: .03em; white-space: nowrap; margin-left: .15em; }
+.sheet-meta h1 .chain { font-size: .28em; vertical-align: .9em; }
+.tag.mute { color: #777; border-color: #ccc; margin-left: 8px; font-size: 10px; }
 .key { color: var(--faint); font-size: .7em; margin-left: .4em; vertical-align: .15em; cursor: help; }
 .plain-link { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #bbb; }
 .plain-link:hover { text-decoration-color: var(--ink); }
@@ -91,13 +95,13 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
 .intro p { font: 300 28px/1.35 'IBM Plex Sans', sans-serif; letter-spacing: -.015em; max-width: 1000px; }
 .lat { border-top: 1px solid var(--ink); padding: 22px var(--pad) 44px; }
 .lat > .label { margin-bottom: 18px; }
-.lat-two { display: grid; grid-template-columns: 1.25fr 1fr; gap: 28px; }
+.lat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
 .lat a { text-decoration: none; }
-.lat .ph { position: relative; height: 520px; background: var(--ground); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.lat .ph { position: relative; height: 400px; background: var(--ground); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .lat .ph.dk { background: #000; }
 .lat .ph img, .lat .ph video { max-width: 100%; max-height: 100%; width: auto; height: auto; }
 .lat .ph .tag { position: absolute; left: 14px; top: 14px; background: #fff; color: var(--ink); border-color: #fff; }
-.lat h3 { font: 500 26px/1.15 'IBM Plex Sans', sans-serif; letter-spacing: -.015em; margin-top: 14px; }
+.lat h3 { font: 500 22px/1.2 'IBM Plex Sans', sans-serif; letter-spacing: -.015em; margin-top: 14px; }
 .lat a:hover h3 { text-decoration: underline; text-underline-offset: 4px; }
 .lat .f { color: #333; margin-top: 2px; }
 .lat .te { font: 400 12px/1.5 'IBM Plex Mono', monospace; color: #777; margin-top: 6px; }
@@ -117,6 +121,10 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
 .row .ti .tag { margin-left: 8px; color: #777; border-color: #ccc; font-weight: 400; font-size: 10px; }
 .row .te { font: 400 12px/1.5 'IBM Plex Mono', monospace; color: #777; }
 .row.nolink { cursor: default; }
+/* a chapter that is not finished: a quiet placeholder line */
+.row.more { cursor: default; }
+.row.more .th { background: transparent; border: 1px dashed #c9c9c4; }
+.row.more .ti .t { font-weight: 400; font-style: italic; color: var(--faint); }
 
 .sec { padding: 50px var(--pad) 36px; border-top: 1px solid var(--ink); }
 .sec > .label { margin-bottom: 20px; }
@@ -194,8 +202,8 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
     .intro, .about-head, .about-sec, .sheet-meta { grid-template-columns: 1fr; gap: 18px; }
     .intro p { font-size: 22px; }
     .about-head p { font-size: 22px; }
-    .lat-two { grid-template-columns: 1fr; }
-    .lat .ph { height: 380px; }
+    .lat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .lat .ph { height: 240px; }
     .chh { grid-template-columns: 1fr; gap: 6px; }
     .row { grid-template-columns: 84px 1fr; grid-template-areas: "th ti" "th fa" "th te"; gap: 2px 16px; padding: 14px var(--pad); }
     .row .no { display: none; }
