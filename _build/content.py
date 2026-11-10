@@ -111,8 +111,8 @@ CHAPTERS = [
          line=('Three realisations about the nature of humanity: the loss of innocence, our place in nature, our pursuit of truth.',
                "Trois prises de conscience sur la nature de l'humanité : la perte de l'innocence, notre place dans la nature, notre quête de vérité.")),
     dict(key='II', label=('Chapter II', 'Chapitre II'), name=('The Expressions of Humanity', "Les expressions de l'humanité"),
-         line=('The traits that make a human, and the ways we express them: banding together, connecting, following the crowd.',
-               'Les traits qui font un être humain, et les façons dont nous les exprimons : se rassembler, se relier, suivre la foule.')),
+         line=('The traits that make a human, and the ways we express them.',
+               'Les traits qui font un être humain, et les façons dont nous les exprimons.')),
     dict(key='III', label=('Chapter III', 'Chapitre III'), name=('Universal Truths', 'Vérités universelles'),
          line=('Fundamental realities. They precede us, outlast us, and remain true regardless of what we do.',
                'Réalités fondamentales. Elles nous précèdent, nous survivent, et restent vraies quoi que nous fassions.')),
@@ -177,7 +177,7 @@ WORKS = [
         facet=('Humanity and Nature', "L'humanité et la nature"),
         logic=("Exploring our origins, our dependence on nature, our impact on it and our complex relationship with the natural world.",
                "Explorer nos origines, notre dépendance à la nature, notre impact sur elle et notre relation complexe avec le monde naturel."),
-        tech=('Generative · Bitcoin Ordinals · 128 editions', 'Génératif · Bitcoin Ordinals · 128 éditions'),
+        tech=('Interactive generative · Bitcoin Ordinals · 128 editions', 'Génératif interactif · Bitcoin Ordinals · 128 éditions'),
         status=None,
         desc=[(
             'Four Seasons is the first collection inscribed on Bitcoin Ordinals. Each piece is an abstract reading of spring, '
@@ -236,7 +236,7 @@ WORKS = [
         slug='beaties', chapter='II', title='Beaties', year='2026',
         facet=('Banding together to build something greater', 'Se rassembler pour bâtir quelque chose de plus grand'),
         logic=None,
-        tech=('Generative code and music · Bitcoin Ordinals · 200 editions', 'Code et musique génératifs · Bitcoin Ordinals · 200 éditions'),
+        tech=('Interactive generative code and music · Bitcoin Ordinals · 200 editions', 'Code et musique génératifs interactifs · Bitcoin Ordinals · 200 éditions'),
         status=('Upcoming', 'À venir'),
         desc=[(
             'Beaties is a pocket band that plays forever: nine characters, nine instruments, sealed on Bitcoin as one living '
@@ -320,7 +320,7 @@ WORKS = [
         slug='genesis', chapter='III', title='Genesis', year=None,
         facet=('Birth', 'La naissance'),
         logic=None,
-        tech=('In progress', 'En cours'),
+        tech=('Interactive · In progress', 'Interactif · En cours'),
         status=('In progress', 'En cours'),
         desc=[(
             'Genesis is in progress. It is the work about birth, and with The Ossuary it frames the whole project between the '
@@ -335,7 +335,7 @@ WORKS = [
         slug='the-ossuary', chapter='III', title='The Ossuary', year='2026',
         facet=('Death', 'La mort'),
         logic=None,
-        tech=('Interactive, fully on-chain · Bitcoin Ordinals · 666 editions', 'Interactif, entièrement on-chain · Bitcoin Ordinals · 666 éditions'),
+        tech=('Fully on-chain · Bitcoin Ordinals · 666 editions', 'Entièrement on-chain · Bitcoin Ordinals · 666 éditions'),
         status=('New', 'Nouveau'),
         desc=[(
             'The Ossuary is a human face inscribed on Bitcoin that dies once. Every piece is someone different, drawn in falling '

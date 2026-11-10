@@ -89,6 +89,8 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
 .cell.soon { display: flex; align-items: flex-end; padding: 12px; font: 12px 'IBM Plex Mono', monospace; color: #888; }
 .cell.dark { background: #000; }
 .cell.cover img { object-fit: cover; }
+.cell.wide { grid-column: span 2; aspect-ratio: 2 / 1; }
+.cell.wide img { object-fit: cover; }
 
 /* ---------- Work page ---------- */
 .intro { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; padding: 44px var(--pad) 52px; }

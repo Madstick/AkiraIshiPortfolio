@@ -213,16 +213,20 @@ def build_home():
                    'data-alt-fr="%s" loading="lazy" decoding="async"></a>') % (
         jd['url'], esc(jd['title']), jd['img'], jd['width'], jd['height'], esc(jd['alt'][0]), esc(jd['alt'][1]))
 
+    # Three columns of squares. The two 16:9 works take two squares side by side (2:1), so they are
+    # shown at almost their own ratio instead of floating small inside a square.
     sheet = ''.join([
         cell('the-ossuary', 'big', ('Latest', 'Dernière'), lazy=False),
         cell('beaties', '', ('Upcoming', 'À venir')),
-        '<a class="cell soon" href="/work/genesis.html"><span>%s</span></a>' % bi(('Genesis, in progress', 'Genesis, en cours')),
-        jardin_cell, cell('four-seasons'), cell('technosignatures'),
-        cell('connecting', 'dark'), cell('navigating-the-trenches'),
         '<a class="cell cover dark" href="/shop.html" aria-label="Still Life Code">'
         '<img src="/images/atelier/slc-hero.webp" width="900" height="1125" alt="Still Life Code: a still life with sunflowers and oranges" '
         'data-alt-fr="Still Life Code : une nature morte aux tournesols et aux oranges" loading="lazy" decoding="async">'
         '<span class="tag">%s</span></a>' % bi(('Prints', 'Tirages')),
+        jardin_cell, cell('four-seasons'), cell('technosignatures'),
+        cell('connecting', 'wide dark'),
+        '<a class="cell soon" href="/work/genesis.html"><span>%s</span></a>' % bi(('Genesis, in progress', 'Genesis, en cours')),
+        cell('navigating-the-trenches', 'wide dark'),
+        cell('knights-of-the-round-table', '', ('Prologue', 'Prologue')),
     ])
     desc = ('Akira Ishi writes code to map what it is to be human - one work, multiple facets, all linked by a hidden story.')
     out = head('Akira Ishi | Generative artist', 'Akira Ishi | Artiste génératif', desc, '/', '/images/og/home.jpg',
