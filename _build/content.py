@@ -238,7 +238,8 @@ WORKS = [
         slug='beaties', chapter='II', title='Beaties', year='2026',
         facet=('Banding together to build something greater', 'Se rassembler pour bâtir quelque chose de plus grand'),
         logic=None,
-        tech=('Interactive generative code and music · Bitcoin Ordinals · 200 editions', 'Code et musique génératifs interactifs · Bitcoin Ordinals · 200 éditions'),
+        tech=('Interactive generative code and music · Bitcoin Ordinals, 200 editions · Ethereum version in progress',
+              'Code et musique génératifs interactifs · Bitcoin Ordinals, 200 éditions · version Ethereum en cours'),
         status=('Upcoming', 'À venir'),
         desc=[(
             'Beaties is a pocket band that plays forever: nine characters, nine instruments, sealed on Bitcoin as one living '
@@ -253,7 +254,11 @@ WORKS = [
             "est donc un original. Sous l'allure de console de poche plastique des années 90, il y a une vraie composition : des "
             "mélodies tenues dans la gamme de chaque genre, des voix qui s'appellent et se répondent, des morceaux qui montent et "
             "qui cassent. Un kick seul n'est qu'un coup sourd, mais neuf petites voix qui s'accordent sur un même bloc font un "
-            "groupe. C'est le sujet : ensemble, nous bâtissons plus.")],
+            "groupe. C'est le sujet : ensemble, nous bâtissons plus."),
+            ('Beaties will drop twice, at the same time: on Bitcoin, as 200 children of one parent inscription, and on '
+             'Ethereum. The Ethereum side is still a work in progress.',
+             "Beaties sortira en deux éditions simultanées : sur Bitcoin, avec 200 enfants issus d'une inscription parente, "
+             "et sur Ethereum. Le côté Ethereum est encore en cours de développement.")],
         links=[('live', ('Website', 'Site web'), 'https://beaties.xyz'),
                ('inscription', ('Parent inscription', 'Inscription parente'),
                 'https://ordinals.com/inscription/c08fc18bd7bf9d7045e1c9272739bee611efe9197fafbb2ac09171320899dfc5i0')],
@@ -326,12 +331,13 @@ WORKS = [
         status=('In progress', 'En cours'),
         desc=[(
             'Genesis is in progress. It is the work about birth, and with The Ossuary it frames the whole project between the '
-            'two universal truths: we are born, and we die. Nothing more is public yet.',
+            'two universal truths: we are born, and we die. The video shows an early preview.',
             "Genesis est en cours. C'est l'œuvre sur la naissance, et avec The Ossuary elle encadre tout le projet entre les deux "
-            "vérités universelles : on naît, et on meurt. Rien d'autre n'est public pour l'instant.")],
+            "vérités universelles : on naît, et on meurt. La vidéo montre un premier aperçu.")],
         links=[], inscription=None,
-        media=None, still=None, extras=[],
-        alt=('Genesis: work in progress', 'Genesis : œuvre en cours'),
+        media=('video', 'images/projects/genesis.webm', 720, 720), still='images/projects/genesis.webp', extras=[],
+        alt=('Genesis: an early preview, a golden creature curled around a glowing sphere on a dark, mapped ground',
+             'Genesis : un premier aperçu, une créature dorée enroulée autour d\'une sphère lumineuse sur un sol sombre et cartographié'),
     ),
     dict(
         slug='the-ossuary', chapter='III', title='The Ossuary', year='2026',
@@ -548,7 +554,7 @@ PRESS = [
 # The chain each work lives on, shown after its name. (Base and Arbitrum are Ethereum layers.)
 CHAIN = {
     'knights-of-the-round-table': 'BTC', 'googly-rocks': 'ETH', 'four-seasons': 'BTC', 'technosignatures': 'BTC',
-    'beaties': 'BTC', 'connecting': 'BTC', 'navigating-the-trenches': 'BTC', 'genesis': None, 'the-ossuary': 'BTC',
+    'beaties': 'BTC + ETH', 'connecting': 'BTC', 'navigating-the-trenches': 'BTC', 'genesis': None, 'the-ossuary': 'BTC',
     'jardin-algorithmique': 'ETH', 'comics-extracts': 'DOT', 'aodach': 'ETH', 'whats-the-point': 'XTZ',
     'tezos-curated-works': 'XTZ', 'songe-d-un-soir': 'ETH', 'art-on-solana': 'SOL',
 }
@@ -587,6 +593,8 @@ DATES = {
     'technosignatures': (2025, 2), 'navigating-the-trenches': (2025, 3),
     'connecting': (2026, 1), 'jardin-algorithmique': (2026, 5), 'the-ossuary': (2026, 10),
     'beaties': (2026, None),   # upcoming
+    'comics-extracts': (2026, 5), 'art-on-solana': (2024, 6),
+    'knights-of-the-round-table': (2023, 12),   # first released then; to be re-inscribed on Bitcoin
 }
 for _w in WORKS + OTHER:
     _d = DATES.get(_w['slug'])

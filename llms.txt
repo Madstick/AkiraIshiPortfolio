@@ -14,7 +14,7 @@ The practice is one ongoing project, a map of humanity told in three chapters af
 
 Twelve knights, to be re-inscribed on Bitcoin. Everything else begins here.
 
-- [Knights of the Round Table](https://akiraishi.com/work/knights-of-the-round-table.html): Where the story starts; 12 pieces · to be re-inscribed on Bitcoin
+- [Knights of the Round Table](https://akiraishi.com/work/knights-of-the-round-table.html): Where the story starts; 12 pieces · to be re-inscribed on Bitcoin; December 2023
 
 ## Chapter I, Realisation
 
@@ -28,7 +28,7 @@ Three realisations about the nature of humanity: the loss of innocence, our plac
 
 The traits that make a human, and the ways we express them.
 
-- [Beaties](https://akiraishi.com/work/beaties.html): Banding together to build something greater; Interactive generative code and music · Bitcoin Ordinals · 200 editions; 2026
+- [Beaties](https://akiraishi.com/work/beaties.html): Banding together to build something greater; Interactive generative code and music · Bitcoin Ordinals, 200 editions · Ethereum version in progress; 2026
 - [Connecting](https://akiraishi.com/work/connecting.html): Connection between beings; Interactive generative system · Bitcoin Ordinals; January 2026
 - [Navigating the Trenches](https://akiraishi.com/work/navigating-the-trenches.html): Crowd psychology: euphoria and abandonment; Recursive inscriptions under 4 KB · Bitcoin Ordinals; March 2025
 
@@ -42,12 +42,12 @@ Fundamental realities. They precede us, outlast us, and remain true regardless o
 ## Other works (outside the story)
 
 - [Jardin Algorithmique](https://akiraishi.com/work/jardin-algorithmique.html): Generative · Ethereum / Base · 200 editions; May 2026
-- [Comics Extracts](https://akiraishi.com/work/comics-extracts.html): Generative · Polkadot
+- [Comics Extracts](https://akiraishi.com/work/comics-extracts.html): Generative · Polkadot; May 2026
 - [Aodach](https://akiraishi.com/work/aodach.html): Generative · Arbitrum · 69 pieces; August 2023
 - [What's the point.](https://akiraishi.com/work/whats-the-point.html): Generative, built with ellipses only · Tezos (fxhash); June 2023
 - [Tezos Curated Works](https://akiraishi.com/work/tezos-curated-works.html): Curated outputs · Tezos; August 2023
 - [Songe d'un soir](https://akiraishi.com/work/songe-d-un-soir.html): Generative, with a bilingual poem · Ethereum (fxhash); November 2023
-- [Art on Solana](https://akiraishi.com/work/art-on-solana.html): Moiré patterns and optical illusions · Solana (Exchange Art)
+- [Art on Solana](https://akiraishi.com/work/art-on-solana.html): Moiré patterns and optical illusions · Solana (Exchange Art); June 2024
 
 ## Still Life Code (a separate series)
 

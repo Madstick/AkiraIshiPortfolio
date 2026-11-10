@@ -89,7 +89,7 @@ def card(paths, name, bg=(241, 241, 239)):
 def make_cards():
     for w in WORKS + OTHER:
         if w['still']:
-            card([w['still']], w['slug'], bg=(16, 16, 17) if w['slug'] in ('the-ossuary', 'connecting') else (241, 241, 239))
+            card([w['still']], w['slug'], bg=(16, 16, 17) if w['slug'] in ('the-ossuary', 'connecting', 'genesis') else (241, 241, 239))
     collage = ['images/projects/ossuary.webp', 'images/projects/Technosignatures2.webp',
                'images/work/stills/four-seasons.webp', 'images/projects/beaties.webp']
     for name in ('home', 'work', 'about'):

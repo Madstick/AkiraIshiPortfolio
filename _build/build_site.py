@@ -13,6 +13,7 @@ import sys
 import urllib.parse
 
 sys.path.insert(0, os.path.dirname(__file__))
+import analytics  # noqa: E402
 import content as C  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -122,7 +123,7 @@ def media_tag(w, cls='', lazy=True, sizes_attr=True):
 
 
 def is_dark(w):
-    return w['slug'] in ('the-ossuary', 'connecting')
+    return w['slug'] in ('the-ossuary', 'connecting', 'genesis')
 
 
 # ------------------------------------------------------------------ page shell
@@ -162,10 +163,10 @@ def head(title, title_fr, desc, url, og_image, extra=''):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="%(fonts)s">
 <link rel="stylesheet" href="/site.css">
-%(extra)s<script defer src="https://cloud.umami.is/script.js" data-website-id="ac694020-0336-46f7-8d6a-ae7a41a5fb30"></script>
+%(extra)s%(analytics)s
 </head>
 ''' % dict(title=esc(title), title_fr=esc(title_fr), desc=esc(desc), site=C.SITE, url=url, og=og_image,
-           handle=C.X_HANDLE, fonts=FONTS, extra=extra)
+           handle=C.X_HANDLE, fonts=FONTS, extra=extra, analytics=analytics.tag())
 
 
 NAV = [
@@ -254,7 +255,7 @@ def build_home():
         '<span class="tag">%s</span></a>' % bi(('Prints', 'Tirages')),
         cell('jardin-algorithmique'), cell('four-seasons'), cell('technosignatures'),
         cell('connecting', 'wide dark'),
-        '<a class="cell soon" href="/work/genesis.html"><span>%s</span></a>' % bi(('Genesis, in progress', 'Genesis, en cours')),
+        cell('genesis', 'dark', ('In progress', 'En cours')),
         cell('navigating-the-trenches', 'wide dark'),
         cell('knights-of-the-round-table', '', ('Prologue', 'Prologue')),
     ])
@@ -379,7 +380,8 @@ def build_piece(group, i, w):
 
     facts = ['<div><dt>%s</dt><dd>%s</dd></div>' % (bi(('Chapter', 'Chapitre')), bi(ct))]
     if w['date']:
-        facts.append('<div><dt>%s</dt><dd>%s</dd></div>' % (bi(('Released', 'Sortie')), bi(date_pair(w['date']))))
+        label = ('Expected', 'Prévue') if w['status'] and w['status'][0] == 'Upcoming' else ('Released', 'Sortie')
+        facts.append('<div><dt>%s</dt><dd>%s</dd></div>' % (bi(label), bi(date_pair(w['date']))))
     facts.append('<div><dt>%s</dt><dd>%s</dd></div>' % (bi(('Medium', 'Médium')), bi(w['tech'])))
     if w['inscription']:
         iid, iurl = w['inscription']
@@ -453,9 +455,9 @@ def cv_line(year, name, sub=None, url=None):
 
 
 # newest first; the ones without a known date come last
-CV_ORDER = ['the-ossuary', 'jardin-algorithmique', 'connecting', 'beaties', 'navigating-the-trenches', 'technosignatures',
-            'four-seasons', 'googly-rocks', 'songe-d-un-soir', 'aodach', 'tezos-curated-works', 'whats-the-point',
-            'comics-extracts', 'art-on-solana', 'knights-of-the-round-table']
+CV_ORDER = ['beaties', 'genesis', 'the-ossuary', 'jardin-algorithmique', 'comics-extracts', 'connecting',
+            'navigating-the-trenches', 'technosignatures', 'four-seasons', 'art-on-solana', 'googly-rocks',
+            'knights-of-the-round-table', 'songe-d-un-soir', 'aodach', 'tezos-curated-works', 'whats-the-point']
 
 
 def build_about():
@@ -464,9 +466,11 @@ def build_about():
     for slug in CV_ORDER:
         w = BY_SLUG[slug]
         sub_line = w['tech']
-        if w['status'] and w['status'][0] in ('Upcoming', 'Suspended'):
+        if w['status'] and w['status'][0] == 'Suspended':
             sub_line = (sub_line[0] + ' · ' + w['status'][0].lower(), sub_line[1] + ' · ' + w['status'][1].lower())
-        cv += cv_line(date_pair(w['date']) if w['date'] else '', w['title'], sub_line, work_url(w))
+        coming = w['status'] and w['status'][0] in ('Upcoming', 'In progress')
+        when = w['status'] if coming else (date_pair(w['date']) if w['date'] else '')
+        cv += cv_line(when, w['title'], sub_line, work_url(w))
     cv += '<h3>%s</h3>' % bi(('Collaborations', 'Collaborations'))
     cv += ''.join(cv_line('', c['title'], c['line'], c['url']) for c in C.COLLABS)
     cv += '<h3>%s</h3>' % bi(('Press & writing', 'Presse & écrits'))
