@@ -94,9 +94,38 @@ def make_cards():
                'images/work/stills/four-seasons.webp', 'images/projects/beaties.webp']
     for name in ('home', 'work', 'about'):
         card(collage, name)
+    # the shop and the stand-alone pieces get their own share cards too
+    card(['images/atelier/slc-hero.webp'], 'shop')
+    card(['images/projects/jardin-algorithmique.webp'], 'jardin-algorithmique')
+
+
+def make_icons():
+    """A plain monogram for the portfolio pages (the Reliquary keeps its own icon)."""
+    from PIL import ImageDraw, ImageFont
+    svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#0d0d0d"/>'
+           '<text x="32" y="43" text-anchor="middle" font-family="IBM Plex Sans, Arial, sans-serif" font-weight="500" '
+           'font-size="30" letter-spacing="-1" fill="#ffffff">AI</text></svg>')
+    with open(p('images', 'favicon.svg'), 'w', encoding='utf-8') as fh:
+        fh.write(svg)
+    font_path = None
+    for candidate in (r'C:\Windows\Fonts\arial.ttf', '/Library/Fonts/Arial.ttf', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'):
+        if os.path.exists(candidate):
+            font_path = candidate
+            break
+    def draw(size):
+        im = Image.new('RGB', (size, size), (13, 13, 13))
+        d = ImageDraw.Draw(im)
+        font = ImageFont.truetype(font_path, round(size * 0.47)) if font_path else ImageFont.load_default()
+        box = d.textbbox((0, 0), 'AI', font=font)
+        d.text(((size - (box[2] - box[0])) / 2 - box[0], (size - (box[3] - box[1])) / 2 - box[1]), 'AI', fill=(255, 255, 255), font=font)
+        return im
+    draw(180).save(p('images', 'apple-touch-icon.png'), 'PNG')
+    draw(256).save(p('images', 'favicon-ai.ico'), sizes=[(16, 16), (32, 32), (48, 48)])
+    print('icons')
 
 
 if __name__ == '__main__':
     make_stills()
     make_ossuary_video()
     make_cards()
+    make_icons()

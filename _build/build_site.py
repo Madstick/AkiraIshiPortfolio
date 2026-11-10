@@ -5,7 +5,9 @@ Words live in content.py. Run from the repository root:
     python _build/build_site.py
 Needs only the Python standard library.
 """
+import datetime
 import html
+import json
 import os
 import sys
 
@@ -18,6 +20,18 @@ OTHER_BY_SLUG = {o['slug']: o for o in C.OTHER}
 CHAPTER = {c['key']: c for c in C.CHAPTERS}
 FONTS = ('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@300;400;500'
          '&display=swap')
+
+
+def jsonld(obj):
+    """Structured data for search engines and link previews."""
+    return '<script type="application/ld+json">%s</script>\n' % json.dumps(obj, ensure_ascii=False)
+
+
+PERSON = {
+    '@type': 'Person', 'name': C.NAME, 'url': C.SITE + '/', 'sameAs': [C.X_URL],
+    'jobTitle': 'Generative artist',
+    'description': 'Anonymous generative artist based in France, working mostly with Bitcoin Ordinals.',
+}
 
 
 def esc(s):
@@ -107,8 +121,9 @@ def head(title, title_fr, desc, url, og_image, extra=''):
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#ffffff">
 <link rel="canonical" href="%(site)s%(url)s">
-<link rel="icon" type="image/x-icon" href="/images/desktop-icons/reliquary/internet_a.ico">
-<link rel="apple-touch-icon" href="/images/desktop-icons/reliquary/internet_a.webp">
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/images/favicon-ai.ico" sizes="any">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Akira Ishi">
 <meta property="og:title" content="%(title)s">
@@ -230,7 +245,8 @@ def build_home():
     ])
     desc = ('Akira Ishi writes code to map what it is to be human - one work, multiple facets, all linked by a hidden story.')
     out = head('Akira Ishi | Generative artist', 'Akira Ishi | Artiste génératif', desc, '/', '/images/og/home.jpg',
-               extra='<link rel="preload" as="image" href="/images/projects/ossuary.webp" fetchpriority="high">\n')
+               extra='<link rel="preload" as="image" href="/images/projects/ossuary.webp" fetchpriority="high">\n' +
+               jsonld(dict(PERSON, **{'@context': 'https://schema.org'})))
     out += '<body>\n' + header(None) + '''<main id="main">
 <div class="home">
   <div class="home-l">
@@ -378,7 +394,12 @@ def build_piece(i, w):
     title_en = '%s | Akira Ishi' % w['title']
     desc_meta = short(w['desc'][0][0])
     og = '/images/og/%s.jpg' % w['slug'] if w['still'] else '/images/og/work.jpg'
-    out = head(title_en, title_en, desc_meta, work_url(w), og)
+    artwork = {'@context': 'https://schema.org', '@type': 'VisualArtwork', 'name': w['title'],
+               'url': C.SITE + work_url(w), 'image': C.SITE + og, 'description': w['desc'][0][0],
+               'artform': 'Generative art', 'artMedium': w['tech'][0], 'creator': PERSON}
+    if w['year']:
+        artwork['dateCreated'] = w['year']
+    out = head(title_en, title_en, desc_meta, work_url(w), og, extra=jsonld(artwork))
     out += '<body>\n' + header('work') + '''<main id="main">
 <div class="crumb"><a href="/work.html">%s</a> / <a href="/work.html#%s">%s</a></div>
 <section class="hero">%s</section>
@@ -437,7 +458,9 @@ def build_about():
     cv += cv_line('', ('Musician: violin, drums', 'Musicien : violon, batterie'))
 
     desc = short(C.BIO[0], 160)
-    out = head('About | Akira Ishi', 'À propos | Akira Ishi', desc, '/about.html', '/images/og/about.jpg')
+    out = head('About | Akira Ishi', 'À propos | Akira Ishi', desc, '/about.html', '/images/og/about.jpg',
+               extra=jsonld({'@context': 'https://schema.org', '@type': 'AboutPage', 'name': 'About Akira Ishi',
+                             'url': C.SITE + '/about.html', 'mainEntity': PERSON}))
     out += '<body>\n' + header('about') + '''<main id="main">
 <section class="about-head"><h1>%s</h1><p>%s</p></section>
 <section class="about-sec" id="statement"><div class="label">%s</div><div class="body">%s</div></section>
@@ -458,9 +481,19 @@ def build_about():
     write('about.html', out)
 
 
+def build_sitemap():
+    today = datetime.date.today().isoformat()
+    urls = ['/', '/work.html', '/about.html', '/reliquary.html', '/shop.html'] + [work_url(w) for w in C.WORKS]
+    rows = ''.join('  <url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n' % (C.SITE, u, today) for u in urls)
+    write('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s</urlset>\n' % rows)
+    # the legal pages carry a postal address and are deliberately kept out of search engines
+    write('robots.txt', 'User-agent: *\nAllow: /\nDisallow: /legal.html\nDisallow: /legal-en.html\n\nSitemap: %s/sitemap.xml\n' % C.SITE)
+
+
 if __name__ == '__main__':
     build_home()
     build_work()
     for i, w in enumerate(C.WORKS):
         build_piece(i, w)
     build_about()
+    build_sitemap()

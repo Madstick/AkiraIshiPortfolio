@@ -26,8 +26,8 @@ ui: {
 "gates.web3-amp-nfts-mdash-the-reliquary": "Web3 &amp; NFT —— 圣物匣",
 
 /* ---------- 商店 ---------- */
-"shop.page-title": "Akira Ishi | 线上商店",
-"shop.page-description": "在线选购 Akira Ishi 的生成艺术：艺术微喷版画与限量版，从艺术家的 Etsy 商店发往全球。",
+"shop.page-title": "Still Life Code | Akira Ishi 的版画",
+"shop.page-description": "Still Life Code：一个从未存在过的静物画系列，由 Akira Ishi 自己的算法生成，按需印制在艺术纸上，可选装框。",
 "shop.generative-artist-mdash-prints-amp-editions": "生成艺术家 —— 版画 &amp; 限量版",
 "shop.back-to-the-gates": "回到门前",
 "shop.open-menu": "打开菜单",
@@ -188,8 +188,8 @@ ui: {
 "shop.the-gates": "门",
 
 /* ---------- 圣物匣 ---------- */
-"rel.page-title": "Akira Ishi 作品集 | 圣物匣",
-"rel.page-description": "圣物匣 —— 生成艺术家 Akira Ishi 的作品集。探索铭刻在 Bitcoin、Ethereum 及其他区块链上的数字作品。",
+"rel.page-title": "圣物匣 | Akira Ishi",
+"rel.page-description": "圣物匣：生成艺术家 Akira Ishi 的链上空间。这里的每件作品都是人性的一个侧面，每一件都藏着一个秘密。",
 "rel.toggle-navigation": "展开导航",
 "rel.return-to-the-gates": "回到门前",
 "rel.home": "首页",

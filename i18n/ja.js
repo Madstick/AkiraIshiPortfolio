@@ -26,8 +26,8 @@ ui: {
 "gates.web3-amp-nfts-mdash-the-reliquary": "Web3 &amp; NFT — 聖遺物の間",
 
 /* ---------- ショップ ---------- */
-"shop.page-title": "Akira Ishi | オンラインショップ",
-"shop.page-description": "Akira Ishi のジェネラティブ作品をオンラインで。アートプリントと限定エディションを、Etsy ショップから世界中へお届けします。",
+"shop.page-title": "Still Life Code | Akira Ishi のプリント",
+"shop.page-description": "Still Life Code：存在したことのない静物画のシリーズ。Akira Ishi 自身のアルゴリズムで生成し、ファインアートペーパーにオンデマンドで印刷します。額装も選べます。",
 "shop.generative-artist-mdash-prints-amp-editions": "ジェネラティブアーティスト — プリント &amp; エディション",
 "shop.back-to-the-gates": "門へ戻る",
 "shop.open-menu": "メニューを開く",
@@ -188,8 +188,8 @@ ui: {
 "shop.the-gates": "門",
 
 /* ---------- 聖遺物の間 ---------- */
-"rel.page-title": "Akira Ishi のポートフォリオ | 聖遺物の間",
-"rel.page-description": "聖遺物の間 — ジェネラティブアーティスト Akira Ishi のポートフォリオ。Bitcoin、Ethereum ほかのブロックチェーンに刻まれたデジタル作品。",
+"rel.page-title": "聖遺物の間 | Akira Ishi",
+"rel.page-description": "聖遺物の間：ジェネラティブアーティスト Akira Ishi のオンチェーンの空間。すべての作品は人間性の一面であり、それぞれに秘密が隠されています。",
 "rel.toggle-navigation": "ナビゲーションを開く",
 "rel.return-to-the-gates": "門へ戻る",
 "rel.home": "ホーム",

@@ -26,8 +26,8 @@ ui: {
 "gates.web3-amp-nfts-mdash-the-reliquary": "Web3 &amp; NFTs — Das Reliquiar",
 
 /* ---------- Shops ---------- */
-"shop.page-title": "Akira Ishi | Online-Shops",
-"shop.page-description": "Generative Kunst von Akira Ishi online kaufen: Fine-Art-Drucke und limitierte Editionen, weltweiter Versand aus dem Etsy-Shop des Künstlers.",
+"shop.page-title": "Still Life Code | Drucke von Akira Ishi",
+"shop.page-description": "Still Life Code, eine Serie von Stillleben, die es nie gab, erzeugt vom Algorithmus von Akira Ishi und auf Bestellung auf Fine-Art-Papier gedruckt, auf Wunsch gerahmt.",
 "shop.generative-artist-mdash-prints-amp-editions": "Generativer Künstler — Drucke &amp; Editionen",
 "shop.back-to-the-gates": "Zurück zum Tor",
 "shop.open-menu": "Menü öffnen",
@@ -188,8 +188,8 @@ ui: {
 "shop.the-gates": "Das Tor",
 
 /* ---------- Das Reliquiar ---------- */
-"rel.page-title": "Portfolio von Akira Ishi | Das Reliquiar",
-"rel.page-description": "Das Reliquiar — Portfolio von Akira Ishi, generativer Künstler. Digitale Arbeiten, eingeschrieben auf Bitcoin, Ethereum und weiteren Blockchains.",
+"rel.page-title": "Das Reliquiar | Akira Ishi",
+"rel.page-description": "Das Reliquiar: der On-Chain-Raum des generativen Künstlers Akira Ishi. Jedes Werk ist eine Facette der Menschheit, und jedes birgt ein Geheimnis.",
 "rel.toggle-navigation": "Navigation anzeigen",
 "rel.return-to-the-gates": "Zurück zum Tor",
 "rel.home": "Startseite",

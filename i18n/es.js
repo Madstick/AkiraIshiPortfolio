@@ -26,8 +26,8 @@ ui: {
 "gates.web3-amp-nfts-mdash-the-reliquary": "Web3 &amp; NFT — El Relicario",
 
 /* ---------- Tiendas ---------- */
-"shop.page-title": "Akira Ishi | Tiendas online",
-"shop.page-description": "Compra la obra generativa de Akira Ishi online: láminas de bellas artes y ediciones limitadas, con envío a todo el mundo desde la tienda Etsy del artista.",
+"shop.page-title": "Still Life Code | Láminas de Akira Ishi",
+"shop.page-description": "Still Life Code, una serie de bodegones que nunca existieron, generados por el algoritmo de Akira Ishi e impresos bajo demanda en papel de bellas artes, enmarcados si lo desea.",
 "shop.generative-artist-mdash-prints-amp-editions": "Artista generativo — láminas &amp; ediciones",
 "shop.back-to-the-gates": "Volver a las Puertas",
 "shop.open-menu": "Abrir el menú",
@@ -188,8 +188,8 @@ ui: {
 "shop.the-gates": "Las Puertas",
 
 /* ---------- El Relicario ---------- */
-"rel.page-title": "Portfolio de Akira Ishi | El Relicario",
-"rel.page-description": "El Relicario — portfolio de Akira Ishi, artista generativo. Descubre obra digital inscrita en Bitcoin, Ethereum y otras cadenas.",
+"rel.page-title": "El Relicario | Akira Ishi",
+"rel.page-description": "El Relicario: el espacio on-chain del artista generativo Akira Ishi. Cada obra es una faceta de la humanidad, y cada una esconde un secreto.",
 "rel.toggle-navigation": "Mostrar la navegación",
 "rel.return-to-the-gates": "Volver a las Puertas",
 "rel.home": "Inicio",
