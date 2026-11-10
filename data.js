@@ -186,7 +186,7 @@ const projects = [
       "Split across two OpenSea collections after platform shutdown",
     ],
     conclusion: "Aodach is a tribute to lineage and loss, merging generative art with Celtic heritage to create timeless digital artifacts preserved permanently on the blockchain.",
-    link: "https://opensea.io/collection/aodach-akira-ishi"
+    link: "https://www.artblocks.io/collection/aodach-by-akira-ishi"
   },
   {
     id: 7,

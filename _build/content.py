@@ -165,7 +165,9 @@ WORKS = [
             "et moins tendre qu'il n'y paraissait de là-bas, et les rochers portent les deux côtés à la fois. Le projet s'est "
             "prolongé en un site interactif, une communauté sur X et des sorties musicales sur Zora et Bueno, toujours autour "
             "des mêmes pierres.")],
-        links=[('live', ('Website', 'Site web'), 'https://googlyrocks.com/')],
+        links=[('marketplace', ('Mint page (Highlight)', 'Page de mint (Highlight)'),
+                'https://highlight.xyz/mint/019f5ddf-3324-72c8-a25c-ff56e3b52920'),
+               ('live', ('Website', 'Site web'), 'https://googlyrocks.com/')],
         inscription=None,
         media=('img', 'images/projects/googly.webp', 850, 850), still='images/projects/googly.webp',
         extras=[],
@@ -363,52 +365,175 @@ WORKS = [
     ),
 ]
 
-# Works that sit outside the chapters, listed on the Work page (no sheet of their own yet)
+# Works that sit outside the chapters: they have a sheet of their own, like the others,
+# but they are not part of the story and they have no facet.
 OTHER = [
-    dict(slug='jardin-algorithmique', title='Jardin Algorithmique', chain='ETH', status=None,
-         tech=('Generative · Ethereum / Base · 200 editions', 'Génératif · Ethereum / Base · 200 éditions'),
-         img='images/projects/jardin-algorithmique.webp', width=1188, height=1200,
-         url='https://akiraishi.com/Jardin-Algorithmique',
-         alt=('Jardin Algorithmique: a green pattern of symmetric tiles', 'Jardin Algorithmique : un motif vert de tuiles symétriques')),
-    dict(slug='comics-extracts', title='Comics Extracts', chain='DOT', status=None,
-         tech=('Generative · Polkadot', 'Génératif · Polkadot'),
-         img='images/projects/comicsthumbnailc.webp', width=1000, height=1000,
-         url='https://www.chaotic.art/ahp/drops/comics',
-         alt=('Comics Extracts: abstract comic-style panels of lines and shapes', 'Comics Extracts : des cases abstraites façon bande dessinée, faites de lignes et de formes')),
-    dict(slug='aodach', title='Aodach', chain='ETH', status=None,
-         tech=('Generative · Arbitrum · 69 pieces', 'Génératif · Arbitrum · 69 pièces'),
-         img='images/projects/aodach-1.webp', width=850, height=850,
-         url='https://opensea.io/collection/aodach-akira-ishi',
-         alt=('Aodach: a yellow tartan-like pattern', 'Aodach : un motif jaune façon tartan')),
-    dict(slug='whats-the-point', title="What's the point.", chain='XTZ', status=None,
-         tech=('Generative, built with ellipses only · Tezos (fxhash)', 'Génératif, construit uniquement avec des ellipses · Tezos (fxhash)'),
-         img='images/projects/whatsthepoint.webp', width=601, height=850,
-         url='https://objkt.com/collections/fxhash/projects/27775',
-         alt=("What's the point.: an intricate composition built only from ellipses", "What's the point. : une composition complexe faite uniquement d'ellipses")),
-    dict(slug='tezos-curated-works', title='Tezos Curated Works', chain='XTZ', status=None,
-         tech=('Curated outputs · Tezos', 'Sélection de sorties · Tezos'),
-         img='images/projects/meeting%20in%20the%20middle.webp', width=602, height=850,
-         url='https://objkt.com/collections/KT1TsR4XFGnNbBVRMotagBA9PoV1uRXtWC1o',
-         alt=('Tezos Curated Works: a hand-picked output of the constraint-based algorithms', 'Tezos Curated Works : une sortie choisie à la main parmi les algorithmes sous contrainte')),
-    dict(slug='songe-d-un-soir', title="Songe d'un soir", chain='ETH', status=('Suspended', 'Suspendu'),
-         tech=('Generative, with a bilingual poem · Ethereum (fxhash)', 'Génératif, avec un poème bilingue · Ethereum (fxhash)'),
-         img='images/projects/songe.webp', width=954, height=1193,
-         url="https://www.fxhash.xyz/project/songe-d'un-soir",
-         alt=("Songe d'un soir: a misty generative night scene", "Songe d'un soir : une scène nocturne générative et brumeuse")),
-    dict(slug='art-on-solana', title='Art on Solana', chain='SOL', status=('Suspended', 'Suspendu'),
-         tech=('Moiré patterns and optical illusions · Solana (Exchange Art)', 'Moirés et illusions d’optique · Solana (Exchange Art)'),
-         img='images/projects/solana.webp', width=850, height=850,
-         url='https://exchange.art/akira-ishi/nfts',
-         alt=('Art on Solana: layered line patterns that seem to shimmer', 'Art on Solana : des motifs de lignes superposées qui semblent scintiller')),
+    dict(
+        slug='jardin-algorithmique', chapter='X', title='Jardin Algorithmique', facet=None, logic=None,
+        tech=('Generative · Ethereum / Base · 200 editions', 'Génératif · Ethereum / Base · 200 éditions'),
+        status=None,
+        desc=[(
+            'Jardin Algorithmique is a collection of 200 curated pieces that sit between nature and code. Every piece is built '
+            'from the mathematical symmetry groups p6m and p31m, the same ones found in honeycombs and snowflakes, and the '
+            'algorithm turns that strict order into compositions that look grown rather than drawn. Nothing is painted by hand: '
+            'the patterns come from the meeting of natural symmetry and computational precision, and each one is different. '
+            'The 200 pieces were chosen from the algorithm\'s outputs and minted on Base, an Ethereum layer 2. A dedicated '
+            'gallery lets you browse all of them.',
+            "Jardin Algorithmique est une collection de 200 pièces choisies, entre nature et code. Chaque pièce repose sur les "
+            "groupes de symétrie mathématiques p6m et p31m, les mêmes que l'on trouve dans les alvéoles et les flocons de neige, "
+            "et l'algorithme transforme cet ordre strict en compositions qui semblent avoir poussé plutôt que d'avoir été "
+            "dessinées. Rien n'est peint à la main : les motifs naissent de la rencontre entre la symétrie naturelle et la "
+            "précision du calcul, et chacun est différent. Les 200 pièces ont été choisies parmi les sorties de l'algorithme et "
+            "mintées sur Base, une couche 2 d'Ethereum. Une galerie dédiée permet de toutes les parcourir.")],
+        links=[('live', ('Gallery', 'Galerie'), 'https://akiraishi.com/Jardin-Algorithmique')],
+        inscription=None,
+        media=('img', 'images/projects/jardin-algorithmique.webp', 1188, 1200), still='images/projects/jardin-algorithmique.webp',
+        extras=[],
+        alt=('Jardin Algorithmique: a green pattern of symmetric tiles', 'Jardin Algorithmique : un motif vert de tuiles symétriques'),
+    ),
+    dict(
+        slug='comics-extracts', chapter='X', title='Comics Extracts', facet=None, logic=None,
+        tech=('Generative · Polkadot', 'Génératif · Polkadot'),
+        status=None,
+        desc=[(
+            'Comics Extracts translates the emotional language of comic books into generative art. It starts from the tropes '
+            'every reader knows, impact, tension, surprise, chaos, and takes apart the devices that carry them: panels, speed '
+            'lines, onomatopoeia. What is left is shape, rhythm and motion. There are no characters and no scenes; the work '
+            'keeps only the feeling they leave behind and rebuilds it as an abstract system. A panel can still shout, tremble '
+            'or explode long after the characters have left it. The collection was minted on Polkadot.',
+            "Comics Extracts traduit le langage émotionnel de la bande dessinée en art génératif. Le projet part des figures "
+            "que tout lecteur connaît, l'impact, la tension, la surprise, le chaos, et démonte les procédés qui les portent : "
+            "les cases, les lignes de vitesse, les onomatopées. Il reste de la forme, du rythme et du mouvement. Pas de "
+            "personnages, pas de scènes : l'œuvre ne garde que le sentiment qu'ils laissent et le reconstruit sous la forme d'un "
+            "système abstrait. Une case peut encore crier, trembler ou exploser bien après le départ des personnages. La "
+            "collection a été mintée sur Polkadot.")],
+        links=[('marketplace', ('Mint page', 'Page de mint'), 'https://www.chaotic.art/ahp/drops/comics')],
+        inscription=None,
+        media=('img', 'images/projects/comicsthumbnailc.webp', 1000, 1000), still='images/projects/comicsthumbnailc.webp',
+        extras=[],
+        alt=('Comics Extracts: abstract comic-style panels of lines and shapes', 'Comics Extracts : des cases abstraites façon bande dessinée, faites de lignes et de formes'),
+    ),
+    dict(
+        slug='aodach', chapter='X', title='Aodach', facet=None, logic=None,
+        tech=('Generative · Arbitrum · 69 pieces', 'Génératif · Arbitrum · 69 pièces'),
+        status=None,
+        desc=[(
+            'Aodach was made after the artist\'s grandmother passed away. It is a generative collection rooted in Celtic '
+            'heritage, and it treats digital patterns as a form of memory, symbolism and continuity. Each piece is an '
+            'algorithmic reading of ancestral motifs, and together they turn code into a quiet tribute to lineage and loss. '
+            'The collection has 69 pieces, minted on Arbitrum, an Ethereum layer 2, and it is collected through Art Blocks. '
+            'An article tells more about the collection and about the artist behind it.',
+            "Aodach a été réalisé après la disparition de la grand-mère de l'artiste. C'est une collection générative enracinée "
+            "dans l'héritage celtique, qui traite les motifs numériques comme une forme de mémoire, de symbole et de "
+            "continuité. Chaque pièce est une lecture algorithmique de motifs ancestraux, et l'ensemble fait du code un "
+            "hommage discret à la filiation et à la perte. La collection compte 69 pièces, mintées sur Arbitrum, une couche 2 "
+            "d'Ethereum, et se collectionne via Art Blocks. Un article en dit plus sur la collection et sur l'artiste qui la "
+            "porte.")],
+        links=[('marketplace', ('Art Blocks', 'Art Blocks'), 'https://www.artblocks.io/collection/aodach-by-akira-ishi'),
+               ('article', ('Aodach & more on me', 'Aodach & more on me'),
+                'https://puzzled-glade-885.notion.site/Akira-Ishi-6db8e8b1701049008c3080937f9e903f')],
+        inscription=None,
+        media=('img', 'images/projects/aodach-1.webp', 850, 850), still='images/projects/aodach-1.webp',
+        extras=[],
+        alt=('Aodach: a yellow tartan-like pattern', 'Aodach : un motif jaune façon tartan'),
+    ),
+    dict(
+        slug='whats-the-point', chapter='X', title="What's the point.", facet=None, logic=None,
+        tech=('Generative, built with ellipses only · Tezos (fxhash)', 'Génératif, construit uniquement avec des ellipses · Tezos (fxhash)'),
+        status=None,
+        desc=[(
+            "What's the point. is where this body of work started. It is built entirely from ellipses, a constraint the "
+            'artist set on purpose: you build your own piece, then zoom in to find the fine detail inside the picture you '
+            'helped create. Limits do not restrict creativity, they focus it, and that idea runs through every later work. The '
+            'project was released on Tezos through fxhash, along with an essay on creating under constraint. Read the essay '
+            'to understand how the algorithm works and why constraint became the method.',
+            "What's the point. est le point de départ de cet ensemble d'œuvres. Il est construit uniquement avec des ellipses, "
+            "une contrainte que l'artiste s'est donnée volontairement : on construit sa propre pièce, puis on zoome pour "
+            "découvrir le détail fin de l'image que l'on a contribué à créer. Les limites ne brident pas la créativité, elles la "
+            "concentrent, et cette idée traverse toutes les œuvres suivantes. Le projet est sorti sur Tezos via fxhash, "
+            "accompagné d'un essai sur la création sous contrainte. L'essai explique comment fonctionne l'algorithme et "
+            "pourquoi la contrainte est devenue la méthode.")],
+        links=[('marketplace', ('objkt', 'objkt'), 'https://objkt.com/collections/fxhash/projects/27775'),
+               ('article', ("Essay: What's the Point", "Essai : What's the Point"), 'https://medium.com/@leAkira_Ishi/whats-the-point-921ff4c86eed')],
+        inscription=None,
+        media=('img', 'images/projects/whatsthepoint.webp', 601, 850), still='images/projects/whatsthepoint.webp',
+        extras=[],
+        alt=("What's the point.: an intricate composition built only from ellipses", "What's the point. : une composition complexe faite uniquement d'ellipses"),
+    ),
+    dict(
+        slug='tezos-curated-works', chapter='X', title='Tezos Curated Works', facet=None, logic=None,
+        tech=('Curated outputs · Tezos', 'Sélection de sorties · Tezos'),
+        status=None,
+        desc=[(
+            "Tezos Curated Works is a selection of outputs from What's the point. and from other pieces made on Tezos. All of "
+            'them follow the same idea: simple rules, a strict constraint, and results far richer than the rules suggest. Each '
+            'output was picked by hand to show what the algorithms can do at their best. Together they are the shortest way to '
+            'see the Tezos period of the work at a glance. The collection lives on Tezos, a network that uses far less energy '
+            'than most chains.',
+            "Tezos Curated Works est une sélection de sorties de What's the point. et d'autres pièces réalisées sur Tezos. "
+            "Toutes suivent la même idée : des règles simples, une contrainte stricte, et des résultats bien plus riches que ce "
+            "que les règles laissent penser. Chaque sortie a été choisie à la main pour montrer ce que les algorithmes savent "
+            "faire de mieux. Ensemble, elles sont le moyen le plus court de voir d'un coup d'œil la période Tezos du travail. "
+            "La collection vit sur Tezos, un réseau qui consomme bien moins d'énergie que la plupart des chaînes.")],
+        links=[('marketplace', ('objkt collection', 'Collection objkt'),
+                'https://objkt.com/collections/KT1TsR4XFGnNbBVRMotagBA9PoV1uRXtWC1o')],
+        inscription=None,
+        media=('img', 'images/projects/meeting in the middle.webp', 602, 850), still='images/projects/meeting in the middle.webp',
+        extras=[],
+        alt=('Tezos Curated Works: a hand-picked output of the constraint-based algorithms', 'Tezos Curated Works : une sortie choisie à la main parmi les algorithmes sous contrainte'),
+    ),
+    dict(
+        slug='songe-d-un-soir', chapter='X', title="Songe d'un soir", facet=None, logic=None,
+        tech=('Generative, with a bilingual poem · Ethereum (fxhash)', 'Génératif, avec un poème bilingue · Ethereum (fxhash)'),
+        status=('Suspended', 'Suspendu'),
+        desc=[(
+            "Songe d'un soir (Dream of an Evening) is a generative piece made during a dark period, out of a love for "
+            'generative art that never went away. It comes with a bilingual poem about dreams, reality and the fear of losing '
+            'someone: the dreams of the title are, in the poem, closer to nightmares. The work is personal, and making it was '
+            'a way through that time. It was released on Ethereum through fxhash and is suspended for now.',
+            "Songe d'un soir est une pièce générative réalisée pendant une période sombre, portée par un amour de l'art "
+            "génératif qui n'a jamais disparu. Elle s'accompagne d'un poème bilingue sur les rêves, la réalité et la peur de "
+            "perdre quelqu'un : les songes du titre sont, dans le poème, plus proches des cauchemars. L'œuvre est personnelle, "
+            "et la faire a été une façon de traverser cette période. Elle est sortie sur Ethereum via fxhash et reste "
+            "suspendue pour le moment.")],
+        links=[('marketplace', ('fxhash', 'fxhash'), "https://www.fxhash.xyz/project/songe-d'un-soir")],
+        inscription=None,
+        media=('img', 'images/projects/songe.webp', 954, 1193), still='images/projects/songe.webp',
+        extras=[],
+        alt=("Songe d'un soir: a misty generative night scene", "Songe d'un soir : une scène nocturne générative et brumeuse"),
+    ),
+    dict(
+        slug='art-on-solana', chapter='X', title='Art on Solana', facet=None, logic=None,
+        tech=('Moiré patterns and optical illusions · Solana (Exchange Art)', 'Moirés et illusions d’optique · Solana (Exchange Art)'),
+        status=('Suspended', 'Suspendu'),
+        desc=[(
+            'Art on Solana is a curated set of works on Exchange Art, centred on moiré patterns and optical illusions. Layers '
+            'of geometry and fine lines interact to create effects that seem to shift and shimmer, almost hypnotically, '
+            'although the pieces are made of static code. Each work invites the viewer to move closer and further away and to '
+            'watch the picture change. The collection looks at how structure shapes perception. It is suspended for now.',
+            "Art on Solana est une sélection d'œuvres sur Exchange Art, centrée sur les moirés et les illusions d'optique. Des "
+            "couches de géométrie et de lignes fines interagissent pour produire des effets qui semblent bouger et "
+            "scintiller, presque hypnotiques, alors que les pièces sont faites de code statique. Chaque œuvre invite à "
+            "s'approcher, à s'éloigner et à regarder l'image changer. La collection s'intéresse à la façon dont la structure "
+            "façonne la perception. Elle est suspendue pour le moment.")],
+        links=[('marketplace', ('Exchange Art', 'Exchange Art'), 'https://exchange.art/akira-ishi/nfts')],
+        inscription=None,
+        media=('img', 'images/projects/solana.webp', 850, 850), still='images/projects/solana.webp',
+        extras=[],
+        alt=('Art on Solana: layered line patterns that seem to shimmer', 'Art on Solana : des motifs de lignes superposées qui semblent scintiller'),
+    ),
 ]
+
+# Not a chapter of the story: the section the other works belong to
+OTHER_CHAPTER = dict(key='X', label=('Other works', 'Autres œuvres'), name=None, line=('', ''))
 
 COLLABS = [
     dict(title="Don't Avoid Bright Light",
          line=('Collective work after @TheArtistBTC\'s "Avoid Bright Lights"', 'Œuvre collective autour de « Avoid Bright Lights » de @TheArtistBTC'),
-         url='https://www.trio.xyz/collections/dabl?attr_Artist_Akira+Ishi=true'),
+         url='https://ord.net/collection/dabl?trait=Artist%3AAkira%2520Ishi'),
     dict(title='Terminator Pepe',
          line=('Pepix collection, with @dan1el_d1g1tal', 'Collection Pepix, avec @dan1el_d1g1tal'),
-         url=None),
+         url='https://bueno.art/7sjtmsw7/pepix-editions-1/tokens/72'),
 ]
 
 PRESS = [
@@ -424,6 +549,8 @@ PRESS = [
 CHAIN = {
     'knights-of-the-round-table': 'BTC', 'googly-rocks': 'ETH', 'four-seasons': 'BTC', 'technosignatures': 'BTC',
     'beaties': 'BTC', 'connecting': 'BTC', 'navigating-the-trenches': 'BTC', 'genesis': None, 'the-ossuary': 'BTC',
+    'jardin-algorithmique': 'ETH', 'comics-extracts': 'DOT', 'aodach': 'ETH', 'whats-the-point': 'XTZ',
+    'tezos-curated-works': 'XTZ', 'songe-d-un-soir': 'ETH', 'art-on-solana': 'SOL',
 }
 
 MORE_TO_COME = ('More to come', 'D’autres œuvres à venir')
@@ -432,3 +559,36 @@ MORE_TO_COME = ('More to come', 'D’autres œuvres à venir')
 LATEST = ['the-ossuary', 'beaties', 'connecting', 'jardin-algorithmique', 'genesis']
 # The ones with a picture, shown large on the Work page
 LATEST_TILES = ['the-ossuary', 'beaties', 'connecting', 'jardin-algorithmique']
+
+
+# Smaller projects around the works (formerly the Reliquary's side quests), listed in the About page
+SIDE = [
+    dict(title='Connecting, real time',
+         line=('The live version of Connecting, reacting directly to the Bitcoin chain', 'La version en direct de Connecting, qui réagit directement à la chaîne Bitcoin'),
+         url='https://akiraishi.com/Connecting.html'),
+    dict(title='Jardin Algorithmique, gallery',
+         line=('A gallery to browse all 200 pieces', 'Une galerie pour parcourir les 200 pièces'),
+         url='https://akiraishi.com/Jardin-Algorithmique'),
+    dict(title='Technosignatures, website',
+         line=('An immersive trip through deep space, with a 3D viewer, easter eggs and narration', "Un voyage immersif dans l'espace profond, avec visualiseur 3D, easter eggs et narration"),
+         url='https://technosignatures.xyz/'),
+    dict(title='Technosignatures, 3D viewer',
+         line=('Explore any Technosignature in three dimensions', "Explorer n'importe quelle Technosignature en trois dimensions"),
+         url='https://technosignatures.xyz/3d-viewer/3dviewer.html'),
+    dict(title='Googly Rocks, website',
+         line=('The interactive website of the Googly Rocks collection', 'Le site interactif de la collection Googly Rocks'),
+         url='https://googlyrocks.com/'),
+]
+
+# When each work was released: (year, month); the month is None when only the year is known
+DATES = {
+    'whats-the-point': (2023, 6), 'tezos-curated-works': (2023, 8), 'aodach': (2023, 8), 'songe-d-un-soir': (2023, 11),
+    'googly-rocks': (2024, 4), 'four-seasons': (2024, 12),
+    'technosignatures': (2025, 2), 'navigating-the-trenches': (2025, 3),
+    'connecting': (2026, 1), 'jardin-algorithmique': (2026, 5), 'the-ossuary': (2026, 10),
+    'beaties': (2026, None),   # upcoming
+}
+for _w in WORKS + OTHER:
+    _d = DATES.get(_w['slug'])
+    _w['date'] = _d
+    _w['year'] = str(_d[0]) if _d else None

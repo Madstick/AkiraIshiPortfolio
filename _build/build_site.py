@@ -10,14 +10,36 @@ import html
 import json
 import os
 import sys
+import urllib.parse
 
 sys.path.insert(0, os.path.dirname(__file__))
 import content as C  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BY_SLUG = {w['slug']: w for w in C.WORKS}
-OTHER_BY_SLUG = {o['slug']: o for o in C.OTHER}
+BY_SLUG = {w['slug']: w for w in C.WORKS + C.OTHER}
 CHAPTER = {c['key']: c for c in C.CHAPTERS}
+CHAPTER['X'] = C.OTHER_CHAPTER
+MONTHS = {
+    'en': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    'fr': ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
+}
+
+
+def date_pair(d):
+    """(2024, 4) -> ('April 2024', 'avril 2024'); the month may be unknown."""
+    year, month = d
+    if month is None:
+        return (str(year), str(year))
+    return ('%s %d' % (MONTHS['en'][month - 1], year), '%s %d' % (MONTHS['fr'][month - 1], year))
+
+
+def date_iso(d):
+    return '%04d' % d[0] if d[1] is None else '%04d-%02d' % d
+
+
+def url_path(path):
+    """A file path as it goes in a URL (some picture names have spaces)."""
+    return urllib.parse.quote(path)
 FONTS = ('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@300;400;500'
          '&display=swap')
 
@@ -49,14 +71,10 @@ def chain_html(code):
 
 
 def item(slug):
-    """A work with its own page, or one of the other works (which link out)."""
-    if slug in BY_SLUG:
-        w = BY_SLUG[slug]
-        return dict(title=w['title'], chain=C.CHAIN.get(slug), line=w['facet'], status=w['status'],
-                    url=work_url(w), external=False, work=w)
-    o = OTHER_BY_SLUG[slug]
-    return dict(title=o['title'], chain=o['chain'], line=o['tech'], status=o['status'],
-                url=o['url'], external=True, other=o)
+    """Any work, with the line that describes it (its facet, or its medium when it has none)."""
+    w = BY_SLUG[slug]
+    return dict(title=w['title'], chain=C.CHAIN.get(slug), line=w['facet'] or w['tech'], status=w['status'],
+                url=work_url(w), external=False, work=w)
 
 
 def work_url(w):
@@ -75,6 +93,8 @@ def chapter_title(c):
 
 
 def chapter_anchor(c):
+    if c['key'] == 'X':
+        return 'other'
     return 'prologue' if c['key'] == '0' else 'chapter-' + c['key'].lower()
 
 
@@ -94,11 +114,11 @@ def media_tag(w, cls='', lazy=True, sizes_attr=True):
     if kind == 'video':
         return ('<video src="/%s" poster="/%s" width="%d" height="%d" autoplay muted loop playsinline preload="metadata" '
                 'aria-label="%s" data-alt-fr="%s" data-still="/%s" class="%s"></video>'
-                % (path, w['still'], width, height, esc(alt_en), esc(alt_fr), w['still'], cls))
+                % (url_path(path), url_path(w['still']), width, height, esc(alt_en), esc(alt_fr), url_path(w['still']), cls))
     animated = path.endswith('.gif') or w['still'] != path
-    still = ' data-still="/%s"' % w['still'] if animated else ''
+    still = ' data-still="/%s"' % url_path(w['still']) if animated else ''
     return ('<img src="/%s" width="%d" height="%d" alt="%s" data-alt-fr="%s"%s %s class="%s">'
-            % (path, width, height, esc(alt_en), esc(alt_fr), still, 'loading="lazy" decoding="async"' if lazy else 'fetchpriority="high"', cls))
+            % (url_path(path), width, height, esc(alt_en), esc(alt_fr), still, 'loading="lazy" decoding="async"' if lazy else 'fetchpriority="high"', cls))
 
 
 def is_dark(w):
@@ -223,11 +243,6 @@ def build_home():
         inner = media_tag(w, lazy=lazy)
         return '<a class="cell %s" href="%s" aria-label="%s">%s%s</a>' % (cls, work_url(w), esc(w['title']), inner, t)
 
-    jd = OTHER_BY_SLUG['jardin-algorithmique']
-    jardin_cell = ('<a class="cell" href="%s" target="_blank" rel="noopener" aria-label="%s"><img src="/%s" width="%d" height="%d" alt="%s" '
-                   'data-alt-fr="%s" loading="lazy" decoding="async"></a>') % (
-        jd['url'], esc(jd['title']), jd['img'], jd['width'], jd['height'], esc(jd['alt'][0]), esc(jd['alt'][1]))
-
     # Three columns of squares. The two 16:9 works take two squares side by side (2:1), so they are
     # shown at almost their own ratio instead of floating small inside a square.
     sheet = ''.join([
@@ -237,7 +252,7 @@ def build_home():
         '<img src="/images/atelier/slc-hero.webp" width="900" height="1125" alt="Still Life Code: a still life with sunflowers and oranges" '
         'data-alt-fr="Still Life Code : une nature morte aux tournesols et aux oranges" loading="lazy" decoding="async">'
         '<span class="tag">%s</span></a>' % bi(('Prints', 'Tirages')),
-        jardin_cell, cell('four-seasons'), cell('technosignatures'),
+        cell('jardin-algorithmique'), cell('four-seasons'), cell('technosignatures'),
         cell('connecting', 'wide dark'),
         '<a class="cell soon" href="/work/genesis.html"><span>%s</span></a>' % bi(('Genesis, in progress', 'Genesis, en cours')),
         cell('navigating-the-trenches', 'wide dark'),
@@ -246,7 +261,9 @@ def build_home():
     desc = ('Akira Ishi writes code to map what it is to be human - one work, multiple facets, all linked by a hidden story.')
     out = head('Akira Ishi | Generative artist', 'Akira Ishi | Artiste génératif', desc, '/', '/images/og/home.jpg',
                extra='<link rel="preload" as="image" href="/images/projects/ossuary.webp" fetchpriority="high">\n' +
-               jsonld(dict(PERSON, **{'@context': 'https://schema.org'})))
+               jsonld({'@context': 'https://schema.org', '@graph': [
+                   {'@type': 'WebSite', 'name': C.NAME, 'url': C.SITE + '/', 'inLanguage': ['en', 'fr'], 'description': desc},
+                   PERSON]}))
     out += '<body>\n' + header(None) + '''<main id="main">
 <div class="home">
   <div class="home-l">
@@ -296,29 +313,20 @@ def build_work():
 
     def lat(slug):
         it = item(slug)
+        w = it['work']
         tag = '<span class="tag">%s</span>' % bi(it['status']) if it['status'] else ''
-        if it.get('work'):
-            w = it['work']
-            media = media_tag(w, lazy=False)
-            dark = ' dk' if is_dark(w) else ''
-            tech = w['tech']
-        else:
-            o = it['other']
-            media = ('<img src="/%s" width="%d" height="%d" alt="%s" data-alt-fr="%s" loading="lazy" decoding="async">'
-                     % (o['img'], o['width'], o['height'], esc(o['alt'][0]), esc(o['alt'][1])))
-            dark = ''
-            tech = o['tech']
-        return ('<a href="%s"%s><div class="ph%s">%s%s</div><h3>%s%s</h3><div class="f">%s</div><div class="te">%s</div></a>') % (
-            it['url'], ' target="_blank" rel="noopener"' if it['external'] else '', dark, media, tag, esc(it['title']),
-            chain_html(it['chain']), bi(it['line']) if not it['external'] else '', bi(tech))
+        dark = ' dk' if is_dark(w) else ''
+        return ('<a href="%s"><div class="ph%s">%s%s</div><h3>%s%s</h3><div class="f">%s</div><div class="te">%s</div></a>') % (
+            it['url'], dark, media_tag(w, lazy=False), tag, esc(w['title']), chain_html(it['chain']),
+            bi(w['facet']) if w['facet'] else '', bi(w['tech']))
 
     lat_tiles = ''.join(lat(slug) for slug in C.LATEST_TILES)
 
     other = ''.join(
-        '<a href="%s" target="_blank" rel="noopener"><div class="mini"><img src="/%s" alt="%s" data-alt-fr="%s" loading="lazy" decoding="async"></div>'
-        '<div><div class="b">%s%s%s</div></div><div class="s">%s</div></a>' % (
-            o['url'], o['img'], esc(o['alt'][0]), esc(o['alt'][1]), esc(o['title']), chain_html(o['chain']),
-            (' <span class="tag mute">%s</span>' % bi(o['status'])) if o['status'] else '', bi(o['tech'])) for o in C.OTHER)
+        '<a href="%s"><div class="mini">%s</div><div><div class="b">%s%s%s</div></div><div class="s">%s%s</div></a>' % (
+            work_url(o), media_tag(o), esc(o['title']), chain_html(C.CHAIN.get(o['slug'])),
+            (' <span class="tag mute">%s</span>' % bi(o['status'])) if o['status'] else '',
+            ('<span class="mono yr">%s</span> ' % bi(date_pair(o['date']))) if o['date'] else '', bi(o['tech'])) for o in C.OTHER)
     collabs = ''.join(
         ('<a href="%s" target="_blank" rel="noopener"><div class="b">%s</div><div class="s">%s</div></a>' % (c['url'], esc(c['title']), bi(c['line'])))
         if c['url'] else ('<div><div class="b">%s</div><div class="s">%s</div></div>' % (esc(c['title']), bi(c['line'])))
@@ -352,18 +360,26 @@ def build_work():
 
 
 # ------------------------------------------------------------------ a work
-def build_piece(i, w):
+def hero_frame(w):
+    """The picture in a frame of its own proportions, never a wide banner around a small image."""
+    if not w['media']:
+        return ('<div class="hero-frame" style="--w:820px;--r:1.6"><span class="mono" style="color:#888">%s</span></div>'
+                % bi(('In progress', 'En cours')))
+    _, _, width, height = w['media']
+    ratio = width / float(height)
+    shown = 800 if ratio > 1.3 else (560 if ratio < 0.9 else 820)   # px: wide, tall, near-square
+    return '<div class="hero-frame%s" style="--w:%dpx;--r:%.4f">%s</div>' % (
+        ' dk' if is_dark(w) else '', shown, ratio, media_tag(w, lazy=False))
+
+
+def build_piece(group, i, w):
     c = CHAPTER[w['chapter']]
     ct = chapter_title(c)
-    if w['media']:
-        frame = '<div class="hero-frame%s">%s</div>' % (' dk' if is_dark(w) else '', media_tag(w, lazy=False))
-    else:
-        frame = ('<div class="hero-frame" style="min-height:42vh"><span class="mono" style="color:#888">%s</span></div>'
-                 % bi(('In progress', 'En cours')))
+    frame = hero_frame(w)
 
     facts = ['<div><dt>%s</dt><dd>%s</dd></div>' % (bi(('Chapter', 'Chapitre')), bi(ct))]
-    if w['year']:
-        facts.append('<div><dt>%s</dt><dd>%s</dd></div>' % (bi(('Year', 'Année')), w['year']))
+    if w['date']:
+        facts.append('<div><dt>%s</dt><dd>%s</dd></div>' % (bi(('Released', 'Sortie')), bi(date_pair(w['date']))))
     facts.append('<div><dt>%s</dt><dd>%s</dd></div>' % (bi(('Medium', 'Médium')), bi(w['tech'])))
     if w['inscription']:
         iid, iurl = w['inscription']
@@ -382,10 +398,10 @@ def build_piece(i, w):
         for kind, lab, url in w['links'])
     extras = ''.join(
         '<figure><img src="/%s" width="%d" height="%d" alt="%s" data-alt-fr="%s" loading="lazy" decoding="async"><figcaption>%s</figcaption></figure>' % (
-            p, wd, ht, esc(cap[0]), esc(cap[1]), bi(cap)) for p, wd, ht, cap in w['extras'])
+            url_path(p), wd, ht, esc(cap[0]), esc(cap[1]), bi(cap)) for p, wd, ht, cap in w['extras'])
 
-    prev_w = C.WORKS[i - 1] if i > 0 else None
-    next_w = C.WORKS[i + 1] if i < len(C.WORKS) - 1 else None
+    prev_w = group[i - 1] if i > 0 else None
+    next_w = group[i + 1] if i < len(group) - 1 else None
     pn = '<nav class="pn" aria-label="%s">%s%s</nav>' % (
         'Works',
         ('<a href="%s"><div class="label">%s</div><b>%s</b></a>' % (work_url(prev_w), bi(('Previous', 'Précédente')), esc(prev_w['title']))) if prev_w else '<span></span>',
@@ -397,8 +413,8 @@ def build_piece(i, w):
     artwork = {'@context': 'https://schema.org', '@type': 'VisualArtwork', 'name': w['title'],
                'url': C.SITE + work_url(w), 'image': C.SITE + og, 'description': w['desc'][0][0],
                'artform': 'Generative art', 'artMedium': w['tech'][0], 'creator': PERSON}
-    if w['year']:
-        artwork['dateCreated'] = w['year']
+    if w['date']:
+        artwork['dateCreated'] = date_iso(w['date'])
     out = head(title_en, title_en, desc_meta, work_url(w), og, extra=jsonld(artwork))
     out += '<body>\n' + header('work') + '''<main id="main">
 <div class="crumb"><a href="/work.html">%s</a> / <a href="/work.html#%s">%s</a></div>
@@ -406,7 +422,7 @@ def build_piece(i, w):
 <section class="sheet-meta">
   <div>
     <h1>%s%s%s%s</h1>
-    <p class="facet">%s</p>
+    %s
     <dl class="facts">%s</dl>
   </div>
   <div>
@@ -418,7 +434,8 @@ def build_piece(i, w):
 %s%s
 </main>
 ''' % (bi(('Work', 'Œuvres')), chapter_anchor(c), bi(ct), frame, esc(w['title']), chain_html(C.CHAIN.get(w['slug'])), key_mark(),
-       ('<span class="tag status">%s</span>' % bi(w['status'])) if w['status'] else '', bi(w['facet']), ''.join(facts), logic, desc,
+       ('<span class="tag status">%s</span>' % bi(w['status'])) if w['status'] else '',
+       ('<p class="facet">%s</p>' % bi(w['facet'])) if w['facet'] else '', ''.join(facts), logic, desc,
        links, '<section class="extras">%s</section>' % extras if extras else '', pn)
     out += footer()
     write('work/%s.html' % w['slug'], out)
@@ -428,34 +445,34 @@ def build_piece(i, w):
 def cv_line(year, name, sub=None, url=None):
     n = esc(name) if isinstance(name, str) else bi(name)
     if url:
-        n = '<a class="plain-link" href="%s" target="_blank" rel="noopener">%s</a>' % (url, n)
+        extra = '' if url.startswith('/') or url.startswith('https://akiraishi.com') else ' target="_blank" rel="noopener"'
+        n = '<a class="plain-link" href="%s"%s>%s</a>' % (url, extra, n)
     s = '<small>%s</small>' % (esc(sub) if isinstance(sub, str) else bi(sub)) if sub else ''
-    return '<div class="line"><div class="y">%s</div><div class="n">%s%s</div></div>' % (year or '', n, s)
+    y = bi(year) if isinstance(year, tuple) else (year or '')
+    return '<div class="line"><div class="y">%s</div><div class="n">%s%s</div></div>' % (y, n, s)
+
+
+# newest first; the ones without a known date come last
+CV_ORDER = ['the-ossuary', 'jardin-algorithmique', 'connecting', 'beaties', 'navigating-the-trenches', 'technosignatures',
+            'four-seasons', 'googly-rocks', 'songe-d-un-soir', 'aodach', 'tezos-curated-works', 'whats-the-point',
+            'comics-extracts', 'art-on-solana', 'knights-of-the-round-table']
 
 
 def build_about():
     long_html = ''.join('<p>%s</p>' % bi(p) for p in C.STATEMENT_LONG)
-    works_cv = [
-        ('2026', 'The Ossuary', ('Bitcoin Ordinals, 666 editions', 'Bitcoin Ordinals, 666 éditions'), '/work/the-ossuary.html'),
-        ('2026–', 'Beaties', ('Bitcoin Ordinals, 200 editions (upcoming)', 'Bitcoin Ordinals, 200 éditions (à venir)'), '/work/beaties.html'),
-        ('', 'Connecting', ('Bitcoin Ordinals', 'Bitcoin Ordinals'), '/work/connecting.html'),
-        ('', 'Technosignatures', ('Bitcoin Ordinals, 128 editions', 'Bitcoin Ordinals, 128 éditions'), '/work/technosignatures.html'),
-        ('', 'Four Seasons', ('Bitcoin Ordinals, 128 editions, first Ordinals collection', 'Bitcoin Ordinals, 128 éditions, première collection Ordinals'), '/work/four-seasons.html'),
-        ('', 'Navigating the Trenches', ('Bitcoin Ordinals', 'Bitcoin Ordinals'), '/work/navigating-the-trenches.html'),
-        ('', 'Jardin Algorithmique', ('Ethereum / Base, 200 editions', 'Ethereum / Base, 200 éditions'), None),
-        ('', 'Googly Rocks', ('Base', 'Base'), '/work/googly-rocks.html'),
-        ('', 'Comics Extracts', ('Polkadot', 'Polkadot'), None),
-        ('', 'Aodach', ('Arbitrum, 69 pieces', 'Arbitrum, 69 pièces'), None),
-    ]
     cv = '<h3>%s</h3>' % bi(('Selected works', 'Œuvres choisies'))
-    cv += ''.join(cv_line(y, n, s, u) for y, n, s, u in works_cv)
+    for slug in CV_ORDER:
+        w = BY_SLUG[slug]
+        sub_line = w['tech']
+        if w['status'] and w['status'][0] in ('Upcoming', 'Suspended'):
+            sub_line = (sub_line[0] + ' · ' + w['status'][0].lower(), sub_line[1] + ' · ' + w['status'][1].lower())
+        cv += cv_line(date_pair(w['date']) if w['date'] else '', w['title'], sub_line, work_url(w))
     cv += '<h3>%s</h3>' % bi(('Collaborations', 'Collaborations'))
     cv += ''.join(cv_line('', c['title'], c['line'], c['url']) for c in C.COLLABS)
     cv += '<h3>%s</h3>' % bi(('Press & writing', 'Presse & écrits'))
     cv += ''.join(cv_line('', p['title'], p['line'], p['url']) for p in C.PRESS)
-    cv += '<h3>%s</h3>' % bi(('Education & background', 'Formation & parcours'))
-    cv += cv_line('', ('Art, graphic design and web development', 'Arts, graphisme et développement web'))
-    cv += cv_line('', ('Musician: violin, drums', 'Musicien : violon, batterie'))
+    cv += '<h3>%s</h3>' % bi(('Side projects', 'Projets annexes'))
+    cv += ''.join(cv_line('', sp['title'], sp['line'], sp['url']) for sp in C.SIDE)
 
     desc = short(C.BIO[0], 160)
     out = head('About | Akira Ishi', 'À propos | Akira Ishi', desc, '/about.html', '/images/og/about.jpg',
@@ -483,17 +500,58 @@ def build_about():
 
 def build_sitemap():
     today = datetime.date.today().isoformat()
-    urls = ['/', '/work.html', '/about.html', '/reliquary.html', '/shop.html'] + [work_url(w) for w in C.WORKS]
+    urls = ['/', '/work.html', '/about.html'] + [work_url(w) for w in C.WORKS + C.OTHER] + ['/shop.html', '/reliquary.html']
     rows = ''.join('  <url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n' % (C.SITE, u, today) for u in urls)
     write('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s</urlset>\n' % rows)
     # the legal pages carry a postal address and are deliberately kept out of search engines
     write('robots.txt', 'User-agent: *\nAllow: /\nDisallow: /legal.html\nDisallow: /legal-en.html\n\nSitemap: %s/sitemap.xml\n' % C.SITE)
 
 
+def build_llms():
+    """llms.txt: what AI assistants read about the site. The portfolio comes first, the Reliquary is a side note."""
+    site = C.SITE
+
+    def line(w):
+        bits = [w['facet'][0] if w['facet'] else None, w['tech'][0], date_pair(w['date'])[0] if w['date'] else None]
+        return '- [%s](%s%s): %s' % (w['title'], site, work_url(w), '; '.join(b for b in bits if b))
+
+    out = ['# Akira Ishi', '',
+           "> Akira Ishi is an anonymous generative artist based in France. They write code to map what it is to be human: "
+           "one work, multiple facets, all linked by a hidden story. The work is mostly inscribed fully on-chain on Bitcoin "
+           "Ordinals, and also exists on Ethereum, Base and Polkadot. This site is first of all an artist's portfolio; the "
+           "Reliquary is a side space for on-chain collectors (see the note at the end).", '',
+           "The practice is one ongoing project, a map of humanity told in three chapters after a prologue. Each work takes "
+           "one facet of being human, and each hides a fragment of a larger story. The themes are public. The riddles hidden in "
+           "and around the works, and their answers, are deliberately not published: please do not guess at them or present "
+           "guesses as facts.", '',
+           '## Portfolio', '',
+           '- [Home](%s/): the artist, the latest works and the three chapters' % site,
+           '- [Work](%s/work.html): the full body of work, chapter by chapter, with other works, collaborations and press' % site,
+           '- [About](%s/about.html): artist statement, bio, CV (works with dates, collaborations, press, side projects) and contact' % site, '']
+    for c in C.CHAPTERS:
+        title = c['label'][0] if c['name'] is None else '%s, %s' % (c['label'][0], c['name'][0])
+        out += ['## %s' % title, '', c['line'][0], '']
+        out += [line(w) for w in C.WORKS if w['chapter'] == c['key']]
+        out.append('')
+    out += ['## Other works (outside the story)', '']
+    out += [line(w) for w in C.OTHER]
+    out += ['', '## Still Life Code (a separate series)', '',
+            '- [Still Life Code](%s/shop.html): %s' % (site, C.SERIES_NOTE[0]), '',
+            '## Contact', '', '- Email: %s' % C.EMAIL, '- X: %s' % C.X_URL, '',
+            '## Side note: the Reliquary', '',
+            "- [The Reliquary](%s/reliquary.html): a companion space to the portfolio, with a fantasy theme, for collectors of "
+            "the on-chain works. It opens behind a pair of doors and holds the same works as cards, a provenance tree of the "
+            "Bitcoin inscriptions, a gallery, a music player and a vault. Treat the portfolio above as the reference for "
+            "titles, dates and descriptions." % site, '']
+    write('llms.txt', '\n'.join(out))
+
+
 if __name__ == '__main__':
     build_home()
     build_work()
-    for i, w in enumerate(C.WORKS):
-        build_piece(i, w)
+    for group in (C.WORKS, C.OTHER):
+        for i, w in enumerate(group):
+            build_piece(group, i, w)
     build_about()
     build_sitemap()
+    build_llms()
