@@ -9,6 +9,7 @@ import datetime
 import html
 import json
 import os
+import re
 import sys
 import urllib.parse
 
@@ -113,9 +114,12 @@ def media_tag(w, cls='', lazy=True, sizes_attr=True):
     kind, path, width, height = m
     alt_en, alt_fr = w['alt']
     if kind == 'video':
-        return ('<video src="/%s" poster="/%s" width="%d" height="%d" autoplay muted loop playsinline preload="metadata" '
+        # the picture at the top of a page plays at once; the others carry their file in data-src, and site.js
+        # loads and plays them only when they come near the screen (and pauses them when they leave)
+        source = 'src="/%s" autoplay preload="metadata"' % url_path(path) if not lazy else 'data-src="/%s" preload="none"' % url_path(path)
+        return ('<video %s poster="/%s" width="%d" height="%d" muted loop playsinline '
                 'aria-label="%s" data-alt-fr="%s" data-still="/%s" class="%s"></video>'
-                % (url_path(path), url_path(w['still']), width, height, esc(alt_en), esc(alt_fr), url_path(w['still']), cls))
+                % (source, url_path(w['still']), width, height, esc(alt_en), esc(alt_fr), url_path(w['still']), cls))
     animated = path.endswith('.gif') or w['still'] != path
     still = ' data-still="/%s"' % url_path(w['still']) if animated else ''
     return ('<img src="/%s" width="%d" height="%d" alt="%s" data-alt-fr="%s"%s %s class="%s">'
@@ -133,7 +137,7 @@ def head(title, title_fr, desc, url, og_image, extra=''):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>(function(){var l='en';try{var s=localStorage.getItem('akira-lang');if(s==='fr'||s==='en'){l=s}else if(!s){var a=navigator.languages||[navigator.language||'en'];for(var i=0;i<a.length;i++){var c=String(a[i]).toLowerCase().slice(0,2);if(c==='fr'||c==='en'){l=c;break}}}}catch(e){}document.documentElement.lang=l})();</script>
+<script>(function(){var l='en';try{var s=localStorage.getItem('akira-lang');if(s==='fr'||s==='en'){l=s}else if(!s){var a=navigator.languages||[navigator.language||'en'];for(var i=0;i<a.length;i++){var c=String(a[i]).toLowerCase().slice(0,2);if(c==='fr'||c==='en'){l=c;break}}}}catch(e){}document.documentElement.lang=l;var h=document.documentElement;if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){h.classList.add('fx',window.CSS&&CSS.supports&&CSS.supports('animation-timeline','view()')?'fx-sda':'fx-io')}})();</script>
 <title>%(title)s</title>
 <meta name="x-title-en" content="%(title)s">
 <meta name="x-title-fr" content="%(title_fr)s">
@@ -180,6 +184,7 @@ NAV = [
 def header(current=None):
     links = ''.join('<a href="%s"%s>%s</a>' % (u, ' aria-current="page"' if k == current else '', bi(t)) for u, t, k in NAV)
     return '''<a class="skip" href="#main">%s</a>
+<div class="progress" aria-hidden="true"></div>
 <header class="top">
   <a class="brand" href="/">%s</a>
   <nav class="nav" aria-label="Main">
@@ -214,6 +219,40 @@ def key_mark():
             'data-title-fr="Un secret est caché dans cette œuvre">&#9919;</span>')
 
 
+def fx(html, enter=(), reveal=(), cells=False, first=6):
+    """Marks the elements that move: `enter` ones arrive in order when the page loads (data-in, with their place
+    in --i), `reveal` ones rise as they scroll into view (data-r). The motion itself is CSS (site.css)."""
+    counter = {'n': 0}
+    cell_count = {'n': 0}
+
+    def mark(m):
+        tag = m.group(0)
+        classes = m.group(2).split()
+        kind = None
+        for token in classes:
+            if token in enter:
+                kind = 'in'
+                break
+            if token in reveal:
+                kind = 'r'
+                break
+        if kind is None and cells and m.group(1) == 'a' and 'cell' in classes:
+            # the contact sheet: the first ones arrive with the page, the rest as they come into view
+            kind = 'in' if cell_count['n'] < first else 'r'
+            cell_count['n'] += 1
+        if not kind:
+            return tag
+        if kind == 'r':
+            return tag[:-1] + ' data-r>'
+        i = counter['n']
+        counter['n'] += 1
+        if 'style="' in tag:
+            return tag.replace('style="', 'style="--i:%d;' % i, 1)[:-1] + ' data-in>'
+        return tag[:-1] + ' data-in style="--i:%d">' % i
+
+    return re.sub(r'<(div|a|p|section|h1|dl|nav|figure)\b[^>]*?\bclass="([^"]*)"[^>]*>', mark, html)
+
+
 def write(relpath, text):
     path = os.path.join(ROOT, *relpath.split('/'))
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -244,8 +283,7 @@ def build_home():
         inner = media_tag(w, lazy=lazy)
         return '<a class="cell %s" href="%s" aria-label="%s">%s%s</a>' % (cls, work_url(w), esc(w['title']), inner, t)
 
-    # Three columns of squares. The two 16:9 works take two squares side by side (2:1), so they are
-    # shown at almost their own ratio instead of floating small inside a square.
+    # Three columns of squares: every picture is now cropped to its artwork, so each one fills its square.
     sheet = ''.join([
         cell('the-ossuary', 'big', ('Latest', 'Dernière'), lazy=False),
         cell('beaties', '', ('Upcoming', 'À venir')),
@@ -254,10 +292,11 @@ def build_home():
         'data-alt-fr="Still Life Code : une nature morte aux tournesols et aux oranges" loading="lazy" decoding="async">'
         '<span class="tag">%s</span></a>' % bi(('Prints', 'Tirages')),
         cell('jardin-algorithmique'), cell('four-seasons'), cell('technosignatures'),
-        cell('connecting', 'wide dark'),
+        cell('connecting', 'dark'),
         cell('genesis', 'dark', ('In progress', 'En cours')),
-        cell('navigating-the-trenches', 'wide dark'),
+        cell('navigating-the-trenches'),
         cell('knights-of-the-round-table', '', ('Prologue', 'Prologue')),
+        cell('aodach'), cell('comics-extracts'),
     ])
     desc = ('Akira Ishi writes code to map what it is to be human - one work, multiple facets, all linked by a hidden story.')
     out = head('Akira Ishi | Generative artist', 'Akira Ishi | Artiste génératif', desc, '/', '/images/og/home.jpg',
@@ -282,7 +321,7 @@ def build_home():
 ''' % (C.NAME, bi(C.ONELINER), bi(C.BASED), bi(('Latest', 'Dernières œuvres')), latest_html,
        bi(('The work, in three chapters', "L'œuvre, en trois chapitres")), index_html, sheet)
     out += footer()
-    write('index.html', out)
+    write('index.html', fx(out, enter=('home-name', 'home-one', 'home-based', 'latest', 'index'), cells=True))
 
 
 # ------------------------------------------------------------------ work page
@@ -318,7 +357,7 @@ def build_work():
         tag = '<span class="tag">%s</span>' % bi(it['status']) if it['status'] else ''
         dark = ' dk' if is_dark(w) else ''
         return ('<a href="%s"><div class="ph%s">%s%s</div><h3>%s%s</h3><div class="f">%s</div><div class="te">%s</div></a>') % (
-            it['url'], dark, media_tag(w, lazy=False), tag, esc(w['title']), chain_html(it['chain']),
+            it['url'], dark, media_tag(w, lazy=(slug != C.LATEST_TILES[0])), tag, esc(w['title']), chain_html(it['chain']),
             bi(w['facet']) if w['facet'] else '', bi(w['tech']))
 
     lat_tiles = ''.join(lat(slug) for slug in C.LATEST_TILES)
@@ -348,16 +387,16 @@ def build_work():
   <div class="series"><a href="/shop.html" class="cell cover dark" style="aspect-ratio:4/5"><img src="/images/atelier/slc-hero.webp" width="900" height="1125" alt="Still Life Code: a still life with sunflowers and oranges" data-alt-fr="Still Life Code : une nature morte aux tournesols et aux oranges" loading="lazy" decoding="async"></a>
   <div><h2 style="font:500 26px/1.2 'IBM Plex Sans',sans-serif;letter-spacing:-.015em;margin-bottom:14px">Still Life Code</h2><p>%s</p><a class="more plain-link" href="/shop.html">%s</a></div></div>
 </section>
-<section class="sec" id="other"><div class="label">%s</div><div class="plain-list">%s</div></section>
+<section class="sec" id="other"><div class="label">%s</div><p class="note">%s</p><div class="plain-list">%s</div></section>
 <section class="sec" id="collaborations"><div class="label">%s</div><div class="plain-list noimg">%s</div></section>
 <section class="sec" id="press"><div class="label">%s</div><div class="plain-list noimg">%s</div></section>
 </main>
 ''' % (bi(('Work', 'Œuvres')), bi(C.STATEMENT_SHORT), bi(('Latest', 'Dernières œuvres')), lat_tiles,
        '\n'.join(parts), bi(('Series', 'Série')), bi(C.SERIES_NOTE),
-       bi(('See the series →', 'Voir la série →')), bi(('Other works', 'Autres œuvres')), other,
+       bi(('See the series →', 'Voir la série →')), bi(('Other works', 'Autres œuvres')), bi(C.OTHER_NOTE), other,
        bi(('Collaborations', 'Collaborations')), collabs, bi(('Writing & press', 'Écrits & presse')), press)
     out += footer()
-    write('work.html', out)
+    write('work.html', fx(out, enter=('intro',), reveal=('lat', 'chh', 'row', 'sec')))
 
 
 # ------------------------------------------------------------------ a work
@@ -440,7 +479,7 @@ def build_piece(group, i, w):
        ('<p class="facet">%s</p>' % bi(w['facet'])) if w['facet'] else '', ''.join(facts), logic, desc,
        links, '<section class="extras">%s</section>' % extras if extras else '', pn)
     out += footer()
-    write('work/%s.html' % w['slug'], out)
+    write('work/%s.html' % w['slug'], fx(out, enter=('crumb', 'facet'), reveal=('facts', 'logic', 'desc', 'links', 'extras', 'pn')))
 
 
 # ------------------------------------------------------------------ about
@@ -499,7 +538,7 @@ def build_about():
        '<a class="plain-link" href="%s" target="_blank" rel="noopener">%s</a>' % (C.X_URL, C.X_HANDLE),
        bi(('Portfolio (PDF): coming soon.', 'Portfolio (PDF) : bientôt disponible.')))
     out += footer()
-    write('about.html', out)
+    write('about.html', fx(out, enter=('about-head',), reveal=('about-sec',)))
 
 
 def build_sitemap():
@@ -521,8 +560,8 @@ def build_llms():
 
     out = ['# Akira Ishi', '',
            "> Akira Ishi is an anonymous generative artist based in France. They write code to map what it is to be human: "
-           "one work, multiple facets, all linked by a hidden story. The work is mostly inscribed fully on-chain on Bitcoin "
-           "Ordinals, and also exists on Ethereum, Base and Polkadot. This site is first of all an artist's portfolio; the "
+           "one work, multiple facets, all linked by a hidden story. The work is mostly onchain on Bitcoin "
+           "Ordinals, and some of it also on Ethereum and Base. This site is first of all an artist's portfolio; the "
            "Reliquary is a side space for on-chain collectors (see the note at the end).", '',
            "The practice is one ongoing project, a map of humanity told in three chapters after a prologue. Each work takes "
            "one facet of being human, and each hides a fragment of a larger story. The themes are public. The riddles hidden in "

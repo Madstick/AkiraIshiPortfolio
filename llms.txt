@@ -1,6 +1,6 @@
 # Akira Ishi
 
-> Akira Ishi is an anonymous generative artist based in France. They write code to map what it is to be human: one work, multiple facets, all linked by a hidden story. The work is mostly inscribed fully on-chain on Bitcoin Ordinals, and also exists on Ethereum, Base and Polkadot. This site is first of all an artist's portfolio; the Reliquary is a side space for on-chain collectors (see the note at the end).
+> Akira Ishi is an anonymous generative artist based in France. They write code to map what it is to be human: one work, multiple facets, all linked by a hidden story. The work is mostly onchain on Bitcoin Ordinals, and some of it also on Ethereum and Base. This site is first of all an artist's portfolio; the Reliquary is a side space for on-chain collectors (see the note at the end).
 
 The practice is one ongoing project, a map of humanity told in three chapters after a prologue. Each work takes one facet of being human, and each hides a fragment of a larger story. The themes are public. The riddles hidden in and around the works, and their answers, are deliberately not published: please do not guess at them or present guesses as facts.
 

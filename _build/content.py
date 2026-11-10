@@ -22,17 +22,17 @@ ONELINER = (
     "J'écris du code pour cartographier ce que signifie être humain - une œuvre, de multiples facettes, toutes reliées par un récit caché.",
 )
 BASED = (
-    'Based in France. Generative work, mostly inscribed fully on-chain on Bitcoin.',
-    'Installé en France. Art génératif, le plus souvent inscrit entièrement on-chain sur Bitcoin.',
+    'Based in France. Generative work, mostly onchain on Bitcoin.',
+    'Installé en France. Art génératif, le plus souvent onchain sur Bitcoin.',
 )
 
 STATEMENT_SHORT = (
     'My work is a single, ongoing map of humanity. Each piece takes one facet of being human: innocence, togetherness, '
     'the search for truth, life and mortality,.. and turns it into a living system written in code, most of it inscribed '
-    'fully on-chain on Bitcoin. Hidden in and around every work are fragments of one larger story, waiting to be found.',
+    'fully onchain on Bitcoin. Hidden in and around every work are fragments of one larger story, waiting to be found.',
     "Mon travail est une seule et même cartographie de l'humanité, en cours. Chaque pièce prend une facette de l'être humain : "
     "l'innocence, le collectif, la quête de vérité, la vie et la mort,.. et en fait un système vivant écrit en code, la plupart "
-    "du temps inscrit entièrement on-chain sur Bitcoin. Dans et autour de chaque œuvre se cachent les fragments d'un récit plus "
+    "du temps inscrit entièrement onchain sur Bitcoin. Dans et autour de chaque œuvre se cachent les fragments d'un récit plus "
     "vaste, qui attendent d'être trouvés.",
 )
 
@@ -46,29 +46,38 @@ STATEMENT_LONG = [
     (
         'My practice is one long project: a map of humanity, drawn one facet at a time, in three chapters. The first, '
         'Realisation, gathers three discoveries about what we are. Googly Rocks is the loss of innocence, the moment childhood '
-        'meets the contradictions of the world. Four Seasons is humanity and nature: where we come from, what we depend on, '
-        'what we do to it. Technosignatures is our pursuit of truth, the need to understand reality and to find what remains '
-        'unknown. The second chapter, The Expressions of Humanity, holds the traits we share: Beaties, a pocket band that plays '
-        'forever, is our instinct to band together and build something greater than ourselves. The third, Universal Truths, '
-        'holds what precedes us and outlasts us. The Ossuary, a face that lives, ages and dies once, with the blockchain as its '
-        'clock, is death. Genesis, still in progress, is birth.',
+        'meets the contradictions of the world. Four Seasons is about the complex relationship humanity has with nature, and '
+        'the project is itself a statement: an abstract representation of nature, written in code. Technosignatures is our '
+        'pursuit of truth, the need to understand reality and to find what remains unknown. The second chapter, The '
+        'Expressions of Humanity, holds the traits we share: Beaties, a pocket band that plays forever, is our instinct to '
+        'band together and build something greater than ourselves. The third, Universal Truths, holds what precedes us and '
+        'outlasts us: The Ossuary, a face that lives, ages and dies once, with the blockchain as its clock, is death, and '
+        'Genesis, still in progress, is birth. The second and third chapters are not finished: more is to come.',
         "Ma pratique est un long projet : une cartographie de l'humanité, dessinée une facette à la fois, en trois chapitres. "
         "Le premier, Réalisation, réunit trois découvertes sur ce que nous sommes. Googly Rocks est la perte de l'innocence, le "
-        "moment où l'enfance rencontre les contradictions du monde. Four Seasons est l'humanité et la nature : d'où nous venons, "
-        "de quoi nous dépendons, ce que nous lui faisons. Technosignatures est notre quête de vérité, le besoin de comprendre "
-        "la réalité et de trouver ce qui reste inconnu. Le deuxième chapitre, Les expressions de l'humanité, rassemble les traits "
-        "que nous partageons : Beaties, un groupe de poche qui joue sans fin, est notre instinct de nous rassembler pour bâtir "
-        "quelque chose de plus grand que nous. Le troisième, Vérités universelles, tient ce qui nous précède et nous survit. "
-        "The Ossuary, un visage qui vit, vieillit et meurt une seule fois, avec la blockchain pour horloge, est la mort. "
-        "Genesis, encore en cours, est la naissance.",
+        "moment où l'enfance rencontre les contradictions du monde. Four Seasons parle de la relation complexe que l'humanité "
+        "entretient avec la nature, et le projet est lui-même une prise de position : une représentation abstraite de la "
+        "nature, écrite en code. Technosignatures est notre quête de vérité, le besoin de comprendre la réalité et de trouver "
+        "ce qui reste inconnu. Le deuxième chapitre, Les expressions de l'humanité, rassemble les traits que nous partageons : "
+        "Beaties, un groupe de poche qui joue sans fin, est notre instinct de nous rassembler pour bâtir quelque chose de plus "
+        "grand que nous. Le troisième, Vérités universelles, tient ce qui nous précède et nous survit : The Ossuary, un visage "
+        "qui vit, vieillit et meurt une seule fois, avec la blockchain pour horloge, est la mort, et Genesis, encore en cours, "
+        "est la naissance. Les deuxième et troisième chapitres ne sont pas terminés : d'autres œuvres sont à venir.",
     ),
     (
-        'I work mostly on Bitcoin, where every byte is expensive. That constraint is the point: simple forms, deep ideas, works '
-        'that are complete, autonomous and permanent. I treat the chain not as a market but as a medium, its blocks as a heartbeat, '
-        'its inscriptions as lineage.',
-        "Je travaille surtout sur Bitcoin, où chaque octet coûte cher. Cette contrainte est le sujet : des formes simples, des "
-        "idées profondes, des œuvres complètes, autonomes et permanentes. Je traite la chaîne non comme un marché mais comme un "
-        "médium, ses blocs comme un battement de cœur, ses inscriptions comme une filiation.",
+        'Not every work I make belongs to this map. Some projects stand on their own, outside the story, and they are shown '
+        'apart, as other works.',
+        "Toutes les œuvres que je réalise ne font pas partie de cette carte. Certains projets existent pour eux-mêmes, en "
+        "dehors de l'histoire, et sont présentés à part, parmi les autres œuvres.",
+    ),
+    (
+        'I work mainly onchain, on Bitcoin, where every byte is expensive, and perhaps on Ethereum in the future. That '
+        'constraint is the point: simple forms, deep ideas, works that are complete, autonomous and permanent. I treat the '
+        'chain not as a market but as a medium, its blocks as a heartbeat, its inscriptions as lineage.',
+        "Je travaille principalement onchain, sur Bitcoin, où chaque octet coûte cher, et peut-être sur Ethereum à l'avenir. "
+        "Cette contrainte est le sujet : des formes simples, des idées profondes, des œuvres complètes, autonomes et "
+        "permanentes. Je traite la chaîne non comme un marché mais comme un médium, ses blocs comme un battement de cœur, ses "
+        "inscriptions comme une filiation.",
     ),
     (
         'Every work also hides something. Riddles, fragments and connections are buried in and around each piece, and together '
@@ -82,16 +91,13 @@ STATEMENT_LONG = [
 BIO = (
     "Akira Ishi is an anonymous generative artist based in France. Trained in art, graphic design and web development, and "
     "shaped by years as a violinist and drummer, Akira writes algorithms that turn ideas about being human into living systems. "
-    "The work is one ongoing map of humanity, told in three chapters. It is mostly inscribed fully on-chain on Bitcoin Ordinals, "
-    "using recursion and parent/child provenance, and also appears on Ethereum, Base and Polkadot. Collections include Four "
-    "Seasons (Akira's first Ordinals collection), Technosignatures, The Ossuary and Beaties. Akira's work has been featured by "
-    "Gamma.io.",
+    "The work is one ongoing map of humanity, told in three chapters. It is mostly onchain, inscribed on Bitcoin Ordinals with "
+    "recursion and parent/child provenance, and also appears on Ethereum and Base. Akira's work has been featured by Gamma.io.",
     "Akira Ishi est un artiste génératif anonyme installé en France. Formé aux arts, au graphisme et au développement web, et "
     "marqué par des années de violon et de batterie, il écrit des algorithmes qui transforment des idées sur l'être humain en "
     "systèmes vivants. Son travail est une seule cartographie de l'humanité, en cours, racontée en trois chapitres. Il est "
-    "surtout inscrit entièrement on-chain sur Bitcoin Ordinals, avec récursion et filiation parent/enfant, et existe aussi sur "
-    "Ethereum, Base et Polkadot. Parmi ses collections : Four Seasons (sa première collection Ordinals), Technosignatures, "
-    "The Ossuary et Beaties. Son travail a été présenté par Gamma.io.",
+    "surtout onchain, inscrit sur Bitcoin Ordinals avec récursion et filiation parent/enfant, et existe aussi sur Ethereum et "
+    "Base. Son travail a été présenté par Gamma.io.",
 )
 
 SERIES_NOTE = (
@@ -293,7 +299,7 @@ WORKS = [
                 'https://gamma.io/ordinals/prints/5addbcf2beb3f10a0d0c263585d65041d770bd4c9ddd3a18bd6050479b8f73a9i0'),
                ('inscription', ('Inscription', 'Inscription'), 'https://ordinals.com/inscription/114964852')],
         inscription=('114964852', 'https://ordinals.com/inscription/114964852'),
-        media=('img', 'images/projects/connecting.webp', 512, 288), still='images/work/stills/connecting.webp',
+        media=('video', 'images/projects/connecting.webm', 434, 450), still='images/work/stills/connecting.webp',
         extras=[],
         alt=('Connecting: a living cloud of particles linked together, pulsing with the Bitcoin blockchain',
              'Connecting : un nuage vivant de particules reliées entre elles, au rythme de la blockchain Bitcoin'),
@@ -318,7 +324,7 @@ WORKS = [
             "continue de bouger, et l'œuvre reste sur Bitcoin.")],
         links=[('inscription', ('Inscription', 'Inscription'), 'https://ordinals.com/inscription/90186667')],
         inscription=('90186667', 'https://ordinals.com/inscription/90186667'),
-        media=('img', 'images/projects/navigating.webp', 512, 288), still='images/work/stills/navigating-the-trenches.webp',
+        media=('video', 'images/projects/navigating.webm', 374, 374), still='images/work/stills/navigating-the-trenches.webp',
         extras=[],
         alt=('Navigating the Trenches: an animated line chart with speech bubbles reacting to its ups and downs',
              'Navigating the Trenches : un graphique animé avec des bulles de dialogue qui réagissent à ses hauts et ses bas'),
@@ -558,6 +564,9 @@ CHAIN = {
     'jardin-algorithmique': 'ETH', 'comics-extracts': 'DOT', 'aodach': 'ETH', 'whats-the-point': 'XTZ',
     'tezos-curated-works': 'XTZ', 'songe-d-un-soir': 'ETH', 'art-on-solana': 'SOL',
 }
+
+OTHER_NOTE = ('Not every work belongs to the map of humanity. These stand on their own.',
+              "Toutes les œuvres ne font pas partie de la carte de l'humanité. Celles-ci existent pour elles-mêmes.")
 
 MORE_TO_COME = ('More to come', 'D’autres œuvres à venir')
 

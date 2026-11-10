@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>(function(){var l='en';try{var s=localStorage.getItem('akira-lang');if(s==='fr'||s==='en'){l=s}else if(!s){var a=navigator.languages||[navigator.language||'en'];for(var i=0;i<a.length;i++){var c=String(a[i]).toLowerCase().slice(0,2);if(c==='fr'||c==='en'){l=c;break}}}}catch(e){}document.documentElement.lang=l})();</script>
+<script>(function(){var l='en';try{var s=localStorage.getItem('akira-lang');if(s==='fr'||s==='en'){l=s}else if(!s){var a=navigator.languages||[navigator.language||'en'];for(var i=0;i<a.length;i++){var c=String(a[i]).toLowerCase().slice(0,2);if(c==='fr'||c==='en'){l=c;break}}}}catch(e){}document.documentElement.lang=l;var h=document.documentElement;if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){h.classList.add('fx',window.CSS&&CSS.supports&&CSS.supports('animation-timeline','view()')?'fx-sda':'fx-io')}})();</script>
 <title>Art on Solana | Akira Ishi</title>
 <meta name="x-title-en" content="Art on Solana | Akira Ishi">
 <meta name="x-title-fr" content="Art on Solana | Akira Ishi">
@@ -38,6 +38,7 @@
 </head>
 <body>
 <a class="skip" href="#main"><span data-l="en">Skip to content</span><span data-l="fr">Aller au contenu</span></a>
+<div class="progress" aria-hidden="true"></div>
 <header class="top">
   <a class="brand" href="/">Akira Ishi</a>
   <nav class="nav" aria-label="Main">
@@ -46,21 +47,21 @@
   </nav>
 </header>
 <main id="main">
-<div class="crumb"><a href="/work.html"><span data-l="en">Work</span><span data-l="fr">Œuvres</span></a> / <a href="/work.html#other"><span data-l="en">Other works</span><span data-l="fr">Autres œuvres</span></a></div>
+<div class="crumb" data-in style="--i:0"><a href="/work.html"><span data-l="en">Work</span><span data-l="fr">Œuvres</span></a> / <a href="/work.html#other"><span data-l="en">Other works</span><span data-l="fr">Autres œuvres</span></a></div>
 <section class="hero"><div class="hero-frame" style="--w:820px;--r:1.0000"><img src="/images/projects/solana.webp" width="850" height="850" alt="Art on Solana: layered line patterns that seem to shimmer" data-alt-fr="Art on Solana : des motifs de lignes superposées qui semblent scintiller" fetchpriority="high" class=""></div></section>
 <section class="sheet-meta">
   <div>
     <h1>Art on Solana <span class="chain">(SOL)</span><span class="key" aria-label="A secret is hidden here" title="A secret is hidden in this work" data-title-fr="Un secret est caché dans cette œuvre">&#9919;</span><span class="tag status"><span data-l="en">Suspended</span><span data-l="fr">Suspendu</span></span></h1>
     
-    <dl class="facts"><div><dt><span data-l="en">Chapter</span><span data-l="fr">Chapitre</span></dt><dd><span data-l="en">Other works</span><span data-l="fr">Autres œuvres</span></dd></div><div><dt><span data-l="en">Released</span><span data-l="fr">Sortie</span></dt><dd><span data-l="en">June 2024</span><span data-l="fr">juin 2024</span></dd></div><div><dt><span data-l="en">Medium</span><span data-l="fr">Médium</span></dt><dd><span data-l="en">Moiré patterns and optical illusions · Solana (Exchange Art)</span><span data-l="fr">Moirés et illusions d’optique · Solana (Exchange Art)</span></dd></div><div><dt><span data-l="en">Status</span><span data-l="fr">Statut</span></dt><dd><span data-l="en">Suspended</span><span data-l="fr">Suspendu</span></dd></div></dl>
+    <dl class="facts" data-r><div><dt><span data-l="en">Chapter</span><span data-l="fr">Chapitre</span></dt><dd><span data-l="en">Other works</span><span data-l="fr">Autres œuvres</span></dd></div><div><dt><span data-l="en">Released</span><span data-l="fr">Sortie</span></dt><dd><span data-l="en">June 2024</span><span data-l="fr">juin 2024</span></dd></div><div><dt><span data-l="en">Medium</span><span data-l="fr">Médium</span></dt><dd><span data-l="en">Moiré patterns and optical illusions · Solana (Exchange Art)</span><span data-l="fr">Moirés et illusions d’optique · Solana (Exchange Art)</span></dd></div><div><dt><span data-l="en">Status</span><span data-l="fr">Statut</span></dt><dd><span data-l="en">Suspended</span><span data-l="fr">Suspendu</span></dd></div></dl>
   </div>
   <div>
     
-    <div class="desc"><p><span data-l="en">Art on Solana is a curated set of works on Exchange Art, centred on moiré patterns and optical illusions. Layers of geometry and fine lines interact to create effects that seem to shift and shimmer, almost hypnotically, although the pieces are made of static code. Each work invites the viewer to move closer and further away and to watch the picture change. The collection looks at how structure shapes perception. It is suspended for now.</span><span data-l="fr">Art on Solana est une sélection d&#x27;œuvres sur Exchange Art, centrée sur les moirés et les illusions d&#x27;optique. Des couches de géométrie et de lignes fines interagissent pour produire des effets qui semblent bouger et scintiller, presque hypnotiques, alors que les pièces sont faites de code statique. Chaque œuvre invite à s&#x27;approcher, à s&#x27;éloigner et à regarder l&#x27;image changer. La collection s&#x27;intéresse à la façon dont la structure façonne la perception. Elle est suspendue pour le moment.</span></p></div>
-    <div class="links"><a href="https://exchange.art/akira-ishi/nfts" target="_blank" rel="noopener"><span><span data-l="en">Exchange Art</span><span data-l="fr">Exchange Art</span></span><span class="k"><span data-l="en">Marketplace</span><span data-l="fr">Marketplace</span></span></a></div>
+    <div class="desc" data-r><p><span data-l="en">Art on Solana is a curated set of works on Exchange Art, centred on moiré patterns and optical illusions. Layers of geometry and fine lines interact to create effects that seem to shift and shimmer, almost hypnotically, although the pieces are made of static code. Each work invites the viewer to move closer and further away and to watch the picture change. The collection looks at how structure shapes perception. It is suspended for now.</span><span data-l="fr">Art on Solana est une sélection d&#x27;œuvres sur Exchange Art, centrée sur les moirés et les illusions d&#x27;optique. Des couches de géométrie et de lignes fines interagissent pour produire des effets qui semblent bouger et scintiller, presque hypnotiques, alors que les pièces sont faites de code statique. Chaque œuvre invite à s&#x27;approcher, à s&#x27;éloigner et à regarder l&#x27;image changer. La collection s&#x27;intéresse à la façon dont la structure façonne la perception. Elle est suspendue pour le moment.</span></p></div>
+    <div class="links" data-r><a href="https://exchange.art/akira-ishi/nfts" target="_blank" rel="noopener"><span><span data-l="en">Exchange Art</span><span data-l="fr">Exchange Art</span></span><span class="k"><span data-l="en">Marketplace</span><span data-l="fr">Marketplace</span></span></a></div>
   </div>
 </section>
-<nav class="pn" aria-label="Works"><a href="/work/songe-d-un-soir.html"><div class="label"><span data-l="en">Previous</span><span data-l="fr">Précédente</span></div><b>Songe d&#x27;un soir</b></a><span></span></nav>
+<nav class="pn" aria-label="Works" data-r><a href="/work/songe-d-un-soir.html"><div class="label"><span data-l="en">Previous</span><span data-l="fr">Précédente</span></div><b>Songe d&#x27;un soir</b></a><span></span></nav>
 </main>
 <footer class="footer">
   <span>&copy; 2026 Akira Ishi</span>

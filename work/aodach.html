@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>(function(){var l='en';try{var s=localStorage.getItem('akira-lang');if(s==='fr'||s==='en'){l=s}else if(!s){var a=navigator.languages||[navigator.language||'en'];for(var i=0;i<a.length;i++){var c=String(a[i]).toLowerCase().slice(0,2);if(c==='fr'||c==='en'){l=c;break}}}}catch(e){}document.documentElement.lang=l})();</script>
+<script>(function(){var l='en';try{var s=localStorage.getItem('akira-lang');if(s==='fr'||s==='en'){l=s}else if(!s){var a=navigator.languages||[navigator.language||'en'];for(var i=0;i<a.length;i++){var c=String(a[i]).toLowerCase().slice(0,2);if(c==='fr'||c==='en'){l=c;break}}}}catch(e){}document.documentElement.lang=l;var h=document.documentElement;if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){h.classList.add('fx',window.CSS&&CSS.supports&&CSS.supports('animation-timeline','view()')?'fx-sda':'fx-io')}})();</script>
 <title>Aodach | Akira Ishi</title>
 <meta name="x-title-en" content="Aodach | Akira Ishi">
 <meta name="x-title-fr" content="Aodach | Akira Ishi">
@@ -38,6 +38,7 @@
 </head>
 <body>
 <a class="skip" href="#main"><span data-l="en">Skip to content</span><span data-l="fr">Aller au contenu</span></a>
+<div class="progress" aria-hidden="true"></div>
 <header class="top">
   <a class="brand" href="/">Akira Ishi</a>
   <nav class="nav" aria-label="Main">
@@ -46,21 +47,21 @@
   </nav>
 </header>
 <main id="main">
-<div class="crumb"><a href="/work.html"><span data-l="en">Work</span><span data-l="fr">Œuvres</span></a> / <a href="/work.html#other"><span data-l="en">Other works</span><span data-l="fr">Autres œuvres</span></a></div>
+<div class="crumb" data-in style="--i:0"><a href="/work.html"><span data-l="en">Work</span><span data-l="fr">Œuvres</span></a> / <a href="/work.html#other"><span data-l="en">Other works</span><span data-l="fr">Autres œuvres</span></a></div>
 <section class="hero"><div class="hero-frame" style="--w:820px;--r:1.0000"><img src="/images/projects/aodach-1.webp" width="850" height="850" alt="Aodach: a yellow tartan-like pattern" data-alt-fr="Aodach : un motif jaune façon tartan" fetchpriority="high" class=""></div></section>
 <section class="sheet-meta">
   <div>
     <h1>Aodach <span class="chain">(ETH)</span><span class="key" aria-label="A secret is hidden here" title="A secret is hidden in this work" data-title-fr="Un secret est caché dans cette œuvre">&#9919;</span></h1>
     
-    <dl class="facts"><div><dt><span data-l="en">Chapter</span><span data-l="fr">Chapitre</span></dt><dd><span data-l="en">Other works</span><span data-l="fr">Autres œuvres</span></dd></div><div><dt><span data-l="en">Released</span><span data-l="fr">Sortie</span></dt><dd><span data-l="en">August 2023</span><span data-l="fr">août 2023</span></dd></div><div><dt><span data-l="en">Medium</span><span data-l="fr">Médium</span></dt><dd><span data-l="en">Generative · Arbitrum · 69 pieces</span><span data-l="fr">Génératif · Arbitrum · 69 pièces</span></dd></div></dl>
+    <dl class="facts" data-r><div><dt><span data-l="en">Chapter</span><span data-l="fr">Chapitre</span></dt><dd><span data-l="en">Other works</span><span data-l="fr">Autres œuvres</span></dd></div><div><dt><span data-l="en">Released</span><span data-l="fr">Sortie</span></dt><dd><span data-l="en">August 2023</span><span data-l="fr">août 2023</span></dd></div><div><dt><span data-l="en">Medium</span><span data-l="fr">Médium</span></dt><dd><span data-l="en">Generative · Arbitrum · 69 pieces</span><span data-l="fr">Génératif · Arbitrum · 69 pièces</span></dd></div></dl>
   </div>
   <div>
     
-    <div class="desc"><p><span data-l="en">Aodach was made after the artist&#x27;s grandmother passed away. It is a generative collection rooted in Celtic heritage, and it treats digital patterns as a form of memory, symbolism and continuity. Each piece is an algorithmic reading of ancestral motifs, and together they turn code into a quiet tribute to lineage and loss. The collection has 69 pieces, minted on Arbitrum, an Ethereum layer 2, and it is collected through Art Blocks. An article tells more about the collection and about the artist behind it.</span><span data-l="fr">Aodach a été réalisé après la disparition de la grand-mère de l&#x27;artiste. C&#x27;est une collection générative enracinée dans l&#x27;héritage celtique, qui traite les motifs numériques comme une forme de mémoire, de symbole et de continuité. Chaque pièce est une lecture algorithmique de motifs ancestraux, et l&#x27;ensemble fait du code un hommage discret à la filiation et à la perte. La collection compte 69 pièces, mintées sur Arbitrum, une couche 2 d&#x27;Ethereum, et se collectionne via Art Blocks. Un article en dit plus sur la collection et sur l&#x27;artiste qui la porte.</span></p></div>
-    <div class="links"><a href="https://www.artblocks.io/collection/aodach-by-akira-ishi" target="_blank" rel="noopener"><span><span data-l="en">Art Blocks</span><span data-l="fr">Art Blocks</span></span><span class="k"><span data-l="en">Marketplace</span><span data-l="fr">Marketplace</span></span></a><a href="https://puzzled-glade-885.notion.site/Akira-Ishi-6db8e8b1701049008c3080937f9e903f" target="_blank" rel="noopener"><span><span data-l="en">Aodach &amp; more on me</span><span data-l="fr">Aodach &amp; more on me</span></span><span class="k"><span data-l="en">Article</span><span data-l="fr">Article</span></span></a></div>
+    <div class="desc" data-r><p><span data-l="en">Aodach was made after the artist&#x27;s grandmother passed away. It is a generative collection rooted in Celtic heritage, and it treats digital patterns as a form of memory, symbolism and continuity. Each piece is an algorithmic reading of ancestral motifs, and together they turn code into a quiet tribute to lineage and loss. The collection has 69 pieces, minted on Arbitrum, an Ethereum layer 2, and it is collected through Art Blocks. An article tells more about the collection and about the artist behind it.</span><span data-l="fr">Aodach a été réalisé après la disparition de la grand-mère de l&#x27;artiste. C&#x27;est une collection générative enracinée dans l&#x27;héritage celtique, qui traite les motifs numériques comme une forme de mémoire, de symbole et de continuité. Chaque pièce est une lecture algorithmique de motifs ancestraux, et l&#x27;ensemble fait du code un hommage discret à la filiation et à la perte. La collection compte 69 pièces, mintées sur Arbitrum, une couche 2 d&#x27;Ethereum, et se collectionne via Art Blocks. Un article en dit plus sur la collection et sur l&#x27;artiste qui la porte.</span></p></div>
+    <div class="links" data-r><a href="https://www.artblocks.io/collection/aodach-by-akira-ishi" target="_blank" rel="noopener"><span><span data-l="en">Art Blocks</span><span data-l="fr">Art Blocks</span></span><span class="k"><span data-l="en">Marketplace</span><span data-l="fr">Marketplace</span></span></a><a href="https://puzzled-glade-885.notion.site/Akira-Ishi-6db8e8b1701049008c3080937f9e903f" target="_blank" rel="noopener"><span><span data-l="en">Aodach &amp; more on me</span><span data-l="fr">Aodach &amp; more on me</span></span><span class="k"><span data-l="en">Article</span><span data-l="fr">Article</span></span></a></div>
   </div>
 </section>
-<nav class="pn" aria-label="Works"><a href="/work/comics-extracts.html"><div class="label"><span data-l="en">Previous</span><span data-l="fr">Précédente</span></div><b>Comics Extracts</b></a><a href="/work/whats-the-point.html"><div class="label"><span data-l="en">Next</span><span data-l="fr">Suivante</span></div><b>What&#x27;s the point.</b></a></nav>
+<nav class="pn" aria-label="Works" data-r><a href="/work/comics-extracts.html"><div class="label"><span data-l="en">Previous</span><span data-l="fr">Précédente</span></div><b>Comics Extracts</b></a><a href="/work/whats-the-point.html"><div class="label"><span data-l="en">Next</span><span data-l="fr">Suivante</span></div><b>What&#x27;s the point.</b></a></nav>
 </main>
 <footer class="footer">
   <span>&copy; 2026 Akira Ishi</span>

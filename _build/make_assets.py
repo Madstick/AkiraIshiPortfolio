@@ -30,15 +30,45 @@ def frame(path, index):
     return im.convert('RGB')
 
 
+# Connecting and Navigating the Trenches were recorded as 16:9 videos with the artwork in the middle and black
+# on both sides. These are the artwork's own rectangles inside the 800x450 frames: (width, height, x, y).
+# The GIFs in images/projects are the sources for the cropped loops (and nothing else uses them).
+ARTWORK_BOX = {
+    'connecting': (434, 450, 182, 0),
+    'navigating': (374, 374, 212, 47),
+}
+
+
+def crop_box(im, name):
+    w, h, x, y = ARTWORK_BOX[name]
+    return im.crop((x, y, x + w, y + h))
+
+
+def make_square_loops():
+    """images/projects/connecting.webm and navigating.webm: the artwork alone, silent, looping."""
+    import imageio_ffmpeg
+    import subprocess
+    ff = imageio_ffmpeg.get_ffmpeg_exe()
+    for name, (w, h, x, y) in ARTWORK_BOX.items():
+        src = p('images', 'projects', name + '.gif')
+        out = p('images', 'projects', name + '.webm')
+        subprocess.check_call([ff, '-y', '-hide_banner', '-loglevel', 'error', '-i', src, '-an',
+                               '-vf', 'crop=%d:%d:%d:%d,fps=25' % (w, h, x, y), '-c:v', 'libvpx-vp9', '-crf', '38', '-b:v', '0',
+                               '-row-mt', '1', '-deadline', 'good', '-cpu-used', '2', '-pix_fmt', 'yuv420p', out])
+        print('loop', name, os.path.getsize(out) // 1024, 'KB')
+
+
 def make_stills():
     os.makedirs(p('images', 'work', 'stills'), exist_ok=True)
     jobs = [
-        ('four-seasons', 'images/projects/4seasons_AkiraIshi75.gif', 0, 900),
-        ('connecting', 'images/projects/connecting.webp', 60, 512),
-        ('navigating-the-trenches', 'images/projects/navigating.webp', 100, 512),
+        ('four-seasons', 'images/projects/4seasons_AkiraIshi75.gif', 0, 900, None),
+        ('connecting', 'images/projects/connecting.gif', 90, 900, 'connecting'),
+        ('navigating-the-trenches', 'images/projects/navigating.gif', 100, 900, 'navigating'),
     ]
-    for slug, src, idx, width in jobs:
+    for slug, src, idx, width, box in jobs:
         im = frame(p(*src.split('/')), idx)
+        if box:
+            im = crop_box(im, box)
         if im.width > width:
             im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
         im.save(p('images', 'work', 'stills', slug + '.webp'), 'WEBP', quality=82, method=6)
@@ -125,6 +155,7 @@ def make_icons():
 
 
 if __name__ == '__main__':
+    make_square_loops()
     make_stills()
     make_ossuary_video()
     make_cards()

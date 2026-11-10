@@ -131,6 +131,7 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
 
 .sec { padding: 50px var(--pad) 36px; border-top: 1px solid var(--ink); }
 .sec > .label { margin-bottom: 20px; }
+.sec > .note { margin: -6px 0 18px; max-width: 640px; color: var(--mute); }
 .series { display: grid; grid-template-columns: minmax(0, 360px) 1fr; gap: 48px; align-items: center; }
 .series p { font: 300 24px/1.4 'IBM Plex Sans', sans-serif; letter-spacing: -.01em; max-width: 720px; }
 .series .more { display: inline-block; margin-top: 18px; font-size: 14px; }
@@ -233,4 +234,89 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
     * { scroll-behavior: auto !important; }
+}
+
+/* =====================================================================
+   MOTION
+   Everything here moves with transform, opacity or clip-path only (the compositor does the work,
+   nothing is laid out again), runs once, and is off for visitors who ask for less motion.
+   - the page arrives in order (data-in) and things rise as they scroll into view (data-r):
+     with CSS scroll-driven animations where the browser has them, with a tiny observer where not
+   - pages cross-fade into each other, and a picture in a list grows into the page that opens
+   - the pictures answer the pointer (hover), videos only play while visible (site.js)
+   ===================================================================== */
+:root { --ease: cubic-bezier(.2, .8, .2, 1); }
+
+.progress {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 30;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    pointer-events: none;
+}
+
+/* hover: small, springy, never layout */
+.cell img, .cell video { transition: transform 1s var(--ease); }
+.cell:hover img, .cell:hover video { transform: scale(1.05); }
+.cell .tag { transition: transform .45s var(--ease); }
+.cell:hover .tag { transform: translateY(-2px); }
+.lat .ph img, .lat .ph video { transition: transform 1s var(--ease); }
+.lat a:hover .ph img, .lat a:hover .ph video { transform: scale(1.04); }
+.row .th img, .row .th video { transition: transform .7s var(--ease); }
+.row:hover .th img, .row:hover .th video { transform: scale(1.12); }
+.row .ti .t { display: inline-block; transition: transform .5s var(--ease); }
+.row:hover .ti .t { transform: translateX(8px); }
+.pn b { transition: transform .5s var(--ease); }
+.pn a:hover b { transform: translateX(8px); }
+.pn a + a:hover b { transform: translateX(-8px); }
+.latest a b { transition: transform .5s var(--ease); }
+.latest a:hover b { transform: translateX(6px); }
+.nav a { background: linear-gradient(currentColor, currentColor) left calc(100% - 1px) / 0 1px no-repeat; transition: background-size .45s var(--ease); }
+.nav a:hover { background-size: 100% 1px; text-decoration: none; }
+.nav a[aria-current="page"] { text-decoration: none; background-size: 100% 1px; }
+
+@media (prefers-reduced-motion: no-preference) {
+    /* ---- from page to page ---- */
+    @view-transition { navigation: auto; }
+    .top { view-transition-name: top; }                 /* the header stays where it is */
+    ::view-transition-group(top) { animation-duration: 0s; }
+    ::view-transition-old(root) { animation: vt-out .22s ease both; }
+    ::view-transition-new(root) { animation: vt-in .5s var(--ease) both; }
+    ::view-transition-group(work-hero) { animation-duration: .7s; animation-timing-function: var(--ease); }
+    @keyframes vt-out { to { opacity: 0; } }
+    @keyframes vt-in { from { opacity: 0; transform: translate3d(0, 18px, 0); } }
+
+    /* ---- the page arrives, piece by piece ---- */
+    .fx [data-in] { animation: in-up 1s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 70ms + 60ms); }
+    .fx .home-name[data-in] { animation-name: name-in; animation-duration: 1.2s; }
+    .fx .cell[data-in] { animation: tile-in 1.05s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 70ms + 380ms); }
+    .fx .cell[data-in] img, .fx .cell[data-in] video { animation: tile-zoom 1.8s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 70ms + 380ms); }
+    .fx .hero-frame { animation: hero-in 1.3s var(--ease) backwards; }
+    @keyframes in-up { from { opacity: 0; transform: translate3d(0, 28px, 0); } }
+    @keyframes name-in { from { opacity: 0; clip-path: inset(0 0 100% 0); transform: translate3d(0, 46px, 0); } to { clip-path: inset(0 0 -12% 0); } }
+    @keyframes tile-in { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0); } }
+    @keyframes tile-zoom { from { transform: scale(1.2); } }
+    @keyframes hero-in { from { opacity: 0; clip-path: inset(9% 11% 9% 11%); transform: scale(1.05); } to { opacity: 1; clip-path: inset(0); } }
+
+    /* ---- and rises as it is reached while scrolling: no script, no frame spent on the main thread ---- */
+    @supports (animation-timeline: view()) {
+        .fx-sda [data-r] { animation: rise linear backwards; animation-timeline: view(); animation-range: entry 0% cover 26%; }
+        .fx-sda .hero-frame > :is(img, video) { animation: hero-par linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
+        .fx-sda .progress { display: block; animation: grow linear both; animation-timeline: scroll(root); }
+    }
+    @keyframes rise { from { opacity: 0; transform: translate3d(0, 36px, 0); } }
+    @keyframes hero-par { to { transform: translate3d(0, 3%, 0) scale(1.09); } }
+    @keyframes grow { to { transform: scaleX(1); } }
+
+    /* browsers without scroll-driven animations: site.js adds .in as things arrive */
+    .fx-io [data-r] { opacity: 0; transform: translate3d(0, 30px, 0); }
+    .fx-io [data-r].in { opacity: 1; transform: none; transition: opacity .9s var(--ease), transform 1.1s var(--ease); }
+    .fx-io [data-r]:not(.in) { animation: r-failsafe 0s 2.5s forwards; }   /* if the script never comes, show it anyway */
+    @keyframes r-failsafe { to { opacity: 1; transform: none; } }
 }
