@@ -44,7 +44,7 @@ import analytics  # noqa: E402
 tag = analytics.tag()
 
 # 2. the hand-written pages
-existing = re.compile(r'<script defer src="https://(?:cloud\.umami\.is/script\.js|static\.cloudflareinsights\.com/beacon\.min\.js)"[^>]*></script>')
+existing = re.compile(r'<script[^>]*src="https://(?:cloud\.umami\.is/script\.js|static\.cloudflareinsights\.com/beacon\.min\.js)"[^>]*></script>')
 for name in ('reliquary.html', 'shop.html', 'Connecting.html', 'Jardin-Algorithmique.html'):
     p = os.path.join(ROOT, name)
     if not os.path.exists(p):
