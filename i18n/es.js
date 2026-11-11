@@ -400,7 +400,7 @@ projects: {
   conclusion: "La convicción no se mide celebrando los máximos, sino aguantando los mínimos. Quienes cruzan las trincheras con temple, y siguen construyendo y creyendo cuando otros abandonan el barco, son los que acaban ganando. Un recordatorio: el camino al éxito casi nunca es una línea recta hacia arriba."
 },
 4: {
-  description: "Four Seasons es la primera colección que Akira inscribió en Ordinals: una colección digital que captura la belleza cíclica e inagotable de la naturaleza a través de la blockchain. Cada pieza propone una lectura abstracta de la primavera, el verano, el otoño y el invierno con formas mínimas y paletas muy pensadas. La colección no habla solo de la belleza natural, sino del vínculo complejo que nos une a ella. Escrita en código, resuelta en abstracción y conservada para siempre on-chain.",
+  description: "Four Seasons es la primera colección de Akira en Bitcoin y la semilla de algo mayor: es la madre del sello de artista de Akira Ishi. Es una colección digital que captura la belleza cíclica e inagotable de la naturaleza a través de la blockchain. Cada pieza propone una lectura abstracta de la primavera, el verano, el otoño y el invierno con formas mínimas y paletas muy pensadas. La colección no habla solo de la belleza natural, sino del vínculo complejo que nos une a ella. Escrita en código, resuelta en abstracción y conservada para siempre on-chain.",
   features: [
     "Inscripciones ordinals únicas en Bitcoin",
     "Cuatro temas estacionales, cada uno con identidad propia",

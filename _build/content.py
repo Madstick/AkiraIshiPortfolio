@@ -188,19 +188,22 @@ WORKS = [
         tech=('Interactive generative · Bitcoin Ordinals · 128 editions', 'Génératif interactif · Bitcoin Ordinals · 128 éditions'),
         status=None,
         desc=[(
-            'Four Seasons is the first collection inscribed on Bitcoin Ordinals. Each piece is an abstract reading of spring, '
+            'Four Seasons is the first collection on Bitcoin, and the seed of something greater: it is the parent of the '
+            'Akira Ishi artist seal, and the work that followed grows from it. Each piece is an abstract reading of spring, '
             'summer, autumn or winter, built from minimal shapes and chosen colour palettes, inspired by Truchet tiles and '
             'Bauhaus. The seasons are the oldest clock humans know, and the collection uses them to look at something larger: '
             'where we come from, how much we depend on nature, what we do to it, and why that relationship is so complicated. '
-            'The 128 children come from one parent inscription and live entirely on-chain, permanently.',
-            "Four Seasons est la première collection inscrite sur Bitcoin Ordinals. Chaque pièce est une lecture abstraite du "
+            'The 128 children come from one parent inscription and live entirely onchain, permanently.',
+            "Four Seasons est la première collection sur Bitcoin, et la graine de quelque chose de plus grand : elle est la "
+            "parente du sceau d'artiste Akira Ishi, et l'œuvre qui a suivi en découle. Chaque pièce est une lecture abstraite du "
             "printemps, de l'été, de l'automne ou de l'hiver, construite à partir de formes minimales et de palettes choisies, "
             "inspirée des tuiles de Truchet et du Bauhaus. Les saisons sont la plus vieille horloge que les humains connaissent, "
             "et la collection s'en sert pour regarder quelque chose de plus grand : d'où nous venons, à quel point nous dépendons "
             "de la nature, ce que nous lui faisons, et pourquoi cette relation est si compliquée. Les 128 enfants viennent d'une "
-            "seule inscription parente et vivent entièrement on-chain, de façon permanente.")],
+            "seule inscription parente et vivent entièrement onchain, de façon permanente.")],
         links=[('marketplace', ('Collection on Gamma', 'Collection sur Gamma'), 'https://gamma.io/ordinals/collections/four-seasons'),
-               ('inscription', ('Parent inscription', 'Inscription parente'), 'https://ordinals.com/inscription/80979178')],
+               ('inscription', ('Parent inscription', 'Inscription parente'), 'https://ordinals.com/inscription/80979178'),
+               ('inscription', ('Artist seal, its child', "Sceau d'artiste, son enfant"), 'https://ordinals.com/inscription/83979554')],
         inscription=('80979178', 'https://ordinals.com/inscription/80979178'),
         media=('img', 'images/projects/4seasons_AkiraIshi75.gif', 1770, 1770), still='images/work/stills/four-seasons.webp',
         extras=[],

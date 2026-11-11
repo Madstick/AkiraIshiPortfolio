@@ -142,7 +142,7 @@ const projects = [
     category: "bitcoin",
     onchain: "On-chain",
     imageUrl: "images/projects/4seasons_AkiraIshi75.gif",
-    description: "Four Seasons is the first collection Akira inscribed on Ordinals,an innovative digital art collection that captures the essence of nature's cyclical and endless beauty through the lens of blockchain technology. Each piece presents an abstract interpretation of Spring, Summer, Autumn, and Winter through minimal shapes and deliberate color palettes. The collection explores not just the beauty of nature, but our deeply layered relationship with it. Crafted with code, rendered in abstraction, and preserved immutably on-chain.",
+    description: "Four Seasons is Akira's first collection on Bitcoin, and the seed of something greater: it is the parent of the Akira Ishi Artist Seal. It is an innovative digital art collection that captures the essence of nature's cyclical and endless beauty through the lens of blockchain technology. Each piece presents an abstract interpretation of Spring, Summer, Autumn, and Winter through minimal shapes and deliberate color palettes. The collection explores not just the beauty of nature, but our deeply layered relationship with it. Crafted with code, rendered in abstraction, and preserved immutably on-chain.",
     features: [
       "Unique ordinals inscriptions on Bitcoin",
       "Four distinct seasonal themes with their own identities",
