@@ -2174,7 +2174,7 @@ function initProvenanceTree() {
         { id: 'beaties-children', title: 'Beaties', children: '200 children', image: 'images/tree/beatieschildren.webp', link: 'https://beaties.xyz', row: 4, col: 1, parentId: 'c08fc18bd7bf9d7045e1c9272739bee611efe9197fafbb2ac09171320899dfc5i0', noId: true },
 
         // Technosignatures (child of Main Code)
-        { id: '85158696', title: 'Technosignatures', children: '128 delegated', image: 'images/tree/technosignaturestree.webp', link: 'https://technosignatures.xyz', row: 4, col: 4, parentId: '85153943' },
+        { id: '85158696', title: 'Technosignatures', children: '100 delegated', image: 'images/tree/technosignaturestree.webp', link: 'https://technosignatures.xyz', row: 4, col: 4, parentId: '85153943' },
 
         // Row 5: 4 Pioneers (children of Main Code and Technosignatures), two each side of the Main Code column
         { id: '86357837', title: 'Pioneer', image: 'images/tree/pioneer86357837.webp', link: 'https://ordinals.com/inscription/86357837', row: 5, col: 2, parentIds: ['85153943', '85158696'] },

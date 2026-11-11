@@ -202,6 +202,9 @@ WORKS = [
             "de la nature, ce que nous lui faisons, et pourquoi cette relation est si compliquée. Les 128 enfants viennent d'une "
             "seule inscription parente et vivent entièrement onchain, de façon permanente.")],
         links=[('marketplace', ('Collection on Gamma', 'Collection sur Gamma'), 'https://gamma.io/ordinals/collections/four-seasons'),
+               ('marketplace', ('Collection on ord.net', 'Collection sur ord.net'), 'https://ord.net/collection/fourseasons'),
+               ('marketplace', ('Secondary market, Ord Dropz', 'Marché secondaire, Ord Dropz'),
+                'https://ord-dropz.xyz/secondary/collections/fourseasons'),
                ('inscription', ('Parent inscription', 'Inscription parente'), 'https://ordinals.com/inscription/80979178'),
                ('inscription', ('Artist seal, its child', "Sceau d'artiste, son enfant"), 'https://ordinals.com/inscription/83979554')],
         inscription=('80979178', 'https://ordinals.com/inscription/80979178'),
@@ -215,7 +218,7 @@ WORKS = [
         facet=('The Pursuit of Truth', 'La quête de vérité'),
         logic=("Humanity's enduring desire to understand reality, uncover the laws of the universe, expand knowledge and discover what remains unknown.",
                "Le désir constant de l'humanité de comprendre la réalité, de découvrir les lois de l'univers, d'élargir la connaissance et de découvrir ce qui reste inconnu."),
-        tech=('Interactive generative · Bitcoin Ordinals · 128 editions', 'Génératif interactif · Bitcoin Ordinals · 128 éditions'),
+        tech=('Interactive generative · Bitcoin Ordinals · 100 editions', 'Génératif interactif · Bitcoin Ordinals · 100 éditions'),
         status=None,
         desc=[(
             'Technosignatures is a retro science-fiction project inscribed on Bitcoin. The viewer interacts with the algorithm '
@@ -231,6 +234,9 @@ WORKS = [
             "uniques. C'est une collaboration avec Völker, avec un visualiseur 3D et un site dédié. Derrière, un besoin humain très "
             "ancien : comprendre la réalité, trouver les lois de l'univers, et partir chercher ce qui reste inconnu.")],
         links=[('live', ('Website', 'Site web'), 'https://technosignatures.xyz/'),
+               ('marketplace', ('Collection on ord.net', 'Collection sur ord.net'), 'https://ord.net/collection/technosignatures'),
+               ('marketplace', ('Secondary market, Ord Dropz', 'Marché secondaire, Ord Dropz'),
+                'https://ord-dropz.xyz/secondary/collections/technosignatures'),
                ('live', ('3D viewer', 'Visualiseur 3D'), 'https://technosignatures.xyz/3d-viewer/3dviewer.html'),
                ('inscription', ('Main code', 'Code principal'), 'https://ordinals.com/inscription/85153943'),
                ('inscription', ('Collection', 'Collection'), 'https://ordinals.com/inscription/85158696'),
