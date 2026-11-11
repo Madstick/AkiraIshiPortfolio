@@ -1021,18 +1021,8 @@
 
     orderBtn.addEventListener('click', order);
 
-    // The legal pages exist in French (which prevails) and English
-    function legalLinks() {
-        const page = lang() === 'fr' ? 'legal.html' : 'legal-en.html';
-        const terms = $('atelier-legal-link');
-        if (terms) terms.setAttribute('href', page + '#' + (lang() === 'fr' ? 'cgv' : 'terms'));
-        document.querySelectorAll('.legal-footer-link').forEach((a) => a.setAttribute('href', page));
-    }
-    legalLinks();
-
     /* The panel writes its own text, so it has to be redrawn on a language change */
     document.addEventListener('akira:langchange', () => {
-        legalLinks();
         if (frame) refresh();
         renderStatus();
         if (config) {

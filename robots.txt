@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /legal.html
-Disallow: /legal-en.html
 
 Sitemap: https://akiraishi.com/sitemap.xml

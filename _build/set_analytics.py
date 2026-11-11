@@ -7,8 +7,7 @@ The token is the "token" value in the snippet Cloudflare shows when you add the 
 Analytics & Logs > Web Analytics (it is public: it ends up in every page). The script
   1. stores it in _build/analytics.py,
   2. swaps the counter in the hand-written pages (Reliquary, shop, Connecting, Jardin) and adds it where none existed,
-  3. rewrites the visit-statistics line of the legal pages,
-  4. rebuilds the generated pages (portfolio, Googly Rocks).
+  3. rebuilds the generated pages (portfolio, Googly Rocks).
 Run it again with another token to change it.
 """
 import io
@@ -58,21 +57,7 @@ for name in ('reliquary.html', 'shop.html', 'Connecting.html', 'Jardin-Algorithm
     write(p, html)
     print('counter set in', name)
 
-# 3. the privacy text
-swaps = {
-    'legal-en.html': ('through Umami, with no cookie and no individual profile.',
-                      'through Cloudflare Web Analytics, with no cookie and no individual profile.'),
-    'legal.html': ('via Umami, sans cookie ni profil individuel.',
-                   'via Cloudflare Web Analytics, sans cookie ni profil individuel.'),
-}
-for name, (old, new) in swaps.items():
-    p = os.path.join(ROOT, name)
-    html = read(p)
-    if old in html:
-        write(p, html.replace(old, new))
-        print('privacy text updated in', name)
-
-# 4. the generated pages
+# 3. the generated pages
 for script in ('build_site.py', 'build_googly.py'):
     subprocess.check_call([sys.executable, os.path.join(HERE, script)], stdout=subprocess.DEVNULL)
 print('done: every page now uses Cloudflare Web Analytics only')

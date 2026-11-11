@@ -201,7 +201,6 @@ def footer():
   <nav aria-label="Footer">
     <a href="%s" target="_blank" rel="noopener">X %s</a>
     <a href="mailto:%s">%s</a>
-    <a href="/legal-en.html" data-l="en">Legal</a><a href="/legal.html" data-l="fr">Mentions légales</a>
   </nav>
 </footer>
 <script src="/site.js" defer></script>
@@ -546,8 +545,7 @@ def build_sitemap():
     urls = ['/', '/work.html', '/about.html'] + [work_url(w) for w in C.WORKS + C.OTHER] + ['/shop.html', '/reliquary.html']
     rows = ''.join('  <url><loc>%s%s</loc><lastmod>%s</lastmod></url>\n' % (C.SITE, u, today) for u in urls)
     write('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s</urlset>\n' % rows)
-    # the legal pages carry a postal address and are deliberately kept out of search engines
-    write('robots.txt', 'User-agent: *\nAllow: /\nDisallow: /legal.html\nDisallow: /legal-en.html\n\nSitemap: %s/sitemap.xml\n' % C.SITE)
+    write('robots.txt', 'User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n' % C.SITE)
 
 
 def build_llms():
