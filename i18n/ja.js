@@ -414,7 +414,7 @@ projects: {
   description: "Googly Rocks は Base L2 上の、遊び心たっぷりで少し人を食った NFT 企画です。ブロックチェーンに性格を持ち込みます。インタラクティブなサイト、Twitter のコミュニティ、さらに Zora と Bueno での音源リリースまで。楽しさと創造性、そして Web3 アートの軽やかな一面へのお祝いです。",
   features: [
     "手数料の低い Base L2（Ethereum）でミント",
-    "インタラクティブサイト googlyrocks.com",
+    "インタラクティブサイト akiraishi.com/GooglyRocks",
     "Twitter コミュニティ @googlyrocks",
     "音源のリリース",
     "Googly の歴史はまもなく公開",

@@ -55,8 +55,10 @@ def main():
     for name, new_name, width in drawings:
         save_webp(Image.open(src('public', name + '.png')).convert('RGBA'), new_name + '.webp', width=width, quality=84)
     # the two avatars of the credits
-    for name, new_name in (('rekt-300h', 'akira'), ('agoraz-300h', 'agoraz')):
-        save_webp(Image.open(src('public', name + '.png')).convert('RGB'), new_name + '.webp', width=300, quality=80)
+    save_webp(Image.open(src('public', 'agoraz-300h.png')).convert('RGB'), 'agoraz.webp', width=300, quality=80)
+    # Akira's picture is the portfolio's own, not the original site's
+    save_webp(Image.open(os.path.join(ROOT, 'images', 'desktop-icons', 'reliquary', 'pfpAkira.jpg')).convert('RGB'),
+              'akira.webp', width=480, quality=82)
 
     # the ten rocks: photographs, shown at about 420 px wide
     for n in (1, 10, 13, 18, 21, 24, 26, 45, 52, 53):

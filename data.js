@@ -163,14 +163,14 @@ const projects = [
     description: "Googly Rocks is a playful and whimsical NFT project on Base L2 that brings personality to the blockchain. The project features an interactive website, a dedicated Twitter community, and extends into the audio realm with music releases on Zora and Bueno. It's a celebration of fun, creativity, and the lighter side of Web3 art.",
     features: [
       "Minted on Base L2 (Ethereum) for low fees",
-      "Interactive website at googlyrocks.com",
+      "Interactive website at akiraishi.com/GooglyRocks",
       "Twitter community @googlyrocks",
       "Music releases",
       "Googly history coming soon",
       "Playful, community-driven project"
     ],
     conclusion: "Googly Rocks proves that NFT art doesn't always have to be only serious, sometimes the best creations are the ones that make you smile.",
-    link: "https://googlyrocks.com/"
+    link: "https://akiraishi.com/GooglyRocks"
   },
   {
     id: 6,

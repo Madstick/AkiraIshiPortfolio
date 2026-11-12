@@ -414,7 +414,7 @@ projects: {
   description: "Googly Rocks ist ein verspieltes, schräges NFT-Projekt auf Base L2, das der Blockchain Persönlichkeit gibt. Dazu gehören eine interaktive Website, eine eigene Twitter-Community und sogar Musik: Releases auf Zora und Bueno. Eine Feier von Spaß, Kreativität und der leichten Seite der Web3-Kunst.",
   features: [
     "Auf Base L2 (Ethereum) geminted, für niedrige Gebühren",
-    "Interaktive Website auf googlyrocks.com",
+    "Interaktive Website auf akiraishi.com/GooglyRocks",
     "Twitter-Community @googlyrocks",
     "Musik-Releases",
     "Die Googly-Geschichte folgt bald",

@@ -173,7 +173,7 @@ WORKS = [
             "des mêmes pierres.")],
         links=[('marketplace', ('Mint page (Highlight)', 'Page de mint (Highlight)'),
                 'https://highlight.xyz/mint/019f5ddf-3324-72c8-a25c-ff56e3b52920'),
-               ('live', ('Website', 'Site web'), 'https://googlyrocks.com/')],
+               ('live', ('Googly Rocks website', 'Site Googly Rocks'), 'https://akiraishi.com/GooglyRocks')],
         inscription=None,
         media=('img', 'images/projects/googly.webp', 850, 850), still='images/projects/googly.webp',
         extras=[],
@@ -601,7 +601,7 @@ SIDE = [
          url='https://technosignatures.xyz/3d-viewer/3dviewer.html'),
     dict(title='Googly Rocks, website',
          line=('The interactive website of the Googly Rocks collection', 'Le site interactif de la collection Googly Rocks'),
-         url='https://googlyrocks.com/'),
+         url='https://akiraishi.com/GooglyRocks'),
 ]
 
 # When each work was released: (year, month); the month is None when only the year is known

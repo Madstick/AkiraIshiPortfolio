@@ -493,9 +493,9 @@ function initGallery() {
         { url: 'images/gallery/4seasons_AkiraIshi-84.gif', title: 'Four Seasons #84', link: 'https://gamma.io/ordinals/collections/four-seasons/items' },
         { url: 'images/gallery/4seasons_AkiraIshi-9-firstonochrome.gif', title: 'Four Seasons #9 (First Monochrome)', link: 'https://gamma.io/ordinals/collections/four-seasons/items' },
         // Googly Rocks
-        { url: 'images/gallery/golden googly rock.webp', title: 'Golden Googly Rock', link: 'https://googlyrocks.com/' },
-        { url: 'images/gallery/googly nugget.webp', title: 'Googly Nugget', link: 'https://googlyrocks.com/' },
-        { url: 'images/gallery/hat googly rock.webp', title: 'Hat Googly Rock', link: 'https://googlyrocks.com/' },
+        { url: 'images/gallery/golden googly rock.webp', title: 'Golden Googly Rock', link: 'https://akiraishi.com/GooglyRocks' },
+        { url: 'images/gallery/googly nugget.webp', title: 'Googly Nugget', link: 'https://akiraishi.com/GooglyRocks' },
+        { url: 'images/gallery/hat googly rock.webp', title: 'Hat Googly Rock', link: 'https://akiraishi.com/GooglyRocks' },
         // Clear Goal Solana
         { url: 'images/gallery/Clear goal exchange solana.webp', title: 'Clear Goal (Solana)', link: 'https://exchange.art/akira-ishi/nfts' },
         // Songe d'un soir

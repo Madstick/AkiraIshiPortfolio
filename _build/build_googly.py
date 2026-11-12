@@ -26,10 +26,19 @@ def rock(cls, img, w, h, spec, alt='', style='', attrs=''):
             % (cls, ' style="%s"' % style if style else '', attrs, img, w, h, alt, eyes(spec)))
 
 
+NOTE_SIZES = {'1': (58, 132), '2': (180, 136)}
+
+
 def notes(kinds):
-    sizes = {'1': (58, 132), '2': (180, 136)}
     return '<div class="notes" aria-hidden="true">%s</div>' % ''.join(
-        '<img src="googly/img/note%s.webp" width="%d" height="%d" alt="">' % (k, sizes[k][0], sizes[k][1]) for k in kinds)
+        '<img src="googly/img/note%s.webp" width="%d" height="%d" alt="">' % (k, NOTE_SIZES[k][0], NOTE_SIZES[k][1]) for k in kinds)
+
+
+def placed_notes(spec):
+    """spec: list of (kind, x, y): the bottom centre of each note, in % of the picture"""
+    return '<div class="notes" aria-hidden="true">%s</div>' % ''.join(
+        '<img src="googly/img/note%s.webp" width="%d" height="%d" alt="" style="--x:%s%%;--y:%s%%">'
+        % (k, NOTE_SIZES[k][0], NOTE_SIZES[k][1], x, y) for k, x, y in spec)
 
 
 SOCIAL = [
@@ -78,7 +87,8 @@ html = '''<!DOCTYPE html>
 <div class="paper" aria-hidden="true"></div>
 
 <header class="top" id="top">
-  <nav class="social" aria-label="Links">%(social)s</nav>
+  <div class="bar"><a class="back back-top" href="/">&larr; Return to Portfolio</a>
+  <nav class="social" aria-label="Links">%(social)s</nav></div>
   <a class="logo" href="#home"><img src="googly/img/logo.webp" width="400" height="200" alt="Googly Rocks" fetchpriority="high"></a>
   <nav class="menu" aria-label="Page"><a href="#home">Home</a><a href="#tokenomics">Tokenomics</a><a href="#about">About</a></nav>
   <div class="pals">%(pal_blue)s%(pal_red)s</div>
@@ -97,8 +107,8 @@ html = '''<!DOCTYPE html>
 
 <section id="about" class="about">
   <p class="words" data-pop>So proud in fact, that he took a picture for all of them. He even added googly eyes to them, because he wanted them to look <em>fun</em></p>
-  <div class="carousel" role="group" aria-label="A few of the googly rocks">%(slides)s</div>
   <p class="caption" data-pop><span>Googly rocks come in various shapes colors and sizes</span><img src="googly/img/arrow.webp" width="233" height="200" alt="" loading="lazy"></p>
+  <div class="carousel" role="group" aria-label="A few of the googly rocks">%(slides)s</div>
 </section>
 
 <section class="photo">
@@ -115,18 +125,18 @@ html = '''<!DOCTYPE html>
 </section>
 
 <section class="credits">
-  <div data-pop>
-    <p>Straight from the imagination of a grown up kid</p>
+  <p class="credits-lead" data-pop>Straight from the imagination of a grown up kid</p>
+  <div class="credit" data-pop>
+    <a class="wobble" href="https://twitter.com/leAkira_Ishi" target="_blank" rel="noopener"><img src="googly/img/akira.webp" width="480" height="480" alt="Akira Ishi on X (Twitter)" loading="lazy"></a>
     <p class="small">Created by Akira Ishi</p>
-    <a class="wobble" href="https://twitter.com/leAkira_Ishi" target="_blank" rel="noopener"><img src="googly/img/akira.webp" width="300" height="300" alt="Akira Ishi on X (Twitter)" loading="lazy"></a>
   </div>
-  <div data-pop style="--pop-delay:.15s">
-    <p class="small">Marketing advisor: web3AGORAZ</p>
+  <div class="credit" data-pop style="--pop-delay:.15s">
     <a class="wobble" href="https://twitter.com/web3AGORAZ" target="_blank" rel="noopener"><img src="googly/img/agoraz.webp" width="300" height="300" alt="web3AGORAZ on X (Twitter)" loading="lazy"></a>
+    <p class="small">Marketing advisor: web3AGORAZ</p>
   </div>
 </section>
 
-<a class="back" href="/work/googly-rocks.html">&larr; Googly Rocks, in Akira Ishi's work</a>
+<a class="back" href="/">&larr; Return to Portfolio</a>
 </main>
 <footer></footer>
 
@@ -139,8 +149,9 @@ html = '''<!DOCTYPE html>
 pal_blue = rock('pal', 'rock-blue', 112, 126, [(33, 47, 36), (68, 47, 36)])
 pal_red = rock('pal', 'rock-red', 116, 135, [(37, 44, 34), (69, 46, 34)])
 pair = rock('pair', 'pair', 253, 200, [(17, 31, 13), (35, 31, 13), (67, 55, 13), (85, 55, 13)])
-trio = rock('trio', 'trio', 469, 300, [(11, 34, 7), (21, 34, 7), (43, 25, 7), (54, 25, 7), (71, 29, 7), (82, 29, 7)], alt='Three little rocks sitting on a strip of tape')
-trio = trio.replace('</figure>', notes('121') + '</figure>')
+trio = rock('trio', 'trio', 469, 300, [(23.5, 22, 14), (34.5, 22, 14), (47.5, 15, 14), (58.5, 15, 14), (75, 22, 14), (86, 22, 14)],
+            alt='Three little rocks sitting on a strip of tape')
+trio = trio.replace('</figure>', placed_notes([('1', 29, 5), ('2', 53, -3), ('1', 80.5, 5)]) + '</figure>')
 slides = ''.join(
     '<figure class="slide" style="--i:%d"><img src="googly/img/rock-%d.webp" width="640" height="640" alt="A googly rock" loading="lazy" decoding="async"></figure>' % (i, n)
     for i, n in enumerate(ROCKS))
