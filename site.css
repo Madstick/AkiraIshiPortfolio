@@ -126,6 +126,8 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
 .row.nolink { cursor: default; }
 /* a chapter that is not finished: a quiet placeholder line */
 .row.more { cursor: default; }
+.row.subh { padding-top: 26px; padding-bottom: 10px; border-top-style: dashed; }
+.row.subh .label { grid-column: 2 / -1; color: var(--mute); }
 .row.more .th { background: transparent; border: 1px dashed #c9c9c4; }
 .row.more .ti .t { font-weight: 400; font-style: italic; color: var(--faint); }
 
@@ -212,6 +214,7 @@ html[lang="fr"] [data-l="en"] { display: none !important; }
     .chh { grid-template-columns: 1fr; gap: 6px; }
     .row { grid-template-columns: 84px 1fr; grid-template-areas: "th ti" "th fa" "th te"; gap: 2px 16px; padding: 14px var(--pad); }
     .row .no { display: none; }
+    .row.subh { display: block; }
     .row .th { grid-area: th; width: 84px; height: 84px; }
     .row .ti { grid-area: ti; font-size: 17px; }
     .row .fa { grid-area: fa; font-size: 14px; }

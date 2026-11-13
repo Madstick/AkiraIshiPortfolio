@@ -29,6 +29,10 @@ Three realisations about the nature of humanity: the loss of innocence, our plac
 The traits that make a human, and the ways we express them.
 
 - [Beaties](https://akiraishi.com/work/beaties.html): Banding together to build something greater; Interactive generative code and music · Bitcoin Ordinals, 200 editions · Ethereum version in progress; 2026
+- [Fear](https://akiraishi.com/work/fear.html): Fear; In development
+- [Language](https://akiraishi.com/work/language.html): Language; In development
+
+Side quests of Chapter II:
 - [Connecting](https://akiraishi.com/work/connecting.html): Connection between beings; Interactive generative system · Bitcoin Ordinals; January 2026
 - [Navigating the Trenches](https://akiraishi.com/work/navigating-the-trenches.html): Crowd psychology: euphoria and abandonment; Recursive inscriptions under 4 KB · Bitcoin Ordinals; March 2025
 
@@ -36,7 +40,7 @@ The traits that make a human, and the ways we express them.
 
 Fundamental realities. They precede us, outlast us, and remain true regardless of what we do.
 
-- [Genesis](https://akiraishi.com/work/genesis.html): Birth; Interactive · In progress
+- [Genesis](https://akiraishi.com/work/genesis.html): Birth; Interactive · In development
 - [The Ossuary](https://akiraishi.com/work/the-ossuary.html): Death; Fully on-chain · Bitcoin Ordinals · 666 editions; October 2026
 
 ## Other works (outside the story)

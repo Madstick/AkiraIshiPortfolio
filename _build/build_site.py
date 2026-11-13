@@ -94,6 +94,11 @@ def chapter_title(c):
     return (c['label'][0] + ' — ' + c['name'][0], c['label'][1] + ' — ' + c['name'][1])
 
 
+def n_works(n):
+    """'1 work' / '3 works', as a pair."""
+    return ('%d work%s' % (n, '' if n == 1 else 's'), '%d œuvre%s' % (n, '' if n == 1 else 's'))
+
+
 def chapter_anchor(c):
     if c['key'] == 'X':
         return 'other'
@@ -272,8 +277,7 @@ def build_home():
     index_html = ''.join(
         '<a href="/work.html#%s"><span class="mono">%s</span><span>%s</span><span class="mono">%s</span></a>' % (
             chapter_anchor(c), c['key'], bi(c['name']),
-            bi(('%d works' % len([w for w in C.WORKS if w['chapter'] == c['key']]),
-                '%d œuvres' % len([w for w in C.WORKS if w['chapter'] == c['key']]))))
+            bi(n_works(len([w for w in C.WORKS if w['chapter'] == c['key']]))))
         for c in chapters)
 
     def cell(slug, cls='', tag=None, lazy=True):
@@ -292,7 +296,7 @@ def build_home():
         '<span class="tag">%s</span></a>' % bi(('Prints', 'Tirages')),
         cell('jardin-algorithmique'), cell('four-seasons'), cell('technosignatures'),
         cell('connecting', 'dark'),
-        cell('genesis', 'dark', ('In progress', 'En cours')),
+        cell('genesis', 'dark', ('In development', 'En développement')),
         cell('navigating-the-trenches'),
         cell('knights-of-the-round-table', '', ('Prologue', 'Prologue')),
         cell('aodach'), cell('comics-extracts'),
@@ -346,9 +350,14 @@ def build_work():
         label = c['label']
         parts.append('<div class="chh%s" id="%s"><div class="label">%s</div><div>%s<p>%s</p></div></div>' % (
             cls, chapter_anchor(c), bi(label), '<h2>%s</h2>' % bi(c['name']) if c['name'] else '', bi(c['line'])))
-        parts.extend(row_html(w) for w in C.WORKS if w['chapter'] == c['key'])
+        parts.extend(row_html(w) for w in C.WORKS if w['chapter'] == c['key'] and not w['side'])
         if c['key'] in ('II', 'III'):
             parts.append(more_row())
+        side = [w for w in C.WORKS if w['chapter'] == c['key'] and w['side']]
+        if side:
+            parts.append('<div class="row subh" id="%s-side-quests"><div class="no"></div><div class="label">%s</div></div>' % (
+                chapter_anchor(c), bi(C.SIDE_QUESTS)))
+            parts.extend(row_html(w) for w in side)
 
     def lat(slug):
         it = item(slug)
@@ -403,7 +412,7 @@ def hero_frame(w):
     """The picture in a frame of its own proportions, never a wide banner around a small image."""
     if not w['media']:
         return ('<div class="hero-frame" style="--w:820px;--r:1.6"><span class="mono" style="color:#888">%s</span></div>'
-                % bi(('In progress', 'En cours')))
+                % bi(('In development', 'En développement')))
     _, _, width, height = w['media']
     ratio = width / float(height)
     shown = 800 if ratio > 1.3 else (560 if ratio < 0.9 else 820)   # px: wide, tall, near-square
@@ -416,6 +425,8 @@ def build_piece(group, i, w):
     ct = chapter_title(c)
     frame = hero_frame(w)
 
+    if w['side']:
+        ct = (ct[0] + ' · Side quest', ct[1] + ' · Quête annexe')
     facts = ['<div><dt>%s</dt><dd>%s</dd></div>' % (bi(('Chapter', 'Chapitre')), bi(ct))]
     if w['date']:
         label = ('Expected', 'Prévue') if w['status'] and w['status'][0] == 'Upcoming' else ('Released', 'Sortie')
@@ -493,7 +504,7 @@ def cv_line(year, name, sub=None, url=None):
 
 
 # newest first; the ones without a known date come last
-CV_ORDER = ['beaties', 'genesis', 'the-ossuary', 'jardin-algorithmique', 'comics-extracts', 'connecting',
+CV_ORDER = ['beaties', 'genesis', 'fear', 'language', 'the-ossuary', 'jardin-algorithmique', 'comics-extracts', 'connecting',
             'navigating-the-trenches', 'technosignatures', 'four-seasons', 'art-on-solana', 'googly-rocks',
             'knights-of-the-round-table', 'songe-d-un-soir', 'aodach', 'tezos-curated-works', 'whats-the-point']
 
@@ -506,7 +517,7 @@ def build_about():
         sub_line = w['tech']
         if w['status'] and w['status'][0] == 'Suspended':
             sub_line = (sub_line[0] + ' · ' + w['status'][0].lower(), sub_line[1] + ' · ' + w['status'][1].lower())
-        coming = w['status'] and w['status'][0] in ('Upcoming', 'In progress')
+        coming = w['status'] and w['status'][0] in ('Upcoming', 'In progress', 'In development')
         when = w['status'] if coming else (date_pair(w['date']) if w['date'] else '')
         cv += cv_line(when, w['title'], sub_line, work_url(w))
     cv += '<h3>%s</h3>' % bi(('Collaborations', 'Collaborations'))
@@ -572,7 +583,10 @@ def build_llms():
     for c in C.CHAPTERS:
         title = c['label'][0] if c['name'] is None else '%s, %s' % (c['label'][0], c['name'][0])
         out += ['## %s' % title, '', c['line'][0], '']
-        out += [line(w) for w in C.WORKS if w['chapter'] == c['key']]
+        out += [line(w) for w in C.WORKS if w['chapter'] == c['key'] and not w['side']]
+        side = [w for w in C.WORKS if w['chapter'] == c['key'] and w['side']]
+        if side:
+            out += ['', '%s of %s:' % (C.SIDE_QUESTS[0], c['label'][0])] + [line(w) for w in side]
         out.append('')
     out += ['## Other works (outside the story)', '']
     out += [line(w) for w in C.OTHER]

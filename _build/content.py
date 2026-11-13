@@ -285,7 +285,34 @@ WORKS = [
              'Beaties : une console de poche pastel des années 90 avec neuf petits visages à l\'écran'),
     ),
     dict(
-        slug='connecting', chapter='II', title='Connecting', year=None,
+        slug='fear', chapter='II', title='Fear', year=None,
+        facet=('Fear', 'La peur'),
+        logic=None,
+        tech=('In development', 'En développement'),
+        status=('In development', 'En développement'),
+        desc=[(
+            'Fear is in development. It belongs to Chapter II, The Expressions of Humanity. More soon.',
+            "Fear est en développement. L'œuvre fait partie du chapitre II, Les expressions de l'humanité. La suite bientôt.")],
+        links=[], inscription=None,
+        media=None, still=None, extras=[],
+        alt=('', ''),
+    ),
+    dict(
+        slug='language', chapter='II', title='Language', year=None,
+        facet=('Language', 'Le langage'),
+        logic=None,
+        tech=('In development', 'En développement'),
+        status=('In development', 'En développement'),
+        desc=[(
+            'Language is in development. It belongs to Chapter II, The Expressions of Humanity. More soon.',
+            "Language est en développement. L'œuvre fait partie du chapitre II, Les expressions de l'humanité. La suite bientôt.")],
+        links=[], inscription=None,
+        media=None, still=None, extras=[],
+        alt=('', ''),
+    ),
+    # ---- Chapter II side quests: part of the chapter, listed apart
+    dict(
+        slug='connecting', chapter='II', side=True, title='Connecting', year=None,
         facet=('Connection between beings', 'Le lien entre les êtres'),
         logic=None,
         tech=('Interactive generative system · Bitcoin Ordinals', 'Système génératif interactif · Bitcoin Ordinals'),
@@ -314,7 +341,7 @@ WORKS = [
              'Connecting : un nuage vivant de particules reliées entre elles, au rythme de la blockchain Bitcoin'),
     ),
     dict(
-        slug='navigating-the-trenches', chapter='II', title='Navigating the Trenches', year=None,
+        slug='navigating-the-trenches', chapter='II', side=True, title='Navigating the Trenches', year=None,
         facet=('Crowd psychology: euphoria and abandonment', 'Psychologie des foules : euphorie et abandon'),
         logic=None,
         tech=('Recursive inscriptions under 4 KB · Bitcoin Ordinals', 'Inscriptions récursives de moins de 4 Ko · Bitcoin Ordinals'),
@@ -342,12 +369,12 @@ WORKS = [
         slug='genesis', chapter='III', title='Genesis', year=None,
         facet=('Birth', 'La naissance'),
         logic=None,
-        tech=('Interactive · In progress', 'Interactif · En cours'),
-        status=('In progress', 'En cours'),
+        tech=('Interactive · In development', 'Interactif · En développement'),
+        status=('In development', 'En développement'),
         desc=[(
-            'Genesis is in progress. It is the work about birth, and with The Ossuary it frames the whole project between the '
+            'Genesis is in development. It is the work about birth, and with The Ossuary it frames the whole project between the '
             'two universal truths: we are born, and we die. The video shows an early preview.',
-            "Genesis est en cours. C'est l'œuvre sur la naissance, et avec The Ossuary elle encadre tout le projet entre les deux "
+            "Genesis est en développement. C'est l'œuvre sur la naissance, et avec The Ossuary elle encadre tout le projet entre les deux "
             "vérités universelles : on naît, et on meurt. La vidéo montre un premier aperçu.")],
         links=[], inscription=None,
         media=('video', 'images/projects/genesis.webm', 720, 720), still='images/projects/genesis.webp', extras=[],
@@ -548,6 +575,9 @@ OTHER = [
 # Not a chapter of the story: the section the other works belong to
 OTHER_CHAPTER = dict(key='X', label=('Other works', 'Autres œuvres'), name=None, line=('', ''))
 
+# Works marked side=True still belong to their chapter, but are listed under this heading inside it
+SIDE_QUESTS = ('Side quests', 'Quêtes annexes')
+
 COLLABS = [
     dict(title="Don't Avoid Bright Light",
          line=('Collective work after @TheArtistBTC\'s "Avoid Bright Lights"', 'Œuvre collective autour de « Avoid Bright Lights » de @TheArtistBTC'),
@@ -615,6 +645,7 @@ DATES = {
     'knights-of-the-round-table': (2023, 12),   # first released then; to be re-inscribed on Bitcoin
 }
 for _w in WORKS + OTHER:
+    _w.setdefault('side', False)
     _d = DATES.get(_w['slug'])
     _w['date'] = _d
     _w['year'] = str(_d[0]) if _d else None
