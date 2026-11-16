@@ -110,7 +110,8 @@ a { color: inherit; text-decoration: none; }
 .social a { display: block; width: clamp(2.6rem, 4.2vw, 4rem); }
 .social img { width: 100%; }
 .logo { width: min(80vw, 353px); animation: pop-in .9s var(--bounce) both; }
-.logo:hover { animation: jelly .6s var(--bounce); }
+.logo img { width: 100%; }
+.logo:hover img, .logo:focus-visible img { animation: jelly .6s var(--bounce); }
 .menu { display: flex; gap: clamp(.8rem, 3vw, 2rem); font-size: clamp(1.4rem, 3vw, 2.6rem); }
 .menu a { padding: .1em .3em; display: inline-block; }
 .menu a:hover, .menu a:focus-visible { animation: wobble .5s ease-in-out; }

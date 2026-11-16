@@ -3,6 +3,8 @@
 (function () {
     'use strict';
 
+    console.log('01101001 01101110 01101110 01101111 01100011 01100101 01101110 01100011 01100101');
+
     var doc = document.documentElement;
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var eyes = [];
