@@ -497,6 +497,24 @@ a {
   border-bottom-color: var(--gold);
 }
 
+/* See more: the grid shows its first cards, the rest drop down on demand (only when scripts are on) */
+.work-grid.is-collapsed > .work:nth-child(n + 7) { display: none; }
+.work-grid.is-animating { overflow: hidden; }
+.work.is-arriving { animation: work-arrive 0.55s cubic-bezier(.2, .7, .2, 1) both; animation-delay: var(--arrive-delay, 0s); }
+@keyframes work-arrive {
+  from { opacity: 0; transform: translateY(-14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.see-more-wrap { display: flex; justify-content: center; margin-top: clamp(1.5rem, 3vw, 2.25rem); }
+.see-more-wrap:empty, .see-more[hidden] { display: none; }
+.see-more { cursor: pointer; }
+.see-more-count { opacity: 0.7; letter-spacing: 1px; }
+.see-more-arrow { display: inline-block; transition: transform 0.35s ease; }
+.see-more[aria-expanded="true"] .see-more-arrow { transform: rotate(180deg); }
+@media (max-width: 640px) {
+  .work-grid.is-collapsed > .work:nth-child(n + 5) { display: none; }
+}
+
 .grid-note {
   margin-top: 1.5rem;
   text-align: center;

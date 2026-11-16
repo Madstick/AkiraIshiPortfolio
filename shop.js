@@ -1034,3 +1034,84 @@
         }
     });
 })();
+
+/* ============================================
+   Etsy cards: "See more" drops the rest of the grid down
+   ============================================ */
+(function () {
+    'use strict';
+    const grid = document.getElementById('works');
+    const btn = document.getElementById('works-more');
+    if (!grid || !btn) return;
+    const cards = Array.from(grid.children);
+    const shown = () => (window.matchMedia('(max-width: 640px)').matches ? 4 : 6);
+    if (cards.length <= 4) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const tr = (key, fallback) => (window.AkiraI18n ? window.AkiraI18n.t(key, fallback) : fallback);
+    let open = false;
+
+    function label() {
+        const hidden = Math.max(0, cards.length - shown());
+        btn.hidden = hidden === 0;
+        btn.querySelector('.see-more-label').textContent = open ? tr('shop.see-less', 'See less') : tr('shop.see-more', 'See more');
+        btn.querySelector('.see-more-count').textContent = open ? '' : '+' + hidden;
+        btn.setAttribute('aria-expanded', String(open));
+    }
+
+    // grow or shrink the grid's height between two states, so the cards drop down instead of jumping in.
+    // A new click cancels the running slide; a timer finishes it even if the browser never reports the end.
+    let anim = null;
+    let gen = 0;
+    function slide(from, to, done) {
+        const mine = ++gen;
+        if (reduce || !grid.animate) { done(); return; }
+        grid.classList.add('is-animating');
+        const duration = Math.min(700, 250 + Math.abs(to - from) * 0.35);
+        anim = grid.animate([{ height: from + 'px' }, { height: to + 'px' }], { duration: duration, easing: 'cubic-bezier(.2,.7,.2,1)' });
+        let ended = false;
+        const end = () => {
+            if (ended || mine !== gen) return;
+            ended = true;
+            anim = null;
+            grid.classList.remove('is-animating');
+            done();
+        };
+        anim.onfinish = end;
+        setTimeout(end, duration + 120);
+    }
+
+    btn.addEventListener('click', () => {
+        gen++;                                   // whatever was sliding is now stale
+        if (anim) { anim.cancel(); anim = null; }
+        grid.classList.remove('is-animating');
+        const before = grid.offsetHeight;
+        if (!open) {
+            open = true;
+            grid.classList.remove('is-collapsed');
+            const after = grid.offsetHeight;
+            cards.slice(shown()).forEach((c, i) => {
+                c.style.setProperty('--arrive-delay', (i * 0.06).toFixed(2) + 's');
+                c.classList.add('is-arriving');
+                c.addEventListener('animationend', () => c.classList.remove('is-arriving'), { once: true });
+            });
+            slide(before, after, () => {});
+        } else {
+            open = false;
+            grid.classList.add('is-collapsed');
+            const after = grid.offsetHeight;
+            grid.classList.remove('is-collapsed');
+            slide(before, after, () => {
+                grid.classList.add('is-collapsed');
+                // keep the button where the eye is: if the grid's top went off screen, bring it back
+                const top = grid.getBoundingClientRect().top;
+                if (top < 0) grid.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+            });
+        }
+        label();
+    });
+
+    grid.classList.add('is-collapsed');
+    label();
+    document.addEventListener('akira:langchange', label);
+    window.matchMedia('(max-width: 640px)').addEventListener('change', label);
+})();
